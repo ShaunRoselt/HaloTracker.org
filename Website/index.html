@@ -53,10 +53,21 @@
           <input id="player-id" name="player" type="search" required maxlength="160"
             placeholder="Steam ID or Xbox Gamertag" autocomplete="off" autocorrect="off"
             autocapitalize="none" spellcheck="false" enterkeyhint="search">
-          <button class="player-lookup-submit" type="submit" id="player-submit" aria-label="Search">
-            <img src="assets/search.svg" alt="" width="14" height="14">
-          </button>
+          <button class="button primary-button" type="submit" id="player-submit">Search</button>
         </form>
+
+        <div class="player-profile" id="player-profile" hidden>
+          <button class="player-profile-trigger" type="button" id="player-profile-trigger"
+            popovertarget="player-profile-menu">
+            <span class="player-profile-initial" aria-hidden="true" id="player-profile-initial"></span>
+            <bdi class="player-profile-name" id="player-profile-name"></bdi>
+            <img src="assets/chevron-down.svg" alt="" width="16" height="16">
+          </button>
+          <div class="player-profile-menu" id="player-profile-menu" popover="auto">
+            <div id="player-profile-links"></div>
+            <button id="player-sign-out" type="button">Sign Out</button>
+          </div>
+        </div>
       </header>
 
       <div class="sidebar" id="primary-navigation">

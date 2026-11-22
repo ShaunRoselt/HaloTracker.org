@@ -141,7 +141,11 @@ export function parseSteamAchievements(xml, appId, requestedPath) {
     if (name) achievements.push({ name, unlocked: closed === '1' });
   }
   if (achievements.length === 0) throw missingData();
-  return { player: xmlText(player, 'customURL') || id, achievements };
+  return {
+    player: xmlText(player, 'customURL') || id,
+    profileUrl: `https://steamcommunity.com/profiles/${id}/`,
+    achievements,
+  };
 }
 
 async function steamAchievements(player, appId, signal) {
@@ -209,7 +213,7 @@ async function xboxAchievements(player, titleId, apiKey, signal) {
       .some((tag) => typeof tag === 'string' && tag.normalize('NFC').toLowerCase() === identity)
   ));
   if (matches.length !== 1) throw new LookupError('gamertag-not-found', 404);
-  const { xuid, gamertag: name } = matches[0];
+  const { xuid, gamertag: name, uniqueModernGamertag } = matches[0];
   if (typeof xuid !== 'string' || !xboxUserId.test(xuid) || typeof name !== 'string') throw unavailable();
   if (xuid === serviceId) throw new LookupError('private-achievements', 403);
 
@@ -226,7 +230,11 @@ async function xboxAchievements(player, titleId, apiKey, signal) {
     return [{ name, unlocked: progressState === 'Achieved' }];
   });
   if (achievements.length === 0) throw missingData();
-  return { player: name, achievements };
+  return {
+    player: name,
+    profileUrl: `https://www.xbox.com/en-US/play/user/${encodeURIComponent(uniqueModernGamertag || name)}`,
+    achievements,
+  };
 }
 
 function json(value, status = 200, retryAfter = null) {

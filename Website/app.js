@@ -195,6 +195,8 @@ const elements = {
   mainContent: document.querySelector('#main-content'),
   playerLookup: document.querySelector('#player-lookup'),
   playerId: document.querySelector('#player-id'),
+  playerProfile: document.querySelector('#player-profile'),
+  playerProfileMenu: document.querySelector('#player-profile-menu'),
   menuToggle: document.querySelector('#menu-toggle'),
   routeView: document.querySelector('#route-view'),
   sidebar: document.querySelector('#primary-navigation'),
@@ -330,11 +332,32 @@ const showToast = (message) => {
 const pageDescription = document.querySelector('meta[name="description"]');
 const englishPageDescription = pageDescription.content;
 
+const updatePlayerHeader = () => {
+  const accounts = [...(state.player?.accounts.values() ?? [])];
+  const account = accounts[0];
+  elements.playerLookup.hidden = Boolean(account);
+  elements.playerProfile.hidden = !account;
+  if (!account) return;
+
+  document.querySelector('#player-profile-trigger').setAttribute('aria-label',
+    t('Profile for {player}', { player: account.player }));
+  document.querySelector('#player-profile-name').textContent = account.player;
+  document.querySelector('#player-profile-initial').textContent = Array.from(account.player)[0].toLocaleUpperCase();
+  document.querySelector('#player-sign-out').textContent = t('Sign Out');
+
+  const links = accounts.map(({ platform, profileUrl }) => createElement('a', {
+    text: accounts.length === 1 ? t('Profile') : t('{platform} Profile', { platform: PLATFORM_NAMES[platform] }),
+    attributes: { href: profileUrl, target: '_blank', rel: 'noopener noreferrer' },
+  }));
+  document.querySelector('#player-profile-links').replaceChildren(...links);
+};
+
 const localizeShell = () => {
   const playerLabel = t('Steam ID or Xbox Gamertag');
   document.querySelector('#player-id-label').textContent = playerLabel;
   elements.playerId.placeholder = playerLabel;
-  document.querySelector('#player-submit').setAttribute('aria-label', t('Search'));
+  document.querySelector('#player-submit').textContent = t('Search');
+  updatePlayerHeader();
   document.querySelector('.skip-link').textContent = t('Skip to content');
   document.querySelector('.navigation').setAttribute('aria-label', t('Primary'));
   document.querySelector('[data-page="search"] span').textContent = t('Home');
@@ -617,11 +640,6 @@ const renderAchievements = (game) => {
     className: 'player-progress-status',
     attributes: { role: 'status' },
   });
-  const clearPlayer = createElement('button', {
-    className: 'button secondary-button',
-    text: t('Clear player'),
-    attributes: { type: 'button' },
-  });
   const unlockFilter = createElement('select', {
     attributes: { id: 'achievement-unlock-filter', 'aria-label': t('Filter by unlock status') },
   });
@@ -634,18 +652,10 @@ const renderAchievements = (game) => {
     unlockFilter.hidden = true;
     playerInfo.append(playerStatus);
     const playerActions = createElement('div', { className: 'player-progress-actions' });
-    playerActions.append(unlockFilter, clearPlayer);
+    playerActions.append(unlockFilter);
     const playerPanel = createElement('div', { className: 'player-progress' });
     playerPanel.append(playerInfo, playerActions);
     summary.append(playerPanel);
-
-    clearPlayer.addEventListener('click', () => {
-      player.controller.abort();
-      state.player = null;
-      elements.playerId.value = '';
-      renderRoute();
-      elements.playerId.focus({ preventScroll: true });
-    });
   }
   let playerProgress = [];
 
@@ -730,8 +740,15 @@ const renderAchievements = (game) => {
 
   if (player) {
     void progressForGame(player, config.collection).then((result) => {
-      if (state.player !== player || !playerInfo.isConnected) return;
+      if (state.player !== player) return;
       const reports = Array.isArray(result?.results) ? result.results : [result];
+      for (const report of reports) {
+        if (report?.player && report.profileUrl && !player.accounts.has(report.platform)) {
+          player.accounts.set(report.platform, report);
+          updatePlayerHeader();
+        }
+      }
+      if (!playerInfo.isConnected) return;
       playerProgress = reports.flatMap((report) => {
         if (!Array.isArray(report?.achievements)) return [];
         const unlocks = matchUnlocks(achievements, report.achievements);
@@ -1306,7 +1323,7 @@ elements.playerLookup.addEventListener('submit', (event) => {
   }
 
   state.player?.controller.abort();
-  state.player = { id, games: new Map(), controller: new AbortController() };
+  state.player = { id, accounts: new Map(), games: new Map(), controller: new AbortController() };
 
   const route = getRoute();
   const game = route.page === 'achievements' && GAME_CONFIG.has(route.game) ? route.game : 'halomcc';
@@ -1318,6 +1335,16 @@ elements.playerLookup.addEventListener('submit', (event) => {
     window.history.pushState(null, '', url);
   }
   renderRoute({ focus: true });
+});
+
+document.querySelector('#player-sign-out').addEventListener('click', () => {
+  elements.playerProfileMenu.hidePopover();
+  state.player?.controller.abort();
+  state.player = null;
+  elements.playerId.value = '';
+  updatePlayerHeader();
+  renderRoute();
+  elements.playerId.focus({ preventScroll: true });
 });
 
 const header = document.querySelector('.app-header');
@@ -1333,6 +1360,5 @@ try {
   showToast(t('Unable to load the selected language.'));
 }
 localizeShell();
-elements.playerLookup.hidden = false;
 updateHeaderOffset();
 renderRoute();

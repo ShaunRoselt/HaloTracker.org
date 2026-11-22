@@ -515,42 +515,93 @@
   }
 
   .player-lookup {
-    position: relative;
-    width: min(100%, 22rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    width: min(100%, 26rem);
     min-width: 0;
     margin-inline-start: auto;
   }
 
-  .player-lookup input {
-    background-image: none;
+  .player-lookup button {
+    min-height: 44px;
   }
 
-  .player-lookup-submit {
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 0;
-    display: grid;
-    width: 2.1rem;
-    padding-inline: 0.75rem 0;
-    place-items: center start;
+  .player-profile {
+    max-width: min(15rem, 36vw);
+    margin-inline-start: auto;
+  }
+
+  .player-profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 0.375rem 0.625rem;
+    border: 1px solid var(--color-text-muted);
     border-radius: var(--radius-small);
-    background: transparent;
+    background: #10161d;
     cursor: pointer;
   }
 
-  .player-progress-actions :is(select, button) {
-    min-height: 44px;
-    padding: 0.4rem 0.75rem;
+  .player-profile-trigger:hover,
+  .player-profile:has(:popover-open) .player-profile-trigger {
+    border-color: var(--color-focus);
   }
 
-  .player-progress-actions select {
-    min-width: 0;
-    max-width: 100%;
+  .player-profile-initial {
+    display: grid;
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 700;
+    place-items: center;
+  }
+
+  .player-profile-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .player-profile-trigger img {
+    flex: none;
+  }
+
+  .player-profile-menu {
+    inset: auto;
+    inset-block-start: var(--header-offset);
+    inset-inline-end: 13px;
+    width: min(12rem, calc(100% - 26px));
+    margin: 0;
+    padding: 0.25rem;
     border: 1px solid var(--color-text-muted);
     border-radius: var(--radius-small);
     background: #10161d;
     color: var(--color-text);
-    color-scheme: dark;
+  }
+
+  .player-profile-menu :is(a, button) {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--radius-small);
+    background: transparent;
+    color: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .player-profile-menu :is(a, button):hover {
+    background: var(--color-surface-strong);
   }
 
   .player-progress {
@@ -581,10 +632,8 @@
   }
 
   .player-progress-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
+    --select-width: 100%;
+    width: min(14rem, 100%);
   }
 
   .achievement-summary:has(.player-progress) {
@@ -922,7 +971,7 @@
     --select-width: 220px;
   }
 
-  :is(.settings-card, .achievement-sort) select {
+  :is(.settings-card, .achievement-sort, .player-progress-actions) select {
     appearance: none;
     width: var(--select-width, 175px);
     min-height: 48px;
@@ -936,41 +985,41 @@
     cursor: pointer;
   }
 
-  .achievement-sort select:dir(rtl) {
+  :is(.achievement-sort, .player-progress-actions) select:dir(rtl) {
     padding-inline: 0.75rem 2.5rem;
     background-position: left 0.75rem center;
   }
 
-  :is(.settings-card, .achievement-sort) select:hover {
+  :is(.settings-card, .achievement-sort, .player-progress-actions) select:hover {
     border-color: var(--color-focus);
   }
 
   @supports (appearance: base-select) and selector(::picker(select)) {
     @media (forced-colors: none) {
-      :is(.settings-card, .achievement-sort) select,
-      :is(.settings-card, .achievement-sort) select::picker(select) {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select,
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select::picker(select) {
         appearance: base-select;
       }
 
-      :is(.settings-card, .achievement-sort) select,
-      .achievement-sort select:dir(rtl) {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select,
+      :is(.achievement-sort, .player-progress-actions) select:dir(rtl) {
         align-items: center;
         padding-inline: 0.75rem;
         background-image: none;
       }
 
-      :is(.settings-card, .achievement-sort) select::picker-icon {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select::picker-icon {
         width: 1rem;
         height: 1rem;
         background: url("assets/chevron-down.svg") center / contain no-repeat;
         content: "";
       }
 
-      :is(.settings-card, .achievement-sort) select:open {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select:open {
         border-color: var(--color-focus);
       }
 
-      :is(.settings-card, .achievement-sort) select::picker(select) {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select::picker(select) {
         margin-block-start: 0.375rem;
         padding: 0.25rem;
         border: 1px solid var(--color-text-muted);
@@ -979,7 +1028,7 @@
         color: var(--color-text);
       }
 
-      :is(.settings-card, .achievement-sort) select option {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select option {
         min-height: 2.75rem;
         align-items: center;
         padding: 0.5rem 0.625rem;
@@ -987,15 +1036,15 @@
         cursor: pointer;
       }
 
-      :is(.settings-card, .achievement-sort) select option:checked {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select option:checked {
         background: var(--color-surface-strong);
       }
 
-      :is(.settings-card, .achievement-sort) select option:is(:hover, :focus-visible) {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select option:is(:hover, :focus-visible) {
         background: var(--color-accent-strong);
       }
 
-      :is(.settings-card, .achievement-sort) select option::checkmark {
+      :is(.settings-card, .achievement-sort, .player-progress-actions) select option::checkmark {
         order: 1;
         margin-inline-start: auto;
         color: var(--color-focus);
@@ -1004,7 +1053,7 @@
   }
 
   @media (forced-colors: active) {
-    :is(.settings-card, .achievement-sort) select {
+    :is(.settings-card, .achievement-sort, .player-progress-actions) select {
       appearance: auto;
       padding-inline-end: 0.75rem;
       background-image: none;
