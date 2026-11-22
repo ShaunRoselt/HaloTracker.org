@@ -564,6 +564,19 @@
     place-items: center;
   }
 
+  .player-profile-avatar {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .menu-item-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex: none;
+  }
+
   .player-profile-name {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -588,7 +601,9 @@
   }
 
   .player-profile-menu :is(a, button) {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
     width: 100%;
     min-height: 44px;
     padding: 0.625rem 0.75rem;
@@ -1034,6 +1049,18 @@
         padding: 0.5rem 0.625rem;
         border-radius: var(--radius-small);
         cursor: pointer;
+      }
+
+      #achievement-unlock-filter option {
+        gap: 0.5rem;
+      }
+
+      @supports (position-area: block-end) {
+        :is(.achievement-sort, .player-progress-actions) select::picker(select) {
+          position-area: block-end span-inline-end;
+          position-try-order: normal;
+          position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+        }
       }
 
       :is(.settings-card, .achievement-sort, .player-progress-actions) select option:checked {

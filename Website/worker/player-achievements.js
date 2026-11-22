@@ -148,6 +148,40 @@ export function parseSteamAchievements(xml, appId, requestedPath) {
   };
 }
 
+function avatarFrom(value, allowedHosts) {
+  try {
+    const url = new URL(value);
+    if (url.protocol === 'https:' && allowedHosts.includes(url.host) && !url.username && !url.password) {
+      return url.href;
+    }
+  } catch {
+    // A missing or invalid image uses the initials in the header.
+  }
+  return null;
+}
+
+async function steamAvatar(profileUrl) {
+  try {
+    const response = await fetch(profileUrl + '?xml=1', {
+      headers: { Accept: 'application/xml' },
+      redirect: 'manual',
+      signal: AbortSignal.timeout(2_500),
+    });
+    if (response.ok) {
+      const xml = await readLimited(response, 128_000);
+      if (xmlText(xml, 'steamID64') === new URL(profileUrl).pathname.split('/')[2]) {
+        return avatarFrom(xmlText(xml, 'avatarIcon'), [
+          'avatars.fastly.steamstatic.com', 'avatars.akamai.steamstatic.com',
+          'avatars.cloudflare.steamstatic.com', 'steamcdn-a.akamaihd.net',
+        ]);
+      }
+    }
+  } catch {
+    // Achievement results remain usable if Steam's separate avatar request fails.
+  }
+  return null;
+}
+
 async function steamAchievements(player, appId, signal) {
   const profile = steamProfilePath(player);
   const url = new URL(`${profile}/stats/${appId}/achievements/`, 'https://steamcommunity.com');
@@ -161,7 +195,9 @@ async function steamAchievements(player, appId, signal) {
     throw new LookupError('rate-limited', 429, response.headers.get('Retry-After'));
   }
   if (!response.ok) throw unavailable();
-  return parseSteamAchievements(await readLimited(response, 2_000_000), appId, profile);
+  const progress = parseSteamAchievements(await readLimited(response, 2_000_000), appId, profile);
+  const avatarUrl = await steamAvatar(progress.profileUrl);
+  return { ...progress, avatarUrl };
 }
 
 async function xboxRequest(path, apiKey, signal) {
@@ -213,7 +249,7 @@ async function xboxAchievements(player, titleId, apiKey, signal) {
       .some((tag) => typeof tag === 'string' && tag.normalize('NFC').toLowerCase() === identity)
   ));
   if (matches.length !== 1) throw new LookupError('gamertag-not-found', 404);
-  const { xuid, gamertag: name, uniqueModernGamertag } = matches[0];
+  const { xuid, gamertag: name, uniqueModernGamertag, displayPicRaw } = matches[0];
   if (typeof xuid !== 'string' || !xboxUserId.test(xuid) || typeof name !== 'string') throw unavailable();
   if (xuid === serviceId) throw new LookupError('private-achievements', 403);
 
@@ -233,6 +269,7 @@ async function xboxAchievements(player, titleId, apiKey, signal) {
   return {
     player: name,
     profileUrl: `https://www.xbox.com/en-US/play/user/${encodeURIComponent(uniqueModernGamertag || name)}`,
+    avatarUrl: avatarFrom(displayPicRaw, ['images-eds-ssl.xboxlive.com', 'images-eds.xboxlive.com']),
     achievements,
   };
 }

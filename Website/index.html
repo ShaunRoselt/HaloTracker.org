@@ -59,13 +59,17 @@
         <div class="player-profile" id="player-profile" hidden>
           <button class="player-profile-trigger" type="button" id="player-profile-trigger"
             popovertarget="player-profile-menu">
+            <img class="player-profile-avatar" id="player-profile-avatar" alt="" width="28" height="28" referrerpolicy="no-referrer" hidden>
             <span class="player-profile-initial" aria-hidden="true" id="player-profile-initial"></span>
             <bdi class="player-profile-name" id="player-profile-name"></bdi>
             <img src="assets/chevron-down.svg" alt="" width="16" height="16">
           </button>
           <div class="player-profile-menu" id="player-profile-menu" popover="auto">
             <div id="player-profile-links"></div>
-            <button id="player-sign-out" type="button">Sign Out</button>
+            <button id="player-sign-out" type="button">
+              <img class="menu-item-icon" src="assets/sign-out.svg" alt="" width="18" height="18">
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
       </header>

@@ -196,6 +196,8 @@ const elements = {
   playerLookup: document.querySelector('#player-lookup'),
   playerId: document.querySelector('#player-id'),
   playerProfile: document.querySelector('#player-profile'),
+  playerAvatar: document.querySelector('#player-profile-avatar'),
+  playerInitial: document.querySelector('#player-profile-initial'),
   playerProfileMenu: document.querySelector('#player-profile-menu'),
   menuToggle: document.querySelector('#menu-toggle'),
   routeView: document.querySelector('#route-view'),
@@ -332,23 +334,38 @@ const showToast = (message) => {
 const pageDescription = document.querySelector('meta[name="description"]');
 const englishPageDescription = pageDescription.content;
 
+const menuItemIcon = (icon) => createElement('img', {
+  className: 'menu-item-icon',
+  attributes: { src: `assets/${icon}.svg`, alt: '', width: 18, height: 18 },
+});
+
 const updatePlayerHeader = () => {
   const accounts = [...(state.player?.accounts.values() ?? [])];
   const account = accounts[0];
   elements.playerLookup.hidden = Boolean(account);
   elements.playerProfile.hidden = !account;
+  const avatarUrl = account?.avatarUrl ?? null;
+  if (elements.playerAvatar.getAttribute('src') !== avatarUrl) {
+    elements.playerAvatar.hidden = true;
+    elements.playerInitial.hidden = false;
+    if (avatarUrl) elements.playerAvatar.src = avatarUrl;
+    else elements.playerAvatar.removeAttribute('src');
+  }
   if (!account) return;
 
   document.querySelector('#player-profile-trigger').setAttribute('aria-label',
     t('Profile for {player}', { player: account.player }));
   document.querySelector('#player-profile-name').textContent = account.player;
-  document.querySelector('#player-profile-initial').textContent = Array.from(account.player)[0].toLocaleUpperCase();
-  document.querySelector('#player-sign-out').textContent = t('Sign Out');
+  elements.playerInitial.textContent = Array.from(account.player)[0].toLocaleUpperCase();
+  document.querySelector('#player-sign-out span').textContent = t('Sign Out');
 
-  const links = accounts.map(({ platform, profileUrl }) => createElement('a', {
-    text: accounts.length === 1 ? t('Profile') : t('{platform} Profile', { platform: PLATFORM_NAMES[platform] }),
-    attributes: { href: profileUrl, target: '_blank', rel: 'noopener noreferrer' },
-  }));
+  const links = accounts.map(({ platform, profileUrl }) => {
+    const link = createElement('a', { attributes: { href: profileUrl, target: '_blank', rel: 'noopener noreferrer' } });
+    link.append(menuItemIcon('person'), accounts.length === 1
+      ? t('Profile')
+      : t('{platform} Profile', { platform: PLATFORM_NAMES[platform] }));
+    return link;
+  });
   document.querySelector('#player-profile-links').replaceChildren(...links);
 };
 
@@ -643,8 +660,12 @@ const renderAchievements = (game) => {
   const unlockFilter = createElement('select', {
     attributes: { id: 'achievement-unlock-filter', 'aria-label': t('Filter by unlock status') },
   });
-  for (const [value, label] of [['all', 'All statuses'], ['unlocked', 'Unlocked'], ['locked', 'Locked']]) {
-    unlockFilter.append(createElement('option', { text: t(label), attributes: { value } }));
+  for (const [value, label, icon] of [
+    ['all', 'All statuses', 'list'], ['unlocked', 'Unlocked', 'unlock'], ['locked', 'Locked', 'lock'],
+  ]) {
+    const option = createElement('option', { attributes: { value } });
+    option.append(menuItemIcon(icon), t(label));
+    unlockFilter.append(option);
   }
 
   if (player) {
@@ -1335,6 +1356,11 @@ elements.playerLookup.addEventListener('submit', (event) => {
     window.history.pushState(null, '', url);
   }
   renderRoute({ focus: true });
+});
+
+elements.playerAvatar.addEventListener('load', () => {
+  elements.playerAvatar.hidden = false;
+  elements.playerInitial.hidden = true;
 });
 
 document.querySelector('#player-sign-out').addEventListener('click', () => {
