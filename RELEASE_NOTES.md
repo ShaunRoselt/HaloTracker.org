@@ -118,6 +118,8 @@ This is the first version of the website. The first version is quite basic and b
 - Improved the Achievement Guide scrollbar to match the dark dialog
 
 ## Version 1.3.0 (2026/11/23)
+![Halo 5 achievements with official artwork, search, and sorting in Halo Achievement Tracker 1.3.0](Website/assets/release-notes/v1-3-0-halo-5.webp)
+
 - Added Achievement Search to each game
 - Added Achievement Sorting by unlock rate and name
 - Added 72 display languages alongside English, with partial translation coverage
