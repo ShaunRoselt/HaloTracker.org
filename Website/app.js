@@ -161,6 +161,7 @@ const achievementById = new Map(
 
 const state = {
   filtersByGame: new Map(),
+  searchByGame: new Map(),
   achievementSort: 'unlock-desc',
   sidebarOpen: false,
   renderedRoute: null,
@@ -438,7 +439,14 @@ const createAchievementCard = (achievement, index) => {
   return card;
 };
 
-const renderAchievementCards = ({ achievements, activeFilters, count, list }) => {
+const normalizeSearch = (value) => value
+  .normalize('NFD')
+  .replace(/\p{Mark}|['’]/gu, '')
+  .toLowerCase()
+  .replace(/[^\p{Letter}\p{Number}]+/gu, ' ')
+  .trim();
+
+const renderAchievementCards = ({ achievements, activeFilters, searching, count, list }) => {
   const filteredAchievements = achievements.filter(({ filters }) => (
     filters.some((filter) => activeFilters.has(filter))
   ));
@@ -454,7 +462,7 @@ const renderAchievementCards = ({ achievements, activeFilters, count, list }) =>
   if (filteredAchievements.length === 0) {
     fragment.append(createElement('p', {
       className: 'empty-state surface',
-      text: t('No achievements match the selected filters.'),
+      text: t(searching ? 'No achievements match your search and filters.' : 'No achievements match the selected filters.'),
     }));
   }
 
@@ -502,8 +510,26 @@ const renderAchievements = (game) => {
     },
   });
 
+  const search = createElement('div', { className: 'achievement-search' });
+  const searchLabel = createElement('label', {
+    className: 'achievement-search-label',
+    text: t('Search achievements'),
+    attributes: { for: 'achievement-search' },
+  });
+  const searchInput = createElement('input', {
+    attributes: {
+      id: 'achievement-search',
+      type: 'search',
+      placeholder: t('Search achievements'),
+      autocomplete: 'off',
+      'aria-controls': 'achievement-list',
+    },
+  });
+  searchInput.value = state.searchByGame.get(game) ?? '';
+  search.append(searchLabel, searchInput);
+
   heroText.append(title);
-  heroOverlay.append(gameIcon, heroText);
+  heroOverlay.append(gameIcon, heroText, search);
   hero.append(heroOverlay);
 
   const summary = createElement('section', {
@@ -562,13 +588,40 @@ const renderAchievements = (game) => {
     className: 'achievement-sort-status',
     attributes: { role: 'status' },
   });
-  const renderResults = () => renderAchievementCards({
-    achievements: sortAchievements(achievements, state.achievementSort),
-    activeFilters,
-    count,
-    list,
-  });
+  const searchableText = new Map(achievements.map((achievement) => [
+    achievement,
+    normalizeSearch(`${achievement.name} ${achievement.description} ${achievementText(achievement, 'description')}`),
+  ]));
+  let searchValue = searchInput.value;
+  const renderResults = () => {
+    const query = normalizeSearch(searchValue);
+    const terms = query ? query.split(' ') : [];
+    const matches = terms.length
+      ? achievements.filter((achievement) => terms.every((term) => searchableText.get(achievement).includes(term)))
+      : achievements;
+    return renderAchievementCards({
+      achievements: sortAchievements(matches, state.achievementSort),
+      activeFilters,
+      searching: terms.length > 0,
+      count,
+      list,
+    });
+  };
   let cards = renderResults();
+
+  const updateSearch = () => {
+    if (searchValue !== searchInput.value) {
+      searchValue = searchInput.value;
+      state.searchByGame.set(game, searchValue);
+      cards = renderResults();
+    }
+  };
+  searchInput.addEventListener('input', (event) => {
+    if (!event.isComposing) {
+      updateSearch();
+    }
+  });
+  searchInput.addEventListener('compositionend', updateSearch);
 
   sortSelect.addEventListener('change', () => {
     const sort = sortSelect.value;

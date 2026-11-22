@@ -28,6 +28,11 @@ export const ui = {
   'Least unlocked': ['Minste ontsluit', 'Okuvulwe kancane'],
   'Name (A–Z)': ['Naam (A–Z)', 'Igama (A–Z)'],
   'Name (Z–A)': ['Naam (Z–A)', 'Igama (Z–A)'],
+  'Search achievements': ['Soek prestasies', 'Sesha izimpumelelo'],
+  'No achievements match your search and filters.': [
+    'Geen prestasies pas by jou soektog en filters nie.',
+    'Azikho izimpumelelo ezihambisana nosesho nezihlungi zakho.',
+  ],
   'Sort by': ['Sorteer volgens', 'Hlela ngokwe'],
   'Achievement count': ['Getal prestasies', 'Inani lezimpumelelo'],
   'Filter achievements': ['Filter prestasies', 'Hlunga izimpumelelo'],
