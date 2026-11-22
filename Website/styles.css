@@ -162,10 +162,11 @@
   .sidebar {
     position: fixed;
     z-index: 40;
-    inset: calc(var(--header-height) + 1px) auto 0 0;
+    inset-block: calc(var(--header-height) + 1px) 0;
+    inset-inline-start: 0;
     width: var(--sidebar-width);
     overflow-y: auto;
-    border-right: 0;
+    border-inline-end: 0;
     background: rgb(0 0 0 / 70%);
     scrollbar-color: rgb(255 255 255 / 25%) transparent;
     backdrop-filter: blur(8px);
@@ -192,7 +193,7 @@
 
   .main-content {
     height: 100dvh;
-    margin-left: var(--sidebar-width);
+    margin-inline-start: var(--sidebar-width);
     overflow-x: hidden;
     overflow-y: auto;
     padding: calc(var(--header-height) + 21px) 20px 19px;
@@ -241,7 +242,7 @@
     place-content: center;
     width: 2.75rem;
     height: 2.75rem;
-    margin-right: 0.65rem;
+    margin-inline-end: 0.65rem;
     border-radius: var(--radius-small);
     background: transparent;
   }
@@ -267,7 +268,7 @@
     font-size: 21.3333px;
     font-weight: 400;
     line-height: normal;
-    text-align: left;
+    text-align: start;
     text-decoration: none;
     transition:
       background-color var(--transition-fast),
@@ -306,7 +307,7 @@
     min-height: 40px;
     margin-top: 5px;
     padding-block: 0;
-    padding-left: 35px;
+    padding-inline-start: 35px;
   }
 
   .game-navigation li {
@@ -485,6 +486,11 @@
     color: var(--color-text);
   }
 
+  .achievement-search input:dir(rtl) {
+    padding-inline: 2.25rem 0.75rem;
+    background-position: right 0.75rem center;
+  }
+
   .achievement-search input::placeholder {
     color: var(--color-text-muted);
   }
@@ -546,7 +552,7 @@
   .filter-options {
     display: grid;
     gap: 4px;
-    margin-left: 24px;
+    margin-inline-start: 24px;
   }
 
   .filter-option {
@@ -597,6 +603,11 @@
     line-height: 25px;
   }
 
+  .achievement-name,
+  .achievement-description {
+    text-align: match-parent;
+  }
+
   .achievement-list {
     display: grid;
     gap: 10px;
@@ -614,7 +625,7 @@
     border-radius: 5px;
     background: rgb(25 29 36);
     color: var(--color-text);
-    text-align: left;
+    text-align: start;
     box-shadow: none;
     content-visibility: auto;
     contain-intrinsic-size: auto 100px;
@@ -721,7 +732,7 @@
   .page-heading-icon {
     position: absolute;
     top: 6px;
-    left: 6px;
+    inset-inline-start: 6px;
     width: 43px;
     height: 43px;
   }
@@ -729,7 +740,7 @@
   .page-heading h1 {
     position: absolute;
     top: 0;
-    left: 55px;
+    inset-inline-start: 55px;
     display: flex;
     align-items: center;
     width: calc(100% - 55px);
@@ -817,6 +828,10 @@
     overflow-wrap: anywhere;
   }
 
+  #display-language {
+    --select-width: 220px;
+  }
+
   :is(.settings-card, .achievement-sort) select {
     appearance: none;
     width: var(--select-width, 175px);
@@ -831,6 +846,11 @@
     cursor: pointer;
   }
 
+  .achievement-sort select:dir(rtl) {
+    padding-inline: 0.75rem 2.5rem;
+    background-position: left 0.75rem center;
+  }
+
   :is(.settings-card, .achievement-sort) select:hover {
     border-color: var(--color-focus);
   }
@@ -842,7 +862,8 @@
         appearance: base-select;
       }
 
-      :is(.settings-card, .achievement-sort) select {
+      :is(.settings-card, .achievement-sort) select,
+      .achievement-sort select:dir(rtl) {
         align-items: center;
         padding-inline: 0.75rem;
         background-image: none;
@@ -981,7 +1002,7 @@
   .useful-links-icon {
     position: absolute;
     top: 18px;
-    left: 13px;
+    inset-inline-start: 13px;
     width: 40px;
     height: 40px;
   }
@@ -989,7 +1010,7 @@
   .useful-links h2 {
     position: absolute;
     top: 13px;
-    left: 66px;
+    inset-inline-start: 66px;
     width: calc(100% - 66px);
     height: 50px;
     margin: 0;
@@ -1021,7 +1042,7 @@
     color: white;
     font-size: 14.6667px;
     line-height: normal;
-    text-align: left;
+    text-align: start;
     text-decoration: none;
     transition:
       border-color var(--transition-fast),
@@ -1095,11 +1116,12 @@
     position: sticky;
     z-index: 2;
     top: 0.8rem;
-    float: right;
+    float: inline-end;
     display: grid;
     width: 2.5rem;
     height: 2.5rem;
-    margin: 0.8rem 0.8rem -3.3rem 0;
+    margin-block: 0.8rem -3.3rem;
+    margin-inline-end: 0.8rem;
     border: 1px solid var(--color-border);
     border-radius: 50%;
     background: rgb(5 8 10 / 88%);
@@ -1122,7 +1144,7 @@
     grid-template-columns: 6rem minmax(0, 1fr);
     gap: 1.25rem;
     align-items: center;
-    padding-right: 2.5rem;
+    padding-inline-end: 2.5rem;
   }
 
   .guide-image {
@@ -1240,6 +1262,10 @@
       transform: translateX(-105%);
     }
 
+    .sidebar:dir(rtl):not(.is-open) {
+      transform: translateX(105%);
+    }
+
     .sidebar.is-open {
       transform: translateX(0);
     }
@@ -1267,7 +1293,7 @@
     .main-content {
       height: auto;
       min-height: 100dvh;
-      margin-left: 0;
+      margin-inline-start: 0;
       overflow: visible;
       padding: calc(var(--header-height) + 21px) 20px 20px;
     }
@@ -1303,7 +1329,7 @@
     }
 
     .filter-options {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
   }
 

@@ -2,7 +2,8 @@
 
 import { ACHIEVEMENTS } from './achievements.js';
 import {
-  achievementText, compareNames, currentLanguage, formatAchievementCount, formatPercent,
+  achievementText, achievementTextLocale, compareNames, currentLanguage,
+  formatAchievementCount, formatPercent,
   LANGUAGES, savedLanguage, setLanguage, t, translateReleaseNotes,
 } from './i18n.js';
 
@@ -410,11 +411,12 @@ const createAchievementCard = (achievement, index) => {
   const heading = createElement('h3', {
     className: 'achievement-name',
     text: achievement.name,
-    attributes: { lang: 'en' },
+    attributes: { lang: 'en', dir: 'auto' },
   });
   const description = createElement('p', {
     className: 'achievement-description',
     text: achievementText(achievement, 'description'),
+    attributes: { lang: achievementTextLocale(achievement, 'description'), dir: 'auto' },
   });
   const metadata = createElement('div', { className: 'achievement-metadata' });
   const percentage = createElement('span', {
@@ -706,11 +708,12 @@ const openGuide = (achievement) => {
   });
   const title = createElement('h2', {
     text: achievement.name,
-    attributes: { id: 'guide-title', lang: 'en' },
+    attributes: { id: 'guide-title', lang: 'en', dir: 'auto' },
   });
   const description = createElement('p', {
     className: 'guide-summary',
     text: achievementText(achievement, 'description'),
+    attributes: { lang: achievementTextLocale(achievement, 'description'), dir: 'auto' },
   });
   headingGroup.append(eyebrow, title, description);
   header.append(image, headingGroup);
@@ -728,6 +731,7 @@ const openGuide = (achievement) => {
     const guideText = createElement('p', {
       className: 'guide-description',
       text: achievementText(achievement, 'guideDescription'),
+      attributes: { lang: achievementTextLocale(achievement, 'guideDescription'), dir: 'auto' },
     });
     guideSection.append(guideTitle, guideText);
     article.append(guideSection);
@@ -857,12 +861,13 @@ const renderSettings = () => {
   const languageSelect = createElement('select', {
     attributes: {
       id: 'display-language',
+      dir: 'ltr',
       'aria-describedby': 'language-description',
       'aria-label': t('Display language'),
     },
   });
   for (const [code, label] of Object.entries(LANGUAGES)) {
-    languageSelect.append(createElement('option', { text: label, attributes: { value: code, lang: code } }));
+    languageSelect.append(createElement('option', { text: label, attributes: { value: code, lang: 'en', dir: 'ltr' } }));
   }
   languageSelect.value = currentLanguage();
   languageSelect.addEventListener('change', async () => {

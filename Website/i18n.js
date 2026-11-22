@@ -1,14 +1,13 @@
 import { ui } from './locales/ui.js';
+import { LANGUAGES } from './locales/languages.js';
 
-export const LANGUAGES = {
-  en: 'English',
-  af: 'Afrikaans',
-  zu: 'isiZulu',
-};
+export { LANGUAGES };
 
+const rightToLeft = new Set(['prs', 'fa', 'he', 'pa-Arab', 'sd', 'ckb', 'ur', 'ug']);
 const STORAGE_KEY = 'halo-tracker-language';
 const translationIndex = { af: 0, zu: 1 };
 let language = 'en';
+let messages = {};
 let catalog = {};
 let releaseNotes = {};
 const collator = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
@@ -35,6 +34,7 @@ export const setLanguage = async (nextLanguage) => {
   }
 
   if (nextLanguage === 'en') {
+    messages = {};
     catalog = {};
     releaseNotes = {};
   } else {
@@ -43,11 +43,12 @@ export const setLanguage = async (nextLanguage) => {
     if (!response.ok) {
       throw new Error('Unable to load language data');
     }
-    ({ catalog, releaseNotes } = await response.json());
+    ({ messages = {}, catalog, releaseNotes } = await response.json());
   }
 
   language = nextLanguage;
   document.documentElement.lang = language;
+  document.documentElement.dir = rightToLeft.has(language) ? 'rtl' : 'ltr';
   percentFormatter = new Intl.NumberFormat(language, {
     style: 'percent',
     maximumFractionDigits: 2,
@@ -62,11 +63,15 @@ export const setLanguage = async (nextLanguage) => {
 };
 
 export const t = (source, values = {}) => {
-  const translation = ui[source]?.[translationIndex[language]] ?? source;
+  const translation = messages[source] ?? ui[source]?.[translationIndex[language]] ?? source;
   return translation.replace(/\{(\w+)\}/g, (token, name) => values[name] ?? token);
 };
 
 export const achievementText = (achievement, field) => catalog[achievement.id]?.[field] ?? achievement[field];
+
+export const achievementTextLocale = (achievement, field) => (
+  catalog[achievement.id]?.[field] ? language : 'en'
+);
 
 export const compareNames = (first, second) => collator.compare(first.name, second.name);
 
@@ -89,9 +94,9 @@ export const translateReleaseNotes = (fragment) => {
     const source = node.data.trim().replace(/\s+/g, ' ');
     if (source) {
       const translation = source.startsWith('Version ')
-        ? source.replace('Version', t('Version'))
+        ? source.replace('Version', () => t('Version'))
         : releaseNotes[source] ?? t(source);
-      node.data = node.data.replace(node.data.trim(), translation);
+      node.data = node.data.replace(node.data.trim(), () => translation);
     }
   }
   for (const image of fragment.querySelectorAll('img[alt]:not([alt=""])')) {
