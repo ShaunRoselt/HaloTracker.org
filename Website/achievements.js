@@ -298,7 +298,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -847,7 +847,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -949,7 +949,7 @@ export const ACHIEVEMENTS = Object.freeze({
         "https://www.youtube.com/embed/QGV5LD__nqI?si=lP_br6GggHIJl3s8&amp;start=27"
       ],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -983,7 +983,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1169,7 +1169,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1350,7 +1350,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1469,7 +1469,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1621,7 +1621,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1740,7 +1740,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1804,7 +1804,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1821,7 +1821,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1887,7 +1887,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1938,7 +1938,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -1973,7 +1973,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2211,7 +2211,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2245,7 +2245,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2379,7 +2379,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2396,7 +2396,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2431,7 +2431,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2448,7 +2448,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -2482,7 +2482,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2516,7 +2516,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2550,7 +2550,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2601,7 +2601,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2618,7 +2618,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -2684,7 +2684,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2701,7 +2701,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2733,7 +2733,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2750,7 +2750,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2818,7 +2818,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2917,7 +2917,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2934,7 +2934,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2951,7 +2951,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -2983,7 +2983,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3000,7 +3000,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3017,7 +3017,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3068,7 +3068,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3085,7 +3085,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3102,7 +3102,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3153,7 +3153,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3170,7 +3170,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3237,7 +3237,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -3254,7 +3254,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3288,7 +3288,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3305,7 +3305,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3339,7 +3339,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3356,7 +3356,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3409,7 +3409,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3426,7 +3426,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3460,7 +3460,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3477,7 +3477,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3511,7 +3511,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3528,7 +3528,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3545,7 +3545,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3562,7 +3562,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3631,7 +3631,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -3680,7 +3680,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3765,7 +3765,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3799,7 +3799,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3865,7 +3865,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3882,7 +3882,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3916,7 +3916,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -3933,7 +3933,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3950,7 +3950,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -3985,7 +3985,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4002,7 +4002,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4036,7 +4036,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4070,7 +4070,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4104,7 +4104,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4168,7 +4168,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4202,7 +4202,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4219,7 +4219,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4236,7 +4236,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4253,7 +4253,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4350,7 +4350,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4416,7 +4416,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4450,7 +4450,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4584,7 +4584,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -4653,7 +4653,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4670,7 +4670,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4687,7 +4687,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -4704,7 +4704,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4736,7 +4736,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4753,7 +4753,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4770,7 +4770,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4787,7 +4787,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4853,7 +4853,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4885,7 +4885,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -4953,7 +4953,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -5004,7 +5004,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5038,7 +5038,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5072,7 +5072,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5089,7 +5089,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5123,7 +5123,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5174,7 +5174,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5191,7 +5191,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5242,7 +5242,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5276,7 +5276,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5309,7 +5309,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5343,7 +5343,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5428,7 +5428,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5528,7 +5528,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5594,7 +5594,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5645,7 +5645,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5662,7 +5662,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5696,7 +5696,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5713,7 +5713,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5764,7 +5764,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5815,7 +5815,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5849,7 +5849,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5917,7 +5917,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5934,7 +5934,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -5983,7 +5983,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6000,7 +6000,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6017,7 +6017,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6034,7 +6034,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -6051,7 +6051,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6068,7 +6068,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6119,7 +6119,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6136,7 +6136,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6153,7 +6153,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -6185,7 +6185,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6202,7 +6202,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6219,7 +6219,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6268,7 +6268,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6368,7 +6368,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6468,7 +6468,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6502,7 +6502,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6551,7 +6551,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6568,7 +6568,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6602,7 +6602,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6636,7 +6636,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6685,7 +6685,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6753,7 +6753,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6770,7 +6770,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6804,7 +6804,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6838,7 +6838,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -6855,7 +6855,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7127,7 +7127,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -7161,7 +7161,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7193,7 +7193,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -7227,7 +7227,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7261,7 +7261,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7278,7 +7278,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7295,7 +7295,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7327,7 +7327,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -7412,7 +7412,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7532,7 +7532,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7583,7 +7583,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7600,7 +7600,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7683,7 +7683,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7700,7 +7700,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7836,7 +7836,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -7870,7 +7870,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -7904,7 +7904,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8004,7 +8004,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8038,7 +8038,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8106,7 +8106,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8272,7 +8272,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8289,7 +8289,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -8323,7 +8323,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8541,7 +8541,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8592,7 +8592,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8626,7 +8626,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8677,7 +8677,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8694,7 +8694,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8777,7 +8777,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -8845,7 +8845,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9015,7 +9015,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -9066,7 +9066,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9083,7 +9083,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9117,7 +9117,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9372,7 +9372,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9406,7 +9406,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9489,7 +9489,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9506,7 +9506,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9540,7 +9540,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9591,7 +9591,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -9625,7 +9625,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -9659,7 +9659,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9880,7 +9880,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -9914,7 +9914,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10033,7 +10033,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10067,7 +10067,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10203,7 +10203,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -10220,7 +10220,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -10254,7 +10254,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -10286,7 +10286,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -10319,7 +10319,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10353,7 +10353,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10472,7 +10472,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10489,7 +10489,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10506,7 +10506,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10523,7 +10523,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10540,7 +10540,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10675,7 +10675,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10692,7 +10692,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10724,7 +10724,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10775,7 +10775,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -10875,7 +10875,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -10941,7 +10941,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -11129,7 +11129,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11180,7 +11180,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -11198,7 +11198,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11266,7 +11266,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11283,7 +11283,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11403,7 +11403,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -11436,7 +11436,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -11453,7 +11453,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -11519,7 +11519,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Co-op Campaign"
       ]
     },
     {
@@ -11536,7 +11536,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -11553,7 +11553,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11570,7 +11570,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvE Multiplayer"
       ]
     },
     {
@@ -11672,7 +11672,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11689,7 +11689,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11706,7 +11706,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11723,7 +11723,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11740,7 +11740,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11757,7 +11757,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11789,7 +11789,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -11857,7 +11857,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12010,7 +12010,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -12095,7 +12095,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12112,7 +12112,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12129,7 +12129,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12146,7 +12146,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12163,7 +12163,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12180,7 +12180,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12197,7 +12197,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12214,7 +12214,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12231,7 +12231,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12248,7 +12248,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12265,7 +12265,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12282,7 +12282,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -12299,7 +12299,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12316,7 +12316,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12333,7 +12333,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12350,7 +12350,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12367,7 +12367,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12384,7 +12384,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Co-op Campaign"
       ]
     },
     {
@@ -12401,7 +12401,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12418,7 +12418,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12435,7 +12435,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12452,7 +12452,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Co-op Campaign"
       ]
     },
     {
@@ -12469,7 +12469,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12486,7 +12486,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12503,7 +12503,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12520,7 +12520,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12537,7 +12537,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Co-op Campaign"
       ]
     },
     {
@@ -12554,7 +12554,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12571,7 +12571,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12588,7 +12588,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12605,7 +12605,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12622,7 +12622,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12639,7 +12639,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Co-op Campaign"
       ]
     },
     {
@@ -12656,7 +12656,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12673,7 +12673,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12690,7 +12690,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12707,7 +12707,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12724,7 +12724,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12741,7 +12741,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Co-op Campaign"
       ]
     },
     {
@@ -12758,7 +12758,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Co-op Campaign"
       ]
     },
     {
@@ -12775,7 +12775,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12792,7 +12792,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12809,7 +12809,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -12826,7 +12826,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12843,7 +12843,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12860,7 +12860,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12877,7 +12877,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12894,7 +12894,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12911,7 +12911,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12928,7 +12928,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12945,7 +12945,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12962,7 +12962,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12979,7 +12979,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -12996,7 +12996,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Co-op Campaign"
       ]
     },
     {
@@ -13013,7 +13013,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13030,7 +13030,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13306,7 +13306,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "PvP Multiplayer"
       ]
     },
     {
@@ -13595,7 +13595,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13612,7 +13612,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13629,7 +13629,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13646,7 +13646,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13680,7 +13680,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13697,7 +13697,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13714,7 +13714,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13783,7 +13783,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13817,7 +13817,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13834,7 +13834,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13868,7 +13868,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13885,7 +13885,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13902,7 +13902,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -13919,7 +13919,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14021,7 +14021,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14038,7 +14038,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14055,7 +14055,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14158,7 +14158,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14175,7 +14175,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14192,7 +14192,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14209,7 +14209,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14261,7 +14261,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14278,7 +14278,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14312,7 +14312,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14329,7 +14329,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14415,7 +14415,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14449,7 +14449,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14501,7 +14501,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14518,7 +14518,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14552,7 +14552,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14637,7 +14637,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14774,7 +14774,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14842,7 +14842,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14876,7 +14876,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14893,7 +14893,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14944,7 +14944,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14961,7 +14961,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14978,7 +14978,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -14995,7 +14995,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15029,7 +15029,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15046,7 +15046,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15063,7 +15063,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15080,7 +15080,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15114,7 +15114,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15131,7 +15131,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15148,7 +15148,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15165,7 +15165,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15250,7 +15250,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15318,7 +15318,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15352,7 +15352,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15369,7 +15369,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {
@@ -15403,7 +15403,7 @@ export const ACHIEVEMENTS = Object.freeze({
       "guideDescription": "",
       "guideVideos": [],
       "filters": [
-        "Other"
+        "Campaign"
       ]
     },
     {

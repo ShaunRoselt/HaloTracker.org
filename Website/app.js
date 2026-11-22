@@ -61,6 +61,7 @@ const GAME_CONFIG = new Map([
     collection: 'halomcc',
     title: 'Halo 4',
     shortTitle: 'Halo 4',
+    pveFilterLabel: 'Spartan Ops',
     icon: 'assets/halo-4.png',
     hero: 'assets/background-mcc.jpg',
   })],
@@ -82,6 +83,7 @@ const GAME_CONFIG = new Map([
     collection: 'halowarsde',
     title: 'Halo Wars: Definitive Edition',
     shortTitle: 'Halo Wars: DE',
+    pveFilterLabel: 'Skirmish',
     icon: 'assets/halowarsde.png',
   })],
   ['halospartanstrike', Object.freeze({
@@ -137,7 +139,7 @@ const achievementById = new Map(
 );
 
 const state = {
-  activeFilters: new Set(FILTERS.map(({ value }) => value)),
+  filtersByGame: new Map(),
   sidebarOpen: false,
   toastTimer: null,
 };
@@ -331,7 +333,7 @@ const hasGuide = ({ guideDescription, guideVideos }) => (
   guideDescription.trim().length > 0 || guideVideos.length > 0
 );
 
-const createFilterControl = ({ value, label }) => {
+const createFilterControl = ({ value, label }, checked) => {
   const wrapper = createElement('label', { className: 'filter-option' });
   const checkbox = createElement('input', {
     attributes: {
@@ -340,7 +342,7 @@ const createFilterControl = ({ value, label }) => {
       name: 'achievement-filter',
     },
   });
-  checkbox.checked = state.activeFilters.has(value);
+  checkbox.checked = checked;
   const text = createElement('span', { text: label });
 
   wrapper.append(checkbox, text);
@@ -394,12 +396,10 @@ const createAchievementCard = (achievement, index) => {
   return card;
 };
 
-const renderAchievementCards = ({ achievements, count, list }) => {
-  const filteredAchievements = state.activeFilters.size === 0
-    ? []
-    : achievements.filter(({ filters }) => (
-      filters.some((filter) => state.activeFilters.has(filter))
-    ));
+const renderAchievementCards = ({ achievements, activeFilters, count, list }) => {
+  const filteredAchievements = achievements.filter(({ filters }) => (
+    filters.some((filter) => activeFilters.has(filter))
+  ));
   const fragment = document.createDocumentFragment();
 
   filteredAchievements.forEach((achievement, index) => {
@@ -425,6 +425,10 @@ const renderAchievements = (game) => {
   }
 
   const achievements = getAchievementsForGame(game);
+  const representedFilters = new Set(achievements.flatMap(({ filters }) => filters));
+  const availableFilters = FILTERS.filter(({ value }) => representedFilters.has(value));
+  const activeFilters = state.filtersByGame.get(game) ?? new Set(availableFilters.map(({ value }) => value));
+  state.filtersByGame.set(game, activeFilters);
   const page = createElement('section', {
     className: 'achievements-page',
     attributes: { 'aria-labelledby': 'achievements-title' },
@@ -470,8 +474,11 @@ const renderAchievements = (game) => {
   const legend = createElement('legend', { text: 'Filter Criteria' });
   const options = createElement('div', { className: 'filter-options' });
 
-  for (const filter of FILTERS) {
-    options.append(createFilterControl(filter));
+  for (const filter of availableFilters) {
+    const label = filter.value === 'PvE Multiplayer'
+      ? config.pveFilterLabel ?? filter.label
+      : filter.label;
+    options.append(createFilterControl({ value: filter.value, label }, activeFilters.has(filter.value)));
   }
 
   fieldset.append(legend, options);
@@ -494,11 +501,11 @@ const renderAchievements = (game) => {
   });
 
   const syncFilters = () => {
-    state.activeFilters.clear();
+    activeFilters.clear();
     for (const checkbox of filterPanel.querySelectorAll('input[type="checkbox"]:checked')) {
-      state.activeFilters.add(checkbox.value);
+      activeFilters.add(checkbox.value);
     }
-    renderAchievementCards({ achievements, count, list });
+    renderAchievementCards({ achievements, activeFilters, count, list });
   };
 
   filterPanel.addEventListener('change', syncFilters);
@@ -519,7 +526,7 @@ const renderAchievements = (game) => {
   browser.append(filterPanel, listRegion);
   page.append(hero, summary, browser);
   elements.routeView.replaceChildren(page);
-  renderAchievementCards({ achievements, count, list });
+  renderAchievementCards({ achievements, activeFilters, count, list });
   document.title = `${config.shortTitle} Achievements | ${APP_NAME}`;
 };
 
