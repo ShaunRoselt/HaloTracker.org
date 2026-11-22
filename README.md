@@ -5,7 +5,7 @@
   Halo Achievement Tracker
 </h1>
 
-Cross-Platform Halo Achievement Tracker App and Website ([Live website on ChatGPT Sites](https://halotracker-org.shaunroselt.chatgpt.site))
+Cross-Platform Halo Achievement Tracker App and Website ([HaloTracker.org](https://halotracker-org.shaunroselt.chatgpt.site))
 
 ![Halo Achievement Tracker (HaloTracker.org)](https://github.com/shaunroselt/HaloTracker.org/assets/5418178/1c7f88d5-d1a9-4930-85fc-d2d9abd58adf)
 

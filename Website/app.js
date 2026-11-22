@@ -682,9 +682,8 @@ const renderSettings = () => {
   const changeLogLink = createElement('a', {
     className: 'settings-icon-button',
     attributes: {
-      href: 'https://github.com/shaunroselt/HaloTracker.org/blob/main/RELEASE_NOTES.md',
-      target: '_blank',
-      rel: 'noreferrer',
+      href: '?page=release-notes',
+      'data-route': '',
       'aria-label': 'View change log',
       title: 'View change log',
     },
@@ -799,6 +798,12 @@ const renderNotFound = () => {
   document.title = `Page not found | ${APP_NAME}`;
 };
 
+const renderReleaseNotes = () => {
+  const template = document.querySelector('#release-notes-template');
+  elements.routeView.replaceChildren(template.content.cloneNode(true));
+  document.title = `Release Notes | ${APP_NAME}`;
+};
+
 const renderRoute = ({ focus = false } = {}) => {
   const route = getRoute();
   updateActiveNavigation(route);
@@ -810,6 +815,8 @@ const renderRoute = ({ focus = false } = {}) => {
     renderAchievements(route.game);
   } else if (route.page === 'settings') {
     renderSettings();
+  } else if (route.page === 'release-notes') {
+    renderReleaseNotes();
   } else {
     renderNotFound();
   }

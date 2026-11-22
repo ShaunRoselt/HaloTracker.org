@@ -5,7 +5,7 @@
   Halo Achievement Tracker
 </h1>
 <h2 align="center">
-  Cross-Platform Halo Achievement Tracker App and Website (<a href="https://halotracker-org.shaunroselt.chatgpt.site">Live website on ChatGPT Sites</a>)
+  Cross-Platform Halo Achievement Tracker App and Website (<a href="https://halotracker-org.shaunroselt.chatgpt.site">HaloTracker.org</a>)
 </h2>
 
 
@@ -98,9 +98,11 @@ This is the first version of the website. The first version is quite basic and b
 - Improved Search Engine Optimization
 
 ## Version 1.1.0 (2026/11/22)
-
-- Replaced the Delphi/TMS web frontend with the ChatGPT Sites version.
-- Added 178 Steam achievements across Halo Wars: Definitive Edition (75), Halo: Spartan Strike (20), Halo: Spartan Assault (25), and Halo: Campaign Evolved (58).
-- Added transparent icons for the four games in the sidebar and on their achievement pages.
-- Improved narrow-screen layouts, keyboard navigation, and color contrast.
-- Updated the Settings language dropdown to match the website's dark theme.
+- Added Achievements for Halo Wars: Definitive Edition (75)
+- Added Achievements for Halo: Spartan Strike (20)
+- Added Achievements for Halo: Spartan Assault (25)
+- Added Achievements for Halo: Campaign Evolved (58)
+- Added Game Icons with Transparent Backgrounds for all four games
+- Improved Responsiveness, Keyboard Navigation, and Color Contrast
+- Improved the Language Dropdown in Settings
+- Added the Release Notes page to the website
