@@ -98,6 +98,8 @@ This is the first version of the website. The first version is quite basic and b
 - Improved Search Engine Optimization
 
 ## Version 1.1.0 (2026/11/22)
+![Halo: Campaign Evolved achievements in Halo Achievement Tracker 1.1.0](Website/assets/release-notes/v1-1-0-campaign-evolved.webp)
+
 - Added Achievements for Halo Wars: Definitive Edition (75)
 - Added Achievements for Halo: Spartan Strike (20)
 - Added Achievements for Halo: Spartan Assault (25)
