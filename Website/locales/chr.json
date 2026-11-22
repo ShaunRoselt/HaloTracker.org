@@ -1,0 +1,15 @@
+{
+  "messages": {
+    "Primary": "ᎠᏂᎩᏍᏗ ᏥᏳ",
+    "Home": "ᎤᎵᎮᎵᏍᏗ",
+    "Settings": "ᎠᏰᎸᏗ",
+    "Search achievements": "ᎠᏯᏍᏗ",
+    "Guide": "ᎠᎵᏍᏕᎸᏗ",
+    "Language": "ᎦᏬᏂᎯᏍᏗ",
+    "Display language": "ᎦᏬᏂᎯᏍᏗ",
+    "Version": "ᏄᏓᎴᏒᎢ",
+    "Version {version} | WEB | RELEASE | {date}": "ᏄᏓᎴᏒᎢ {version} | WEB | RELEASE | {date}"
+  },
+  "catalog": {},
+  "releaseNotes": {}
+}
