@@ -100,11 +100,10 @@ This is the first version of the website. The first version is quite basic and b
 ## Version 1.1.0 (2026/11/22)
 ![Halo: Campaign Evolved achievements in Halo Achievement Tracker 1.1.0](Website/assets/release-notes/v1-1-0-campaign-evolved.webp)
 
-- Added Achievements for Halo Wars: Definitive Edition (75)
-- Added Achievements for Halo: Spartan Strike (20)
-- Added Achievements for Halo: Spartan Assault (25)
-- Added Achievements for Halo: Campaign Evolved (58)
-- Added Game Icons with Transparent Backgrounds for all four games
+- Added Achievements for Halo Wars: Definitive Edition
+- Added Achievements for Halo: Spartan Strike
+- Added Achievements for Halo: Spartan Assault
+- Added Achievements for Halo: Campaign Evolved
 - Improved Responsiveness, Keyboard Navigation, and Color Contrast
 - Improved the Language Dropdown in Settings
 - Added the Release Notes page to the website
