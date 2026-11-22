@@ -20,6 +20,7 @@
 - [Version 1.0.7 (2024/04/06)](#version-107-20240406)
 - [Version 1.0.8 (2024/05/24)](#version-108-20240524)
 - [Version 1.1.0 (2026/11/21)](#version-110-20261121)
+- [Version 1.2.0 (2026/11/22)](#version-120-20261122)
   
 
 ## Version 1.0.0 (2024/03/07)
@@ -108,3 +109,9 @@ This is the first version of the website. The first version is quite basic and b
 - Improved Responsiveness, Keyboard Navigation, and Color Contrast
 - Improved the Language Dropdown in Settings
 - Added the Release Notes page to the website
+
+## Version 1.2.0 (2026/11/22)
+- Added 1,062 written Achievement Guides
+- Added videos to 1,080 achievements, giving all 1,095 achievements a written guide and a video
+- Added shareable URLs that open directly to an Achievement Guide
+- Improved the Achievement Guide scrollbar to match the dark dialog

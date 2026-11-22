@@ -3,7 +3,7 @@
 import { ACHIEVEMENTS } from './achievements.js';
 
 const APP_NAME = 'Halo Achievement Tracker';
-const APP_VERSION = 'Version 1.1.0 | WEB | RELEASE | 2026/11/21';
+const APP_VERSION = 'Version 1.2.0 | WEB | RELEASE | 2026/11/22';
 const HOME_DESCRIPTION = 'Browse Halo achievements by game and game mode, and open guides where available.';
 
 const FILTERS = Object.freeze([
@@ -141,6 +141,7 @@ const achievementById = new Map(
 const state = {
   filtersByGame: new Map(),
   sidebarOpen: false,
+  renderedRoute: null,
   toastTimer: null,
 };
 
@@ -205,7 +206,9 @@ const getRoute = () => {
   const page = url.searchParams.get('page')?.trim().toLowerCase() || 'search';
   const game = url.searchParams.get('game')?.trim().toLowerCase() || 'halomcc';
 
-  return Object.freeze({ page, game });
+  const achievement = url.searchParams.get('achievement');
+
+  return Object.freeze({ page, game, achievement });
 };
 
 const canonicalizeUrl = () => {
@@ -222,7 +225,7 @@ const canonicalizeUrl = () => {
   }
 
   const canonicalUrl = `${url.pathname}?${url.searchParams.toString()}${url.hash}`;
-  window.history.replaceState(null, '', canonicalUrl);
+  window.history.replaceState(window.history.state, '', canonicalUrl);
 };
 
 const getNavigationUrl = (targetUrl) => {
@@ -517,7 +520,10 @@ const renderAchievements = (game) => {
 
     const achievement = achievementById.get(guideTrigger.dataset.achievementId);
     if (achievement) {
-      openGuide(achievement);
+      const url = new URL(window.location.href);
+      url.searchParams.set('achievement', achievement.id);
+      window.history.pushState({ guideFromList: achievement.id }, '', url);
+      syncGuide(getRoute());
     }
   });
 
@@ -621,7 +627,53 @@ const openGuide = (achievement) => {
   }
 
   elements.guideContent.replaceChildren(article);
+  elements.guideDialog.dataset.achievementId = achievement.id;
   elements.guideDialog.showModal();
+  elements.guideDialog.scrollTop = 0;
+};
+
+const hideGuide = () => {
+  if (elements.guideDialog.open) {
+    elements.guideDialog.close();
+    elements.guideContent.replaceChildren();
+  }
+};
+
+const syncGuide = (route) => {
+  const requestedGuide = route.page === 'achievements' && route.achievement
+    ? getAchievementsForGame(route.game).find(({ id }) => id === route.achievement)
+    : null;
+
+  if (requestedGuide && hasGuide(requestedGuide)) {
+    if (elements.guideDialog.open && elements.guideDialog.dataset.achievementId === requestedGuide.id) {
+      return;
+    }
+    hideGuide();
+    openGuide(requestedGuide);
+    return;
+  }
+
+  hideGuide();
+  if (route.achievement !== null) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('achievement');
+    window.history.replaceState(null, '', url);
+  }
+};
+
+const dismissGuide = () => {
+  const url = new URL(window.location.href);
+  if (!elements.guideDialog.open) {
+    return;
+  }
+  hideGuide();
+
+  if (window.history.state?.guideFromList === url.searchParams.get('achievement')) {
+    window.history.back();
+  } else {
+    url.searchParams.delete('achievement');
+    window.history.replaceState(null, '', url);
+  }
 };
 
 const renderSettings = () => {
@@ -811,8 +863,16 @@ const renderReleaseNotes = () => {
   document.title = `Release Notes | ${APP_NAME}`;
 };
 
-const renderRoute = ({ focus = false } = {}) => {
+const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
   const route = getRoute();
+  const previous = state.renderedRoute;
+  if (fromHistory && route.page === previous?.page && route.game === previous.game) {
+    syncGuide(route);
+    return;
+  }
+
+  hideGuide();
+  state.renderedRoute = route;
   updateActiveNavigation(route);
   setSidebarOpen(false);
 
@@ -833,6 +893,7 @@ const renderRoute = ({ focus = false } = {}) => {
   }
   elements.mainContent.scrollTop = 0;
   window.scrollTo({ top: 0, behavior: 'auto' });
+  syncGuide(route);
 };
 
 document.addEventListener('click', (event) => {
@@ -876,15 +937,23 @@ elements.drawerBackdrop.addEventListener('click', closeSidebar);
 elements.achievementsToggle.addEventListener('click', () => {
   setGamesExpanded(elements.achievementsToggle.getAttribute('aria-expanded') !== 'true');
 });
-elements.guideClose.addEventListener('click', () => elements.guideDialog.close());
+elements.guideClose.addEventListener('click', dismissGuide);
+elements.guideDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  dismissGuide();
+});
 elements.guideDialog.addEventListener('click', (event) => {
-  if (event.target === elements.guideDialog) {
-    elements.guideDialog.close();
+  if (event.target !== elements.guideDialog) {
+    return;
+  }
+
+  const { left, right, top, bottom } = elements.guideDialog.getBoundingClientRect();
+  if (event.clientX < left || event.clientX >= right || event.clientY < top || event.clientY >= bottom) {
+    dismissGuide();
   }
 });
-elements.guideDialog.addEventListener('close', () => elements.guideContent.replaceChildren());
 
-window.addEventListener('popstate', () => renderRoute({ focus: true }));
+window.addEventListener('popstate', () => renderRoute({ focus: true, fromHistory: true }));
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && state.sidebarOpen) {
     closeSidebar();
