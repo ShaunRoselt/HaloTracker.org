@@ -14,6 +14,22 @@ const FILTERS = Object.freeze([
   Object.freeze({ value: 'Other', label: 'Other (Not Filtered Yet)' }),
 ]);
 
+const achievementNameOrder = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
+const compareUnlockRate = (a, b) => Number.parseFloat(a.percentAchieved) - Number.parseFloat(b.percentAchieved);
+const compareAchievementName = (a, b) => achievementNameOrder.compare(a.name, b.name);
+const ACHIEVEMENT_SORTS = new Map([
+  ['default', { label: 'Default order' }],
+  ['unlock-desc', { label: 'Most unlocked', compare: (a, b) => compareUnlockRate(b, a) }],
+  ['unlock-asc', { label: 'Least unlocked', compare: compareUnlockRate }],
+  ['name-asc', { label: 'Name (A–Z)', compare: compareAchievementName }],
+  ['name-desc', { label: 'Name (Z–A)', compare: (a, b) => compareAchievementName(b, a) }],
+]);
+
+const sortAchievements = (achievements, sort) => {
+  const { compare } = ACHIEVEMENT_SORTS.get(sort);
+  return compare ? achievements.toSorted(compare) : achievements;
+};
+
 const GAME_CONFIG = new Map([
   ['halomcc', Object.freeze({
     collection: 'halomcc',
@@ -140,6 +156,7 @@ const achievementById = new Map(
 
 const state = {
   filtersByGame: new Map(),
+  achievementSort: 'default',
   sidebarOpen: false,
   renderedRoute: null,
   toastTimer: null,
@@ -406,8 +423,11 @@ const renderAchievementCards = ({ achievements, activeFilters, count, list }) =>
   ));
   const fragment = document.createDocumentFragment();
 
+  const cards = new Map();
   filteredAchievements.forEach((achievement, index) => {
-    fragment.append(createAchievementCard(achievement, index));
+    const card = createAchievementCard(achievement, index);
+    cards.set(achievement, card);
+    fragment.append(card);
   });
 
   if (filteredAchievements.length === 0) {
@@ -419,6 +439,7 @@ const renderAchievementCards = ({ achievements, activeFilters, count, list }) =>
 
   count.textContent = `${filteredAchievements.length.toLocaleString()} ACHIEVEMENT${filteredAchievements.length === 1 ? '' : 'S'}`;
   list.replaceChildren(fragment);
+  return cards;
 };
 
 const renderAchievements = (game) => {
@@ -485,8 +506,20 @@ const renderAchievements = (game) => {
     options.append(createFilterControl({ value: filter.value, label }, activeFilters.has(filter.value)));
   }
 
+  const sortControl = createElement('div', { className: 'achievement-sort' });
+  const sortLabel = createElement('label', {
+    text: 'Sort by',
+    attributes: { for: 'achievement-sort' },
+  });
+  const sortSelect = createElement('select', { attributes: { id: 'achievement-sort' } });
+  for (const [value, { label }] of ACHIEVEMENT_SORTS) {
+    sortSelect.append(createElement('option', { text: label, attributes: { value } }));
+  }
+  sortSelect.value = state.achievementSort;
+  sortControl.append(sortLabel, sortSelect);
+
   fieldset.append(legend, options);
-  filterPanel.append(fieldset);
+  filterPanel.append(fieldset, sortControl);
 
   const listRegion = createElement('section', {
     className: 'achievement-results',
@@ -504,15 +537,47 @@ const renderAchievements = (game) => {
     },
   });
 
+  const sortStatus = createElement('p', {
+    className: 'achievement-sort-status',
+    attributes: { role: 'status' },
+  });
+  const renderResults = () => renderAchievementCards({
+    achievements: sortAchievements(achievements, state.achievementSort),
+    activeFilters,
+    count,
+    list,
+  });
+  let cards = renderResults();
+
+  sortSelect.addEventListener('change', () => {
+    const sort = sortSelect.value;
+    const option = ACHIEVEMENT_SORTS.get(sort);
+    if (!option) {
+      return;
+    }
+    state.achievementSort = sort;
+    const moveCard = typeof list.moveBefore === 'function'
+      ? (card) => list.moveBefore(card, null)
+      : (card) => list.append(card);
+
+    for (const achievement of sortAchievements(achievements, sort)) {
+      const card = cards.get(achievement);
+      if (card) {
+        moveCard(card);
+      }
+    }
+    sortStatus.textContent = `${option.label}. ${cards.size.toLocaleString()} achievement${cards.size === 1 ? '' : 's'}.`;
+  });
+
   const syncFilters = () => {
     activeFilters.clear();
     for (const checkbox of filterPanel.querySelectorAll('input[type="checkbox"]:checked')) {
       activeFilters.add(checkbox.value);
     }
-    renderAchievementCards({ achievements, activeFilters, count, list });
+    cards = renderResults();
   };
 
-  filterPanel.addEventListener('change', syncFilters);
+  options.addEventListener('change', syncFilters);
   list.addEventListener('click', (event) => {
     const guideTrigger = event.target.closest('[data-achievement-id]');
     if (!guideTrigger) {
@@ -528,12 +593,11 @@ const renderAchievements = (game) => {
     }
   });
 
-  listRegion.append(listTitle, list);
+  listRegion.append(listTitle, sortStatus, list);
   const browser = createElement('div', { className: 'achievement-browser' });
   browser.append(filterPanel, listRegion);
   page.append(hero, summary, browser);
   elements.routeView.replaceChildren(page);
-  renderAchievementCards({ achievements, activeFilters, count, list });
   document.title = `${config.shortTitle} Achievements | ${APP_NAME}`;
 };
 

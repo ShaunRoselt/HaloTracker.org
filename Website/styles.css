@@ -550,6 +550,25 @@
     accent-color: var(--color-accent);
   }
 
+  .achievement-sort {
+    --select-width: 100%;
+
+    display: grid;
+    gap: 0.375rem;
+    max-width: 14rem;
+    margin-block-start: 1rem;
+    font-size: 14.6667px;
+  }
+
+  .achievement-sort-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   .achievement-results > h2 {
     margin: 0 0 30px;
     font-size: 18.6667px;
@@ -777,9 +796,9 @@
     overflow-wrap: anywhere;
   }
 
-  .settings-card select {
+  :is(.settings-card, .achievement-sort) select {
     appearance: none;
-    width: 175px;
+    width: var(--select-width, 175px);
     min-height: 48px;
     padding: 0.5rem 2.5rem 0.5rem 0.75rem;
     border: 1px solid var(--color-text-muted);
@@ -791,35 +810,35 @@
     cursor: pointer;
   }
 
-  .settings-card select:hover {
+  :is(.settings-card, .achievement-sort) select:hover {
     border-color: var(--color-focus);
   }
 
   @supports (appearance: base-select) and selector(::picker(select)) {
     @media (forced-colors: none) {
-      .settings-card select,
-      .settings-card select::picker(select) {
+      :is(.settings-card, .achievement-sort) select,
+      :is(.settings-card, .achievement-sort) select::picker(select) {
         appearance: base-select;
       }
 
-      .settings-card select {
+      :is(.settings-card, .achievement-sort) select {
         align-items: center;
         padding-inline: 0.75rem;
         background-image: none;
       }
 
-      .settings-card select::picker-icon {
+      :is(.settings-card, .achievement-sort) select::picker-icon {
         width: 1rem;
         height: 1rem;
         background: url("assets/chevron-down.svg") center / contain no-repeat;
         content: "";
       }
 
-      .settings-card select:open {
+      :is(.settings-card, .achievement-sort) select:open {
         border-color: var(--color-focus);
       }
 
-      .settings-card select::picker(select) {
+      :is(.settings-card, .achievement-sort) select::picker(select) {
         margin-block-start: 0.375rem;
         padding: 0.25rem;
         border: 1px solid var(--color-text-muted);
@@ -828,7 +847,7 @@
         color: var(--color-text);
       }
 
-      .settings-card select option {
+      :is(.settings-card, .achievement-sort) select option {
         min-height: 2.75rem;
         align-items: center;
         padding: 0.5rem 0.625rem;
@@ -836,15 +855,15 @@
         cursor: pointer;
       }
 
-      .settings-card select option:checked {
+      :is(.settings-card, .achievement-sort) select option:checked {
         background: var(--color-surface-strong);
       }
 
-      .settings-card select option:is(:hover, :focus-visible) {
+      :is(.settings-card, .achievement-sort) select option:is(:hover, :focus-visible) {
         background: var(--color-accent-strong);
       }
 
-      .settings-card select option::checkmark {
+      :is(.settings-card, .achievement-sort) select option::checkmark {
         order: 1;
         margin-inline-start: auto;
         color: var(--color-focus);
@@ -853,7 +872,7 @@
   }
 
   @media (forced-colors: active) {
-    .settings-card select {
+    :is(.settings-card, .achievement-sort) select {
       appearance: auto;
       padding-inline-end: 0.75rem;
       background-image: none;
