@@ -8,8 +8,8 @@ import {
 } from './i18n.js';
 
 const APP_NAME = 'Halo Achievement Tracker';
-const APP_VERSION = '1.2.0';
-const RELEASE_DATE = '2026/11/22';
+const APP_VERSION = '1.3.0';
+const RELEASE_DATE = '2026/11/23';
 const appVersionLabel = () => t('Version {version} | WEB | RELEASE | {date}', {
   version: APP_VERSION,
   date: RELEASE_DATE,
