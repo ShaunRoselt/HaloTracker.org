@@ -72,6 +72,7 @@
     --color-focus: #8bd0ff;
     --color-success: #7ce4b3;
     --header-height: 70px;
+    --header-offset: var(--header-height);
     --sidebar-width: 350px;
     --radius-small: 5px;
     --radius-medium: 5px;
@@ -162,7 +163,7 @@
   .sidebar {
     position: fixed;
     z-index: 40;
-    inset-block: calc(var(--header-height) + 1px) 0;
+    inset-block: var(--header-offset) 0;
     inset-inline-start: 0;
     width: var(--sidebar-width);
     overflow-y: auto;
@@ -196,8 +197,8 @@
     margin-inline-start: var(--sidebar-width);
     overflow-x: hidden;
     overflow-y: auto;
-    padding: calc(var(--header-height) + 21px) 20px 19px;
-    scroll-margin-top: var(--header-height);
+    padding: calc(var(--header-offset) + 21px) 20px 19px;
+    scroll-margin-top: var(--header-offset);
   }
 
   .route-view {
@@ -513,6 +514,90 @@
     transform: translateY(-1px);
   }
 
+  .player-lookup {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0.5rem;
+    width: min(100%, 30rem);
+    min-width: 0;
+    margin-inline-start: auto;
+  }
+
+  .player-lookup label {
+    display: block;
+    margin-block-end: 0.125rem;
+    font-size: 0.875rem;
+  }
+
+  .player-lookup :is(input, select, button),
+  .player-progress-actions :is(select, button) {
+    min-height: 44px;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .player-lookup input,
+  .player-lookup select,
+  .player-progress-actions select {
+    min-width: 0;
+    max-width: 100%;
+    border: 1px solid var(--color-text-muted);
+    border-radius: var(--radius-small);
+    background: #10161d;
+    color: var(--color-text);
+    color-scheme: dark;
+  }
+
+  .player-lookup input {
+    width: 100%;
+  }
+
+  .player-progress {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.625rem 1rem;
+    padding-block-start: 0.625rem;
+    border-block-start: 1px solid rgb(255 255 255 / 24%);
+  }
+
+  .player-progress-info {
+    overflow-wrap: anywhere;
+  }
+
+  .player-progress-name {
+    font-weight: 700;
+  }
+
+  .player-progress-status {
+    margin: 0.125rem 0 0;
+    color: var(--color-text-muted);
+  }
+
+  .player-progress-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .achievement-summary:has(.player-progress) {
+    display: grid;
+    gap: 0.625rem;
+  }
+
+  .achievement-unlock {
+    margin-inline-start: 0.5rem;
+    padding-inline-start: 0.5rem;
+    border-inline-start: 1px solid rgb(255 255 255 / 30%);
+    font-weight: 600;
+  }
+
+  .achievement-unlock[data-unlocked="true"] {
+    color: var(--color-success);
+  }
+
   .achievement-summary {
     display: flex;
     align-items: center;
@@ -710,7 +795,7 @@
 
   .settings-page {
     display: block;
-    min-height: calc(100dvh - var(--header-height) - 41px);
+    min-height: calc(100dvh - var(--header-offset) - 41px);
     border: 1px solid white;
     border-radius: 5px;
     background: rgb(0 0 0 / 70%);
@@ -1234,6 +1319,23 @@
 }
 
 @layer responsive {
+  @media (width < 760px) {
+    .app-header {
+      flex-wrap: wrap;
+      gap: 0.25rem 0.625rem;
+      padding-block: 0.375rem 0.5rem;
+    }
+
+    .app-header .brand {
+      min-height: 44px;
+    }
+
+    .player-lookup {
+      flex-basis: 100%;
+      width: 100%;
+    }
+  }
+
   @media (width < 901px) {
     :root {
       --sidebar-width: min(350px, calc(100vw - 48px));
@@ -1249,7 +1351,7 @@
     }
 
     html {
-      scroll-padding-top: var(--header-height);
+      scroll-padding-top: var(--header-offset);
     }
 
     .brand {
@@ -1273,7 +1375,7 @@
     .drawer-backdrop {
       position: fixed;
       z-index: 30;
-      inset: var(--header-height) 0 0;
+      inset: var(--header-offset) 0 0;
       display: block;
       background: rgb(0 0 0 / 62%);
       opacity: 0;
@@ -1295,7 +1397,7 @@
       min-height: 100dvh;
       margin-inline-start: 0;
       overflow: visible;
-      padding: calc(var(--header-height) + 21px) 20px 20px;
+      padding: calc(var(--header-offset) + 21px) 20px 20px;
     }
 
     .home-page {

@@ -14,7 +14,4 @@ for (const entry of ["index.html", "styles.css", "app.js", "achievements.js", "i
   await cp(path.join(projectRoot, entry), path.join(clientRoot, entry), { recursive: true });
 }
 
-await cp(
-  path.join(projectRoot, "worker", "index.js"),
-  path.join(distRoot, "server", "index.js"),
-);
+await cp(path.join(projectRoot, "worker"), path.join(distRoot, "server"), { recursive: true });
