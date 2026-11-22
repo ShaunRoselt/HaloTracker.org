@@ -1,9 +1,18 @@
 'use strict';
 
 import { ACHIEVEMENTS } from './achievements.js';
+import {
+  achievementText, compareNames, currentLanguage, formatAchievementCount, formatPercent,
+  LANGUAGES, savedLanguage, setLanguage, t, translateReleaseNotes,
+} from './i18n.js';
 
 const APP_NAME = 'Halo Achievement Tracker';
-const APP_VERSION = 'Version 1.2.0 | WEB | RELEASE | 2026/11/22';
+const APP_VERSION = '1.2.0';
+const RELEASE_DATE = '2026/11/22';
+const appVersionLabel = () => t('Version {version} | WEB | RELEASE | {date}', {
+  version: APP_VERSION,
+  date: RELEASE_DATE,
+});
 const HOME_DESCRIPTION = 'Browse Halo achievements by game and game mode, and open guides where available.';
 
 const FILTERS = Object.freeze([
@@ -14,14 +23,12 @@ const FILTERS = Object.freeze([
   Object.freeze({ value: 'Other', label: 'Other (Not Filtered Yet)' }),
 ]);
 
-const achievementNameOrder = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
 const compareUnlockRate = (a, b) => Number.parseFloat(a.percentAchieved) - Number.parseFloat(b.percentAchieved);
-const compareAchievementName = (a, b) => achievementNameOrder.compare(a.name, b.name);
 const ACHIEVEMENT_SORTS = new Map([
   ['unlock-desc', { label: 'Most unlocked', compare: (a, b) => compareUnlockRate(b, a) }],
   ['unlock-asc', { label: 'Least unlocked', compare: compareUnlockRate }],
-  ['name-asc', { label: 'Name (A–Z)', compare: compareAchievementName }],
-  ['name-desc', { label: 'Name (Z–A)', compare: (a, b) => compareAchievementName(b, a) }],
+  ['name-asc', { label: 'Name (A–Z)', compare: compareNames }],
+  ['name-desc', { label: 'Name (Z–A)', compare: (a, b) => compareNames(b, a) }],
 ]);
 
 const sortAchievements = (achievements, sort) => {
@@ -261,7 +268,7 @@ const setSidebarOpen = (open) => {
   elements.sidebar.classList.toggle('is-open', open);
   elements.drawerBackdrop.classList.toggle('is-visible', open);
   elements.menuToggle.setAttribute('aria-expanded', String(open));
-  elements.menuToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  elements.menuToggle.setAttribute('aria-label', t(open ? 'Close navigation' : 'Open navigation'));
   elements.sidebar.inert = !desktopMediaQuery.matches && !open;
   elements.mainContent.inert = open;
   document.body.classList.toggle('drawer-open', open);
@@ -303,6 +310,21 @@ const showToast = (message) => {
   }, 3_000);
 };
 
+const pageDescription = document.querySelector('meta[name="description"]');
+const englishPageDescription = pageDescription.content;
+
+const localizeShell = () => {
+  document.querySelector('.skip-link').textContent = t('Skip to content');
+  document.querySelector('.navigation').setAttribute('aria-label', t('Primary'));
+  document.querySelector('[data-page="search"] span').textContent = t('Home');
+  document.querySelector('[data-page="settings"] span').textContent = t('Settings');
+  document.querySelector('[data-game="halomcc"] span').textContent = t('Halo MCC (All)');
+  elements.achievementsToggle.querySelector('span').textContent = t('Achievements');
+  elements.drawerBackdrop.setAttribute('aria-label', t('Close navigation'));
+  elements.guideClose.setAttribute('aria-label', t('Close guide'));
+  pageDescription.content = t(englishPageDescription);
+};
+
 const renderHome = () => {
   const section = createElement('section', {
     className: 'home-page',
@@ -311,7 +333,7 @@ const renderHome = () => {
   const hero = createElement('article', { className: 'home-hero surface' });
   const heroImage = createImage({
     source: 'assets/background-infinite.jpg',
-    alt: 'Spartans from Halo Infinite',
+    alt: t('Spartans from Halo Infinite'),
     className: 'home-hero-image',
     eager: true,
     fetchPriority: 'high',
@@ -324,7 +346,7 @@ const renderHome = () => {
   });
   const description = createElement('p', {
     className: 'home-description',
-    text: HOME_DESCRIPTION,
+    text: t(HOME_DESCRIPTION),
   });
 
   content.append(title, description);
@@ -362,7 +384,7 @@ const createFilterControl = ({ value, label }, checked) => {
     },
   });
   checkbox.checked = checked;
-  const text = createElement('span', { text: label });
+  const text = createElement('span', { text: t(label) });
 
   wrapper.append(checkbox, text);
   return wrapper;
@@ -386,16 +408,16 @@ const createAchievementCard = (achievement, index) => {
   const body = createElement('div', { className: 'achievement-body' });
   const heading = createElement('h3', {
     className: 'achievement-name',
-    text: achievement.name,
+    text: achievementText(achievement, 'name'),
   });
   const description = createElement('p', {
     className: 'achievement-description',
-    text: achievement.description,
+    text: achievementText(achievement, 'description'),
   });
   const metadata = createElement('div', { className: 'achievement-metadata' });
   const percentage = createElement('span', {
     className: 'achievement-percentage',
-    text: `${achievement.percentAchieved} of players have this achievement`,
+    text: t('{percent} of players have this achievement', { percent: formatPercent(achievement.percentAchieved) }),
   });
 
   metadata.append(percentage);
@@ -405,7 +427,7 @@ const createAchievementCard = (achievement, index) => {
       attributes: {
         type: 'button',
         'data-achievement-id': achievement.id,
-        'aria-label': `Open guide for ${achievement.name}`,
+        'aria-label': t('Open guide for {achievement}', { achievement: achievementText(achievement, 'name') }),
       },
     }));
   }
@@ -431,11 +453,11 @@ const renderAchievementCards = ({ achievements, activeFilters, count, list }) =>
   if (filteredAchievements.length === 0) {
     fragment.append(createElement('p', {
       className: 'empty-state surface',
-      text: 'No achievements match the selected filters.',
+      text: t('No achievements match the selected filters.'),
     }));
   }
 
-  count.textContent = `${filteredAchievements.length.toLocaleString()} ACHIEVEMENT${filteredAchievements.length === 1 ? '' : 'S'}`;
+  count.textContent = formatAchievementCount(filteredAchievements.length).toLocaleUpperCase(currentLanguage());
   list.replaceChildren(fragment);
   return cards;
 };
@@ -485,16 +507,16 @@ const renderAchievements = (game) => {
 
   const summary = createElement('section', {
     className: 'achievement-summary surface',
-    attributes: { 'aria-label': 'Achievement count' },
+    attributes: { 'aria-label': t('Achievement count') },
   });
   summary.append(count);
 
   const filterPanel = createElement('form', {
     className: 'filter-panel',
-    attributes: { 'aria-label': 'Filter achievements' },
+    attributes: { 'aria-label': t('Filter achievements') },
   });
   const fieldset = createElement('fieldset');
-  const legend = createElement('legend', { text: 'Filter Criteria' });
+  const legend = createElement('legend', { text: t('Filter Criteria') });
   const options = createElement('div', { className: 'filter-options' });
 
   for (const filter of availableFilters) {
@@ -506,12 +528,12 @@ const renderAchievements = (game) => {
 
   const sortControl = createElement('div', { className: 'achievement-sort' });
   const sortLabel = createElement('label', {
-    text: 'Sort by',
+    text: t('Sort by'),
     attributes: { for: 'achievement-sort' },
   });
   const sortSelect = createElement('select', { attributes: { id: 'achievement-sort' } });
   for (const [value, { label }] of ACHIEVEMENT_SORTS) {
-    sortSelect.append(createElement('option', { text: label, attributes: { value } }));
+    sortSelect.append(createElement('option', { text: t(label), attributes: { value } }));
   }
   sortSelect.value = state.achievementSort;
   sortControl.append(sortLabel, sortSelect);
@@ -524,7 +546,7 @@ const renderAchievements = (game) => {
     attributes: { 'aria-labelledby': 'achievement-results-title' },
   });
   const listTitle = createElement('h2', {
-    text: 'Achievements',
+    text: t('Achievements'),
     attributes: { id: 'achievement-results-title' },
   });
   const list = createElement('div', {
@@ -564,7 +586,7 @@ const renderAchievements = (game) => {
         moveCard(card);
       }
     }
-    sortStatus.textContent = `${option.label}. ${cards.size.toLocaleString()} achievement${cards.size === 1 ? '' : 's'}.`;
+    sortStatus.textContent = `${t(option.label)}. ${formatAchievementCount(cards.size)}.`;
   });
 
   const syncFilters = () => {
@@ -596,7 +618,7 @@ const renderAchievements = (game) => {
   browser.append(filterPanel, listRegion);
   page.append(hero, summary, browser);
   elements.routeView.replaceChildren(page);
-  document.title = `${config.shortTitle} Achievements | ${APP_NAME}`;
+  document.title = `${t('{game} Achievements', { game: t(config.shortTitle) })} | ${APP_NAME}`;
 };
 
 const isAllowedVideoUrl = (value) => {
@@ -626,15 +648,15 @@ const openGuide = (achievement) => {
   const headingGroup = createElement('div');
   const eyebrow = createElement('p', {
     className: 'eyebrow',
-    text: `${achievement.percentAchieved} of players have this achievement`,
+    text: t('{percent} of players have this achievement', { percent: formatPercent(achievement.percentAchieved) }),
   });
   const title = createElement('h2', {
-    text: achievement.name,
+    text: achievementText(achievement, 'name'),
     attributes: { id: 'guide-title' },
   });
   const description = createElement('p', {
     className: 'guide-summary',
-    text: achievement.description,
+    text: achievementText(achievement, 'description'),
   });
   headingGroup.append(eyebrow, title, description);
   header.append(image, headingGroup);
@@ -646,12 +668,12 @@ const openGuide = (achievement) => {
       attributes: { 'aria-labelledby': 'guide-steps-title' },
     });
     const guideTitle = createElement('h3', {
-      text: 'Guide',
+      text: t('Guide'),
       attributes: { id: 'guide-steps-title' },
     });
     const guideText = createElement('p', {
       className: 'guide-description',
-      text: achievement.guideDescription,
+      text: achievementText(achievement, 'guideDescription'),
     });
     guideSection.append(guideTitle, guideText);
     article.append(guideSection);
@@ -664,7 +686,7 @@ const openGuide = (achievement) => {
       attributes: { 'aria-labelledby': 'guide-videos-title' },
     });
     const videoTitle = createElement('h3', {
-      text: validVideos.length === 1 ? 'Video guide' : 'Video guides',
+      text: t(validVideos.length === 1 ? 'Video guide' : 'Video guides'),
       attributes: { id: 'guide-videos-title' },
     });
     const videoGrid = createElement('div', { className: 'video-grid' });
@@ -674,7 +696,10 @@ const openGuide = (achievement) => {
       const iframe = createElement('iframe', {
         attributes: {
           src: videoUrl,
-          title: `${achievement.name} video guide ${index + 1}`,
+          title: t('{achievement} video guide {number}', {
+            achievement: achievementText(achievement, 'name'),
+            number: index + 1,
+          }),
           loading: 'lazy',
           allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
           referrerpolicy: 'strict-origin-when-cross-origin',
@@ -751,7 +776,7 @@ const renderSettings = () => {
     className: 'page-heading-icon',
   });
   const title = createElement('h1', {
-    text: 'Settings',
+    text: t('Settings'),
     attributes: { id: 'settings-title' },
   });
   header.append(settingsIcon, title);
@@ -768,20 +793,38 @@ const renderSettings = () => {
   });
   const languageBody = createElement('div', { className: 'settings-card-body' });
   const languageTitle = createElement('h2', {
-    text: 'Language',
+    text: t('Language'),
     attributes: { id: 'language-title' },
   });
   const languageDescription = createElement('p', {
-    text: 'Select which language to display',
+    text: t('Select which language to display'),
     attributes: { id: 'language-description' },
   });
   const languageSelect = createElement('select', {
     attributes: {
+      id: 'display-language',
       'aria-describedby': 'language-description',
-      'aria-label': 'Display language',
+      'aria-label': t('Display language'),
     },
   });
-  languageSelect.append(createElement('option', { text: 'English' }));
+  for (const [code, label] of Object.entries(LANGUAGES)) {
+    languageSelect.append(createElement('option', { text: label, attributes: { value: code, lang: code } }));
+  }
+  languageSelect.value = currentLanguage();
+  languageSelect.addEventListener('change', async () => {
+    languageSelect.disabled = true;
+    try {
+      await setLanguage(languageSelect.value);
+      localizeShell();
+      renderRoute();
+      document.querySelector('#display-language')?.focus({ preventScroll: true });
+    } catch {
+      languageSelect.value = currentLanguage();
+      showToast(t('Unable to load the selected language.'));
+    } finally {
+      languageSelect.disabled = false;
+    }
+  });
   languageBody.append(languageTitle, languageDescription);
   languageCard.append(languageIcon, languageBody, languageSelect);
 
@@ -799,15 +842,15 @@ const renderSettings = () => {
     text: APP_NAME,
     attributes: { id: 'app-info-title' },
   });
-  const appVersion = createElement('p', { text: APP_VERSION });
+  const appVersion = createElement('p', { text: appVersionLabel() });
   const appActions = createElement('div', { className: 'settings-actions' });
   const changeLogLink = createElement('a', {
     className: 'settings-icon-button',
     attributes: {
       href: '?page=release-notes',
       'data-route': '',
-      'aria-label': 'View change log',
-      title: 'View change log',
+      'aria-label': t('View change log'),
+      title: t('View change log'),
     },
   });
   changeLogLink.append(createImage({
@@ -819,8 +862,8 @@ const renderSettings = () => {
     className: 'settings-icon-button',
     attributes: {
       type: 'button',
-      'aria-label': 'Copy app info to clipboard',
-      title: 'Copy app info to clipboard',
+      'aria-label': t('Copy app info to clipboard'),
+      title: t('Copy app info to clipboard'),
     },
   });
   copyButton.append(createImage({
@@ -831,10 +874,10 @@ const renderSettings = () => {
 
   copyButton.addEventListener('click', async () => {
     try {
-      await navigator.clipboard.writeText(`${APP_NAME} (${APP_VERSION})`);
-      showToast('App information copied.');
+      await navigator.clipboard.writeText(`${APP_NAME} (${appVersionLabel()})`);
+      showToast(t('App information copied.'));
     } catch {
-      showToast('Unable to copy app information.');
+      showToast(t('Unable to copy app information.'));
     }
   });
 
@@ -854,7 +897,7 @@ const renderSettings = () => {
     className: 'useful-links-icon',
   });
   const linksTitle = createElement('h2', {
-    text: 'Useful Links',
+    text: t('Useful Links'),
     attributes: { id: 'useful-links-title' },
   });
   linksHeading.append(linksIcon, linksTitle);
@@ -879,10 +922,10 @@ const renderSettings = () => {
       alt: '',
       className: 'link-icon',
     });
-    const label = createElement('span', { text: link.label });
+    const label = createElement('span', { text: t(link.label) });
     linkElement.append(icon, label);
     if (link.action === 'download') {
-      linkElement.addEventListener('click', () => showToast('Coming soon!'));
+      linkElement.addEventListener('click', () => showToast(t('Coming soon!')));
     }
     linksGrid.append(linkElement);
   }
@@ -890,7 +933,7 @@ const renderSettings = () => {
   linksSection.append(linksHeading, linksGrid);
   section.append(header, grid, linksSection);
   elements.routeView.replaceChildren(section);
-  document.title = `Settings | ${APP_NAME}`;
+  document.title = `${t('Settings')} | ${APP_NAME}`;
 };
 
 const renderNotFound = () => {
@@ -900,15 +943,15 @@ const renderNotFound = () => {
   });
   const code = createElement('p', { className: 'eyebrow', text: '404' });
   const title = createElement('h1', {
-    text: 'Page not found',
+    text: t('Page not found'),
     attributes: { id: 'not-found-title' },
   });
   const description = createElement('p', {
-    text: 'The requested Halo Tracker page does not exist.',
+    text: t('The requested Halo Tracker page does not exist.'),
   });
   const homeLink = createElement('a', {
     className: 'button primary-button',
-    text: 'Return home',
+    text: t('Return home'),
     attributes: {
       href: '?page=search',
       'data-route': '',
@@ -917,13 +960,13 @@ const renderNotFound = () => {
 
   section.append(code, title, description, homeLink);
   elements.routeView.replaceChildren(section);
-  document.title = `Page not found | ${APP_NAME}`;
+  document.title = `${t('Page not found')} | ${APP_NAME}`;
 };
 
 const renderReleaseNotes = () => {
   const template = document.querySelector('#release-notes-template');
-  elements.routeView.replaceChildren(template.content.cloneNode(true));
-  document.title = `Release Notes | ${APP_NAME}`;
+  elements.routeView.replaceChildren(translateReleaseNotes(template.content.cloneNode(true)));
+  document.title = `${t('Release Notes')} | ${APP_NAME}`;
 };
 
 const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
@@ -1032,4 +1075,10 @@ desktopMediaQuery.addEventListener('change', () => {
 });
 
 canonicalizeUrl();
+try {
+  await setLanguage(savedLanguage());
+} catch {
+  showToast(t('Unable to load the selected language.'));
+}
+localizeShell();
 renderRoute();
