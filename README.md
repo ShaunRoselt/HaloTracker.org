@@ -17,10 +17,16 @@ _Note: Everything is still in active development with lots of bugs_
 ![](https://tokei.rs/b1/github/shaunroselt/HaloTracker.org?category=files)
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/shaunroselt/HaloTracker.org/master/LICENSE)
-[![wakatime](https://wakatime.com/badge/github/shaunroselt/HaloTracker.org.svg)](https://wakatime.com/badge/github/shaunroselt/HaloTracker.org)
 
 ## Current Features
-- Viewing achievements for Halo MCC, Halo 5, Halo Infinite, Halo Wars: Definitive Edition, Halo: Spartan Assault, Halo: Spartan Strike, and Halo: Campaign Evolved
+- Viewing Achievements for: 
+  - Halo MCC
+  - Halo 5
+  - Halo Infinite
+  - Halo Wars: Definitive Edition
+  - Halo: Spartan Assault
+  - Halo: Spartan Strike
+  - Halo: Campaign Evolved
 - Viewing Achievement Guides
 - Filtering Achievements by campaign, co-op campaign and multiplayer
 
