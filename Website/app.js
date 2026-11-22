@@ -3,7 +3,7 @@
 import { ACHIEVEMENTS } from './achievements.js';
 
 const APP_NAME = 'Halo Achievement Tracker';
-const APP_VERSION = 'Version 1.1.0 | WEB | RELEASE | 2026/11/22';
+const APP_VERSION = 'Version 1.1.0 | WEB | RELEASE | 2026/11/21';
 const HOME_DESCRIPTION = 'Browse Halo achievements by game and game mode, and open guides where available.';
 
 const FILTERS = Object.freeze([

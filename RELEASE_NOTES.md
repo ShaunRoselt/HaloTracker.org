@@ -19,7 +19,7 @@
 - [Version 1.0.6 (2024/04/04)](#version-106-20240404)
 - [Version 1.0.7 (2024/04/06)](#version-107-20240406)
 - [Version 1.0.8 (2024/05/24)](#version-108-20240524)
-- [Version 1.1.0 (2026/11/22)](#version-110-20261122)
+- [Version 1.1.0 (2026/11/21)](#version-110-20261121)
   
 
 ## Version 1.0.0 (2024/03/07)
@@ -97,13 +97,14 @@ This is the first version of the website. The first version is quite basic and b
 - Improved Responsiveness
 - Improved Search Engine Optimization
 
-## Version 1.1.0 (2026/11/22)
+## Version 1.1.0 (2026/11/21)
 ![Halo: Campaign Evolved achievements in Halo Achievement Tracker 1.1.0](Website/assets/release-notes/v1-1-0-campaign-evolved.webp)
 
 - Added Achievements for Halo Wars: Definitive Edition
 - Added Achievements for Halo: Spartan Strike
 - Added Achievements for Halo: Spartan Assault
 - Added Achievements for Halo: Campaign Evolved
+- Improved Achievement Filters to show only categories relevant to each game
 - Improved Responsiveness, Keyboard Navigation, and Color Contrast
 - Improved the Language Dropdown in Settings
 - Added the Release Notes page to the website
