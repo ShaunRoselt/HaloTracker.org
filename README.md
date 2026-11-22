@@ -5,7 +5,7 @@
   Halo Achievement Tracker
 </h1>
 
-Cross-Platform Halo Achievement Tracker App and Website ([HaloTracker.org](https://halotracker.org/))
+Cross-Platform Halo Achievement Tracker App and Website ([Live website on ChatGPT Sites](https://halotracker-org.shaunroselt.chatgpt.site))
 
 ![Halo Achievement Tracker (HaloTracker.org)](https://github.com/shaunroselt/HaloTracker.org/assets/5418178/1c7f88d5-d1a9-4930-85fc-d2d9abd58adf)
 
@@ -20,7 +20,7 @@ _Note: Everything is still in active development with lots of bugs_
 [![wakatime](https://wakatime.com/badge/github/shaunroselt/HaloTracker.org.svg)](https://wakatime.com/badge/github/shaunroselt/HaloTracker.org)
 
 ## Current Features
-- Viewing Achievements for Halo MCC, Halo 5 and Halo Infinite
+- Viewing achievements for Halo MCC, Halo 5, Halo Infinite, Halo Wars: Definitive Edition, Halo: Spartan Assault, Halo: Spartan Strike, and Halo: Campaign Evolved
 - Viewing Achievement Guides
 - Filtering Achievements by campaign, co-op campaign and multiplayer
 
@@ -32,9 +32,6 @@ _Note: Everything is still in active development with lots of bugs_
 - Searching for players via Xbox to view their achievements
 - Searching for players via Steam to view their achievements
 - Comparing achievements between different players
-- Add Achievements for Halo Wars: Definitive Edition
-- Add Achievements for Halo: Spartan Assault
-- Add Achievements for Halo: Spartan Strike
 
 ## Platform Support
 
@@ -48,5 +45,5 @@ _Note: Everything is still in active development with lots of bugs_
 | Web        | Any Modern Browser         |
 
 ## Release Notes (Change Log)
-[RELEASE_NOTES.md](https://github.com/shaunroselt/HaloTracker.org/blob/master/RELEASE_NOTES.md)
+[RELEASE_NOTES.md](RELEASE_NOTES.md)
 

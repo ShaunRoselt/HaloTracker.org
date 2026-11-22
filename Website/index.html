@@ -1,21 +1,269 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <meta $(ThemeColor)/>
-    <noscript>Your browser does not support JavaScript!</noscript>
-    <link href="data:;base64,=" rel="icon"/>
-    <meta $(Manifest)/>
-    <link $(FavIcon)/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Browse Halo achievement lists and guides for MCC, Halo 5, Halo Infinite, Halo Wars: Definitive Edition, Spartan Strike, Spartan Assault, and Halo: Campaign Evolved."
+    >
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#050708">
     <title>Halo Achievement Tracker</title>
-    <script src="$(ProjectName).js" type="text/javascript"></script>
-    <style>
-    </style>
+    <link rel="icon" href="assets/app.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js"></script>
   </head>
   <body>
-<meta $(BodyParameters)/>
+    <a class="skip-link" href="#main-content">Skip to content</a>
 
+    <video
+      class="app-background"
+      aria-hidden="true"
+      autoplay
+      loop
+      muted
+      playsinline
+      poster="assets/background-mcc.jpg"
+    >
+      <source src="assets/background.mp4" type="video/mp4">
+    </video>
+
+    <div class="app-shell">
+      <header class="app-header">
+        <button
+          class="icon-button menu-button"
+          id="menu-toggle"
+          type="button"
+          aria-controls="primary-navigation"
+          aria-expanded="false"
+          aria-label="Open navigation"
+        >
+          <img src="assets/list.svg" alt="" width="24" height="24">
+        </button>
+
+        <a class="brand" href="?page=search" data-route>
+          <img src="assets/app.svg" alt="" width="32" height="32">
+          <span>Halo Achievement Tracker</span>
+        </a>
+      </header>
+
+      <div class="sidebar" id="primary-navigation">
+        <nav class="navigation" aria-label="Primary">
+          <a class="nav-item" href="?page=search" data-route data-page="search">
+            <img src="assets/house.svg" alt="" width="24" height="24">
+            <span>Home</span>
+          </a>
+
+          <button
+            class="nav-item nav-section-toggle"
+            id="achievements-toggle"
+            type="button"
+            aria-controls="game-navigation"
+            aria-expanded="true"
+          >
+            <img src="assets/achievements.svg" alt="" width="24" height="24">
+            <span>Achievements</span>
+            <img class="nav-chevron" src="assets/chevron-down.svg" alt="" width="20" height="20">
+          </button>
+
+          <ul class="game-navigation" id="game-navigation">
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halomcc"
+                data-route
+                data-page="achievements"
+                data-game="halomcc"
+              >
+                <img src="assets/halo-mcc.png" alt="" width="32" height="32">
+                <span>Halo MCC (All)</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=haloreach"
+                data-route
+                data-page="achievements"
+                data-game="haloreach"
+              >
+                <img src="assets/halo-reach.png" alt="" width="32" height="32">
+                <span>Halo Reach</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=haloce"
+                data-route
+                data-page="achievements"
+                data-game="haloce"
+              >
+                <img src="assets/halo-ce.png" alt="" width="32" height="32">
+                <span>Halo CE</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halo2"
+                data-route
+                data-page="achievements"
+                data-game="halo2"
+              >
+                <img src="assets/halo-2.png" alt="" width="32" height="32">
+                <span>Halo 2</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halo3"
+                data-route
+                data-page="achievements"
+                data-game="halo3"
+              >
+                <img src="assets/halo-3.png" alt="" width="32" height="32">
+                <span>Halo 3</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halo3odst"
+                data-route
+                data-page="achievements"
+                data-game="halo3odst"
+              >
+                <img src="assets/halo-3-odst.png" alt="" width="32" height="32">
+                <span>Halo 3 ODST</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halo4"
+                data-route
+                data-page="achievements"
+                data-game="halo4"
+              >
+                <img src="assets/halo-4.png" alt="" width="32" height="32">
+                <span>Halo 4</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halo5"
+                data-route
+                data-page="achievements"
+                data-game="halo5"
+              >
+                <img src="assets/halo-5.png" alt="" width="32" height="32">
+                <span>Halo 5</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=haloinfinite"
+                data-route
+                data-page="achievements"
+                data-game="haloinfinite"
+              >
+                <img src="assets/halo-infinite.png" alt="" width="32" height="32">
+                <span>Halo Infinite</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halowarsde"
+                data-route
+                data-page="achievements"
+                data-game="halowarsde"
+              >
+                <img src="assets/halowarsde.png" alt="" width="32" height="32">
+                <span>Halo Wars: DE</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halospartanstrike"
+                data-route
+                data-page="achievements"
+                data-game="halospartanstrike"
+              >
+                <img src="assets/halospartanstrike.png" alt="" width="32" height="32">
+                <span>Halo: Spartan Strike</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halospartanassault"
+                data-route
+                data-page="achievements"
+                data-game="halospartanassault"
+              >
+                <img src="assets/halospartanassault.png" alt="" width="32" height="32">
+                <span>Halo: Spartan Assault</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-item nav-game"
+                href="?page=achievements&amp;game=halocampaignevolved"
+                data-route
+                data-page="achievements"
+                data-game="halocampaignevolved"
+              >
+                <img src="assets/halocampaignevolved.png" alt="" width="32" height="32">
+                <span>Halo: Campaign Evolved</span>
+              </a>
+            </li>
+          </ul>
+
+          <a
+            class="nav-item nav-settings"
+            href="?page=settings"
+            data-route
+            data-page="settings"
+          >
+            <img src="assets/settings.svg" alt="" width="24" height="24">
+            <span>Settings</span>
+          </a>
+        </nav>
+      </div>
+
+      <button
+        class="drawer-backdrop"
+        id="drawer-backdrop"
+        type="button"
+        aria-label="Close navigation"
+        tabindex="-1"
+      ></button>
+
+      <main class="main-content" id="main-content" tabindex="-1">
+        <div class="route-view" id="route-view">
+          <p class="loading-message">Loading achievements...</p>
+        </div>
+      </main>
+    </div>
+
+    <dialog class="guide-dialog" id="guide-dialog" aria-labelledby="guide-title">
+      <button class="dialog-close" id="guide-close" type="button" autofocus aria-label="Close guide">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div id="guide-content"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <noscript>
+      <p class="noscript-message">JavaScript is required to use the Halo Achievement Tracker.</p>
+    </noscript>
   </body>
-  <script type="text/javascript">rtl.run();</script>
 </html>

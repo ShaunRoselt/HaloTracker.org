@@ -17,8 +17,8 @@ tools:
   category: Languages & Frameworks
   sub_category: Languages
   image_url: https://img.stackshare.io/service/1209/javascript.jpeg
-  detection_source_url: https://github.com/shaunroselt/HaloTracker.org/blob/main/Website/TMSWeb/Release/HaloTracker_Web.js
-  detection_source: Website/TMSWeb/Release/HaloTracker_Web.js
+  detection_source_url: https://github.com/shaunroselt/HaloTracker.org/blob/main/Website/app.js
+  detection_source: Website/app.js
 - name: PHP
   description: A popular general-purpose scripting language that is especially suited
     to web development

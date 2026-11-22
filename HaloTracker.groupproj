@@ -3,9 +3,6 @@
         <ProjectGuid>{B98990D9-6108-4276-B6DD-F50C912492B8}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="Website\HaloTracker_Web.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="App\HaloTracker_App.dproj">
             <Dependencies/>
         </Projects>
@@ -20,15 +17,6 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="HaloTracker_Web">
-        <MSBuild Projects="Website\HaloTracker_Web.dproj"/>
-    </Target>
-    <Target Name="HaloTracker_Web:Clean">
-        <MSBuild Projects="Website\HaloTracker_Web.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="HaloTracker_Web:Make">
-        <MSBuild Projects="Website\HaloTracker_Web.dproj" Targets="Make"/>
-    </Target>
     <Target Name="HaloTracker_App">
         <MSBuild Projects="App\HaloTracker_App.dproj"/>
     </Target>
@@ -48,13 +36,13 @@
         <MSBuild Projects="API\HaloTracker_API.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="HaloTracker_Web;HaloTracker_App;HaloTracker_API"/>
+        <CallTarget Targets="HaloTracker_App;HaloTracker_API"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="HaloTracker_Web:Clean;HaloTracker_App:Clean;HaloTracker_API:Clean"/>
+        <CallTarget Targets="HaloTracker_App:Clean;HaloTracker_API:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="HaloTracker_Web:Make;HaloTracker_App:Make;HaloTracker_API:Make"/>
+        <CallTarget Targets="HaloTracker_App:Make;HaloTracker_API:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
