@@ -1021,13 +1021,18 @@
   }
 
   .guide-dialog {
+    --scrollbar-thumb: #66839c;
+    --scrollbar-track: #0b1116;
+
     width: min(56rem, calc(100% - 2rem));
     max-height: min(52rem, calc(100dvh - 2rem));
     padding: 0;
     overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
     border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-large);
-    background: #0b1116;
+    background: var(--scrollbar-track);
     color: var(--color-text);
     box-shadow: 0 2rem 6rem rgb(0 0 0 / 75%);
   }
