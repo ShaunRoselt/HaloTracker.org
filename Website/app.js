@@ -18,7 +18,6 @@ const achievementNameOrder = new Intl.Collator('en', { sensitivity: 'base', nume
 const compareUnlockRate = (a, b) => Number.parseFloat(a.percentAchieved) - Number.parseFloat(b.percentAchieved);
 const compareAchievementName = (a, b) => achievementNameOrder.compare(a.name, b.name);
 const ACHIEVEMENT_SORTS = new Map([
-  ['default', { label: 'Default order' }],
   ['unlock-desc', { label: 'Most unlocked', compare: (a, b) => compareUnlockRate(b, a) }],
   ['unlock-asc', { label: 'Least unlocked', compare: compareUnlockRate }],
   ['name-asc', { label: 'Name (A–Z)', compare: compareAchievementName }],
@@ -26,8 +25,7 @@ const ACHIEVEMENT_SORTS = new Map([
 ]);
 
 const sortAchievements = (achievements, sort) => {
-  const { compare } = ACHIEVEMENT_SORTS.get(sort);
-  return compare ? achievements.toSorted(compare) : achievements;
+  return achievements.toSorted(ACHIEVEMENT_SORTS.get(sort).compare);
 };
 
 const GAME_CONFIG = new Map([
@@ -156,7 +154,7 @@ const achievementById = new Map(
 
 const state = {
   filtersByGame: new Map(),
-  achievementSort: 'default',
+  achievementSort: 'unlock-desc',
   sidebarOpen: false,
   renderedRoute: null,
   toastTimer: null,
