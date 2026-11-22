@@ -154,6 +154,7 @@ const elements = {
   guideClose: document.querySelector('#guide-close'),
   guideContent: document.querySelector('#guide-content'),
   guideDialog: document.querySelector('#guide-dialog'),
+  guideScroll: document.querySelector('#guide-scroll'),
   mainContent: document.querySelector('#main-content'),
   menuToggle: document.querySelector('#menu-toggle'),
   routeView: document.querySelector('#route-view'),
@@ -629,7 +630,7 @@ const openGuide = (achievement) => {
   elements.guideContent.replaceChildren(article);
   elements.guideDialog.dataset.achievementId = achievement.id;
   elements.guideDialog.showModal();
-  elements.guideDialog.scrollTop = 0;
+  elements.guideScroll.scrollTop = 0;
 };
 
 const hideGuide = () => {
