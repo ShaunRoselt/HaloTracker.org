@@ -972,7 +972,7 @@
     display: grid;
     grid-template-columns: 32px minmax(0, 1fr);
     gap: 6px;
-    align-items: start;
+    align-items: center;
     min-height: 44px;
     padding: 5px 0 5px 8px;
     border: 0;
@@ -1000,7 +1000,7 @@
   }
 
   .link-card > span {
-    margin-top: 4px;
+    text-box: trim-both cap alphabetic;
   }
 
   .not-found {
