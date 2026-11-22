@@ -20,7 +20,13 @@ _Note: Everything is still in active development with lots of bugs_
 
 ## Current Features
 - Viewing Achievements for: 
-  - Halo MCC
+  - Halo: The Master Chief Collection
+    - Halo: Reach
+    - Halo: Combat Evolved
+    - Halo 2
+    - Halo 3
+    - Halo 3: ODST
+    - Halo 4
   - Halo 5
   - Halo Infinite
   - Halo Wars: Definitive Edition
