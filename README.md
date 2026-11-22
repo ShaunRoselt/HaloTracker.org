@@ -1,49 +1,65 @@
 <p align="center">
-  <img width="160" align="center" src="Website/assets/halo-mcc.png">
+  <img width="160" align="center" src="Website/assets/halo-mcc.png" alt="Halo: The Master Chief Collection icon">
 </p>
 <h1 align="center">
   Halo Achievement Tracker
 </h1>
 
-Cross-Platform Halo Achievement Tracker App and Website ([HaloTracker.org](https://halotracker-org.shaunroselt.chatgpt.site))
+Browse Halo achievements, filter them by game mode, and open guides where available.
 
-![Halo Achievement Tracker (HaloTracker.org)](https://github.com/shaunroselt/HaloTracker.org/assets/5418178/1c7f88d5-d1a9-4930-85fc-d2d9abd58adf)
+**Current web version:** 1.1.0 (2026/11/22) · [Open the tracker](https://halotracker-org.shaunroselt.chatgpt.site/) · [Release notes](https://halotracker-org.shaunroselt.chatgpt.site/?page=release-notes)
 
-_Note: Everything is still in active development with lots of bugs_
+![Halo: Campaign Evolved achievements in version 1.1.0](Website/assets/release-notes/v1-1-0-campaign-evolved.webp)
 
+## Repository Status
 
-## Status
 ![](https://tokei.rs/b1/github/shaunroselt/HaloTracker.org?category=code)
 ![](https://tokei.rs/b1/github/shaunroselt/HaloTracker.org?category=files)
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/shaunroselt/HaloTracker.org/master/LICENSE)
 [![wakatime](https://wakatime.com/badge/github/shaunroselt/HaloTracker.org.svg)](https://wakatime.com/badge/github/shaunroselt/HaloTracker.org)
 
+## Supported Games
+
+- Halo: The Master Chief Collection, including Halo: Reach, Halo: Combat Evolved, Halo 2, Halo 3, Halo 3: ODST, and Halo 4
+- Halo 5: Guardians
+- Halo Infinite
+- Halo Wars: Definitive Edition
+- Halo: Spartan Assault
+- Halo: Spartan Strike
+- Halo: Campaign Evolved
+
 ## Current Features
-- Viewing achievements for Halo MCC, Halo 5, Halo Infinite, Halo Wars: Definitive Edition, Halo: Spartan Assault, Halo: Spartan Strike, and Halo: Campaign Evolved
-- Viewing Achievement Guides
-- Filtering Achievements by campaign, co-op campaign and multiplayer
+
+- View achievement descriptions and the percentage of players who unlocked each achievement.
+- Filter achievements by campaign, co-op campaign, PvE multiplayer, PvP multiplayer, and other.
+- Open written and video guides where available.
+- Browse the tracker on desktop and mobile. Open the release history from Settings.
 
 ## Planned Features
-- Better Mobile Support
-- Achievement Guides for every Achievement
-- Better Filtering options
-- Add Sorting options
-- Searching for players via Xbox to view their achievements
-- Searching for players via Steam to view their achievements
-- Comparing achievements between different players
+
+- Further improvements to mobile support, achievement guides, and filters
+- Achievement sorting
+- Steam and Xbox player lookup and achievement comparisons
 
 ## Platform Support
 
-| Platform   | Minimum Version            |
-| ---------- | -------------------------- |
-| Windows    | *Coming soon!*             |
-| Android    | *Coming soon!*             |
-| MacOS      | *Coming soon!*             |
-| iOS / tvOS | *Coming soon!*             |
-| Linux      | *Coming soon!*             |
-| Web        | Any Modern Browser         |
+The web tracker targets Baseline 2025. Native app downloads are still in development.
 
-## Release Notes (Change Log)
-[RELEASE_NOTES.md](RELEASE_NOTES.md)
+## Run the Website Locally
 
+From the repository root, run:
+
+```sh
+npm --prefix Website run build
+python3 -m http.server 8000 --directory Website/dist/client
+```
+
+Open [localhost:8000](http://localhost:8000/). The web source is in [Website](Website/).
+
+## Release Notes
+
+Browse the [release history in the tracker](https://halotracker-org.shaunroselt.chatgpt.site/?page=release-notes) or read [RELEASE_NOTES.md](RELEASE_NOTES.md).
+
+## License
+
+[MIT](LICENSE)
