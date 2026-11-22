@@ -4447,6 +4447,12 @@
     "New “The Yappening II” background image for the home page": "Isithombe esisha sangemuva se-\"The Yappening II\" sekhasi lasekhaya",
     "Added Achievement Guide for “No Picnic” in Halo MCC": "Kwengezwe Umhlahlandlela Wempumelelo we-\"No Picnic\" kokuthi Halo MCC",
     "The Left Hamburger Menu will now have the correct item selected on the first-page load": "Imenyu Yesokunxele Ye-Hamburger manje isizoba nento elungile ekhethiwe ekulayisheni kwekhasi lokuqala",
-    "Optimized Achievements Loading": "Izimpumelelo Ezilungiselelwe Iyalayisha"
+    "Optimized Achievements Loading": "Izimpumelelo Ezilungiselelwe Iyalayisha",
+    "Halo 5 achievements with official artwork, search, and sorting in Halo Achievement Tracker 1.3.0": "Izimpumelelo ze-Halo 5 ezinezithombe ezisemthethweni, ukusesha nokuhlela ku-Halo Achievement Tracker 1.3.0",
+    "Added Achievement Search to each game": "Kwengezwe ukusesha izimpumelelo emdlalweni ngamunye",
+    "Added Achievement Sorting by unlock rate and name": "Kwengezwe ukuhlela izimpumelelo ngephesenti labadlali abazivulile nangegama",
+    "Added 72 display languages alongside English": "Kwengezwe izilimi zokubonisa ezingu-72 ngaphezu kwesiNgisi",
+    "Added official artwork for Halo 5: Guardians Achievements": "Kwengezwe izithombe ezisemthethweni zezimpumelelo ze-Halo 5: Guardians",
+    "Improved Achievement Guide dialogs so scrollbars stay inside the border and appear only when needed": "Amawindi emihlahlandlela yezimpumelelo athuthukisiwe ukuze amabha okuskrola ahlale ngaphakathi komngcele futhi avele kuphela lapho edingeka"
   }
 }

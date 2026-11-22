@@ -122,7 +122,6 @@ This is the first version of the website. The first version is quite basic and b
 
 - Added Achievement Search to each game
 - Added Achievement Sorting by unlock rate and name
-- Added 72 display languages alongside English, with partial translation coverage
-- Kept original Achievement names across all display languages
-- Added official artwork for all 73 Halo 5: Guardians Achievements
+- Added 72 display languages alongside English
+- Added official artwork for Halo 5: Guardians Achievements
 - Improved Achievement Guide dialogs so scrollbars stay inside the border and appear only when needed
