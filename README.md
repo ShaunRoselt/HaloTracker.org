@@ -7,14 +7,14 @@
 
 Cross-Platform Halo Achievement Tracker App and Website ([HaloTracker.org](https://halotracker-org.shaunroselt.chatgpt.site))
 
-![Halo Achievement Tracker (HaloTracker.org)](https://github.com/shaunroselt/HaloTracker.org/assets/5418178/1c7f88d5-d1a9-4930-85fc-d2d9abd58adf)
+![Halo: Campaign Evolved achievements in Halo Achievement Tracker 1.1.0](Website/assets/release-notes/v1-1-0-campaign-evolved.webp)
 
 _Note: Everything is still in active development with lots of bugs_
 
 
 ## Status
-![](https://tokei.rs/b1/github/shaunroselt/HaloTracker.org?category=code)
-![](https://tokei.rs/b1/github/shaunroselt/HaloTracker.org?category=files)
+![Lines of code](https://img.shields.io/badge/lines%20of%20code-21%2C254-blue)
+![Source files](https://img.shields.io/badge/source%20files-33-blue)
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/shaunroselt/HaloTracker.org/master/LICENSE)
 
