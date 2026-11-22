@@ -134,7 +134,7 @@ async function steamAchievements(player, appId, signal) {
   url.search = 'xml=1&l=english';
   const response = await fetch(url, {
     headers: { Accept: 'application/xml' },
-    redirect: 'error',
+    redirect: 'manual',
     signal,
   });
   if (response.status === 429) {
@@ -151,7 +151,7 @@ async function xboxRequest(path, apiKey, signal) {
       'Accept-Language': 'en-US',
       'X-Authorization': apiKey,
     },
-    redirect: 'error',
+    redirect: 'manual',
     signal,
   });
   const body = response.ok ? JSON.parse(await readLimited(response, 4_000_000)) : {};
