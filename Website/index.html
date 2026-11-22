@@ -49,19 +49,13 @@
 
         <form class="player-lookup" id="player-lookup" role="search" aria-labelledby="player-id-label"
           action="/api/player-achievements" method="post" hidden>
-          <div class="player-lookup-platform">
-            <label for="player-platform" id="player-platform-label">Platform</label>
-            <select id="player-platform" name="platform">
-              <option value="steam">Steam</option>
-              <option value="xbox">Xbox</option>
-            </select>
-          </div>
-          <div class="player-lookup-field">
-            <label for="player-id" id="player-id-label">Steam ID or profile URL</label>
-            <input id="player-id" name="player" type="search" dir="auto" required maxlength="160"
-              autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="search">
-          </div>
-          <button class="button primary-button" type="submit" id="player-submit">Search</button>
+          <label for="player-id" id="player-id-label" class="achievement-search-label">Steam ID or Xbox Gamertag</label>
+          <input id="player-id" name="player" type="search" required maxlength="160"
+            placeholder="Steam ID or Xbox Gamertag" autocomplete="off" autocorrect="off"
+            autocapitalize="none" spellcheck="false" enterkeyhint="search">
+          <button class="player-lookup-submit" type="submit" id="player-submit" aria-label="Search">
+            <img src="assets/search.svg" alt="" width="14" height="14">
+          </button>
         </form>
       </header>
 

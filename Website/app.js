@@ -195,7 +195,6 @@ const elements = {
   mainContent: document.querySelector('#main-content'),
   playerLookup: document.querySelector('#player-lookup'),
   playerId: document.querySelector('#player-id'),
-  playerPlatform: document.querySelector('#player-platform'),
   menuToggle: document.querySelector('#menu-toggle'),
   routeView: document.querySelector('#route-view'),
   sidebar: document.querySelector('#primary-navigation'),
@@ -331,16 +330,11 @@ const showToast = (message) => {
 const pageDescription = document.querySelector('meta[name="description"]');
 const englishPageDescription = pageDescription.content;
 
-const localizePlayerInput = () => {
-  document.querySelector('#player-id-label').textContent = t(
-    elements.playerPlatform.value === 'xbox' ? 'Xbox Gamertag' : 'Steam ID or profile URL'
-  );
-};
-
 const localizeShell = () => {
-  document.querySelector('#player-platform-label').textContent = t('Platform');
-  document.querySelector('#player-submit').textContent = t('Search');
-  localizePlayerInput();
+  const playerLabel = t('Steam ID or Xbox Gamertag');
+  document.querySelector('#player-id-label').textContent = playerLabel;
+  elements.playerId.placeholder = playerLabel;
+  document.querySelector('#player-submit').setAttribute('aria-label', t('Search'));
   document.querySelector('.skip-link').textContent = t('Skip to content');
   document.querySelector('.navigation').setAttribute('aria-label', t('Primary'));
   document.querySelector('[data-page="search"] span').textContent = t('Home');
@@ -417,16 +411,20 @@ const createFilterControl = ({ value, label }, checked) => {
   return wrapper;
 };
 
-const appendUnlockStatus = (metadata, unlocked) => {
-  if (typeof unlocked !== 'boolean') return;
-  metadata.append(createElement('span', {
-    className: 'achievement-unlock',
-    attributes: { 'data-unlocked': String(unlocked) },
-    text: t(unlocked ? 'Unlocked' : 'Locked'),
-  }));
+const appendUnlockStatuses = (metadata, achievementId, progress) => {
+  for (const { platform, unlocks } of progress) {
+    const unlocked = unlocks.get(achievementId);
+    if (typeof unlocked !== 'boolean') continue;
+    const label = t(unlocked ? 'Unlocked' : 'Locked');
+    metadata.append(createElement('span', {
+      className: 'achievement-unlock',
+      attributes: { 'data-unlocked': String(unlocked), 'data-platform': platform },
+      text: progress.length > 1 ? `${PLATFORM_NAMES[platform]} · ${label}` : label,
+    }));
+  }
 };
 
-const createAchievementCard = (achievement, index, unlocked) => {
+const createAchievementCard = (achievement, index, progress) => {
   const guideAvailable = hasGuide(achievement);
   const card = createElement('article', {
     className: `achievement-card${guideAvailable ? ' has-guide' : ''}`,
@@ -459,7 +457,7 @@ const createAchievementCard = (achievement, index, unlocked) => {
   });
 
   metadata.append(percentage);
-  appendUnlockStatus(metadata, unlocked);
+  appendUnlockStatuses(metadata, achievement.id, progress);
   if (guideAvailable) {
     card.append(createElement('button', {
       className: 'achievement-guide-button',
@@ -483,7 +481,7 @@ const normalizeSearch = (value) => value
   .replace(/[^\p{Letter}\p{Number}]+/gu, ' ')
   .trim();
 
-const renderAchievementCards = ({ achievements, activeFilters, searching, count, list, unlocks }) => {
+const renderAchievementCards = ({ achievements, activeFilters, searching, count, list, playerProgress }) => {
   const filteredAchievements = achievements.filter(({ filters }) => (
     filters.some((filter) => activeFilters.has(filter))
   ));
@@ -491,7 +489,7 @@ const renderAchievementCards = ({ achievements, activeFilters, searching, count,
 
   const cards = new Map();
   filteredAchievements.forEach((achievement, index) => {
-    const card = createAchievementCard(achievement, index, unlocks.get(achievement.id));
+    const card = createAchievementCard(achievement, index, playerProgress);
     cards.set(achievement, card);
     fragment.append(card);
   });
@@ -513,7 +511,7 @@ async function fetchPlayerProgress(player, collection) {
     const response = await fetch('/api/player-achievements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ platform: player.platform, player: player.id, game: collection }),
+      body: JSON.stringify({ player: player.id, game: collection }),
       signal: player.controller.signal,
     });
     return await response.json();
@@ -615,8 +613,7 @@ const renderAchievements = (game) => {
 
   const player = state.player;
   const playerInfo = createElement('div', { className: 'player-progress-info' });
-  const playerName = createElement('bdi', { className: 'player-progress-name' });
-  const playerStatus = createElement('p', {
+  const playerStatus = createElement('div', {
     className: 'player-progress-status',
     attributes: { role: 'status' },
   });
@@ -633,10 +630,9 @@ const renderAchievements = (game) => {
   }
 
   if (player) {
-    playerName.textContent = player.id;
     playerStatus.textContent = t('Looking up achievements…');
     unlockFilter.hidden = true;
-    playerInfo.append(PLATFORM_NAMES[player.platform] + ' · ', playerName, playerStatus);
+    playerInfo.append(playerStatus);
     const playerActions = createElement('div', { className: 'player-progress-actions' });
     playerActions.append(unlockFilter, clearPlayer);
     const playerPanel = createElement('div', { className: 'player-progress' });
@@ -651,7 +647,7 @@ const renderAchievements = (game) => {
       elements.playerId.focus({ preventScroll: true });
     });
   }
-  let unlocks = new Map();
+  let playerProgress = [];
 
   const filterPanel = createElement('form', {
     className: 'filter-panel',
@@ -711,10 +707,12 @@ const renderAchievements = (game) => {
   const renderResults = () => {
     const query = normalizeSearch(searchValue);
     const terms = query ? query.split(' ') : [];
-    const progress = unlockFilter.value;
+    const status = unlockFilter.value;
     const matches = achievements.filter((achievement) => (
       terms.every((term) => searchableText.get(achievement).includes(term))
-      && (progress === 'all' || unlocks.get(achievement.id) === (progress === 'unlocked'))
+      && (status === 'all' || playerProgress.some(
+        ({ unlocks }) => unlocks.get(achievement.id) === (status === 'unlocked')
+      ))
     ));
     return renderAchievementCards({
       achievements: sortAchievements(matches, state.achievementSort),
@@ -722,7 +720,7 @@ const renderAchievements = (game) => {
       searching: terms.length > 0,
       count,
       list,
-      unlocks,
+      playerProgress,
     });
   };
   let cards = renderResults();
@@ -733,34 +731,45 @@ const renderAchievements = (game) => {
   if (player) {
     void progressForGame(player, config.collection).then((result) => {
       if (state.player !== player || !playerInfo.isConnected) return;
-      if (!Array.isArray(result?.achievements)) {
-        playerStatus.textContent = t(
-          PLAYER_ERRORS.get(result?.error) ?? 'Could not load the player’s achievements. Try again.'
-        );
+      const reports = Array.isArray(result?.results) ? result.results : [result];
+      playerProgress = reports.flatMap((report) => {
+        if (!Array.isArray(report?.achievements)) return [];
+        const unlocks = matchUnlocks(achievements, report.achievements);
+        return unlocks.size ? [{ ...report, unlocks }] : [];
+      });
+
+      playerStatus.replaceChildren();
+      if (!playerProgress.length) {
+        for (const report of reports) {
+          const message = PLAYER_ERRORS.get(report?.error) ?? (report?.achievements
+            ? 'No public achievement data is available for this player in this game.'
+            : 'Could not load the player’s achievements. Try again.');
+          const prefix = reports.length > 1 ? PLATFORM_NAMES[report?.platform] + ' · ' : '';
+          playerStatus.append(createElement('p', { text: prefix + t(message) }));
+        }
         return;
       }
 
-      if (result.player) playerName.textContent = result.player;
-      unlocks = matchUnlocks(achievements, result.achievements);
-      if (!unlocks.size) {
-        playerStatus.textContent = t('No public achievement data is available for this player in this game.');
-        return;
-      }
       const number = new Intl.NumberFormat(currentLanguage());
-      const unlocked = [...unlocks.values()].filter(Boolean).length;
-      playerStatus.textContent = t(
-        unlocks.size === achievements.length
-          ? '{unlocked} of {total} unlocked'
-          : '{unlocked} unlocked · Status available for {reported} of {total}',
-        {
-          unlocked: number.format(unlocked),
-          reported: number.format(unlocks.size),
-          total: number.format(achievements.length),
-        },
-      );
+      for (const { player: name, platform, unlocks } of playerProgress) {
+        const unlocked = [...unlocks.values()].filter(Boolean).length;
+        const result = createElement('p');
+        const playerName = createElement('bdi', { className: 'player-progress-name', text: name });
+        const total = createElement('span', {
+          text: t(unlocks.size === achievements.length
+            ? '{unlocked} of {total} unlocked'
+            : '{unlocked} unlocked · Status available for {reported} of {total}', {
+            unlocked: number.format(unlocked),
+            reported: number.format(unlocks.size),
+            total: number.format(achievements.length),
+          }),
+        });
+        result.append(PLATFORM_NAMES[platform] + ' · ', playerName, ' · ', total);
+        playerStatus.append(result);
+      }
       unlockFilter.hidden = false;
       for (const [achievement, card] of cards) {
-        appendUnlockStatus(card.querySelector('.achievement-metadata'), unlocks.get(achievement.id));
+        appendUnlockStatuses(card.querySelector('.achievement-metadata'), achievement.id, playerProgress);
       }
     });
   }
@@ -1287,7 +1296,6 @@ desktopMediaQuery.addEventListener('change', () => {
   }
 });
 
-elements.playerPlatform.addEventListener('change', localizePlayerInput);
 elements.playerLookup.addEventListener('submit', (event) => {
   event.preventDefault();
   const id = elements.playerId.value.trim();
@@ -1297,13 +1305,11 @@ elements.playerLookup.addEventListener('submit', (event) => {
     return;
   }
 
-  const platform = elements.playerPlatform.value;
   state.player?.controller.abort();
-  state.player = { id, platform, games: new Map(), controller: new AbortController() };
+  state.player = { id, games: new Map(), controller: new AbortController() };
 
   const route = getRoute();
-  const game = route.page === 'achievements' && GAME_CONFIG.has(route.game)
-    && !(platform === 'steam' && route.game === 'halo5') ? route.game : 'halomcc';
+  const game = route.page === 'achievements' && GAME_CONFIG.has(route.game) ? route.game : 'halomcc';
   if (route.page !== 'achievements' || route.game !== game || route.achievement) {
     const url = new URL(window.location.href);
     url.searchParams.set('page', 'achievements');

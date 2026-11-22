@@ -477,7 +477,7 @@
     margin-inline-start: 0.75rem;
   }
 
-  .achievement-search input {
+  :is(.achievement-search, .player-lookup) input {
     width: 100%;
     min-height: 44px;
     padding: 0.5rem 0.75rem 0.5rem 2.25rem;
@@ -487,12 +487,12 @@
     color: var(--color-text);
   }
 
-  .achievement-search input:dir(rtl) {
+  :is(.achievement-search, .player-lookup) input:dir(rtl) {
     padding-inline: 2.25rem 0.75rem;
     background-position: right 0.75rem center;
   }
 
-  .achievement-search input::placeholder {
+  :is(.achievement-search, .player-lookup) input::placeholder {
     color: var(--color-text-muted);
   }
 
@@ -515,29 +515,34 @@
   }
 
   .player-lookup {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: end;
-    gap: 0.5rem;
-    width: min(100%, 30rem);
+    position: relative;
+    width: min(100%, 22rem);
     min-width: 0;
     margin-inline-start: auto;
   }
 
-  .player-lookup label {
-    display: block;
-    margin-block-end: 0.125rem;
-    font-size: 0.875rem;
+  .player-lookup input {
+    background-image: none;
   }
 
-  .player-lookup :is(input, select, button),
+  .player-lookup-submit {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    display: grid;
+    width: 2.1rem;
+    padding-inline: 0.75rem 0;
+    place-items: center start;
+    border-radius: var(--radius-small);
+    background: transparent;
+    cursor: pointer;
+  }
+
   .player-progress-actions :is(select, button) {
     min-height: 44px;
     padding: 0.4rem 0.75rem;
   }
 
-  .player-lookup input,
-  .player-lookup select,
   .player-progress-actions select {
     min-width: 0;
     max-width: 100%;
@@ -546,10 +551,6 @@
     background: #10161d;
     color: var(--color-text);
     color-scheme: dark;
-  }
-
-  .player-lookup input {
-    width: 100%;
   }
 
   .player-progress {
@@ -573,6 +574,10 @@
   .player-progress-status {
     margin: 0.125rem 0 0;
     color: var(--color-text-muted);
+  }
+
+  .player-progress-status p {
+    margin: 0;
   }
 
   .player-progress-actions {

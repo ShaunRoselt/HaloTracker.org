@@ -20,6 +20,7 @@ const xboxGames = new Map([
 
 const steamIdBase = 76561197960265728n;
 const steamId64 = /^7656\d{13}$/;
+const steamVanity = /^[a-z\d_-]{2,64}$/i;
 const xboxUserId = /^\d{1,20}$/;
 const gamertag = /^[\p{L}\p{N}][\p{L}\p{M}\p{N}]*(?: [\p{L}\p{M}\p{N}]+)*(?:#\d{1,6})?$/u;
 
@@ -46,7 +47,7 @@ export function steamProfilePath(player) {
   }
 
   if (steamId64.test(player)) return '/profiles/' + player;
-  if (/^[a-z\d_-]{2,64}$/i.test(player)) return '/id/' + player;
+  if (steamVanity.test(player)) return '/id/' + player;
 
   let url;
   try {
@@ -63,6 +64,21 @@ export function steamProfilePath(player) {
     throw invalidPlayer();
   }
   return `/${path[1]}/${path[2]}`;
+}
+
+export function detectPlayerPlatforms(player) {
+  // A Steam ID or profile link identifies Steam directly. Only bare names can
+  // overlap, so look those up on both services when they fit both formats.
+  let steam = false;
+  try {
+    steam = Boolean(steamProfilePath(player));
+  } catch {
+    // An Xbox-only Gamertag does not have a Steam profile path.
+  }
+  if (steam && (steamId64.test(player) || !steamVanity.test(player))) return ['steam'];
+  const platforms = steam ? ['steam'] : [];
+  if (player.length <= 48 && gamertag.test(player)) platforms.push('xbox');
+  return platforms;
 }
 
 async function readLimited(message, maxBytes) {
@@ -219,6 +235,14 @@ function json(value, status = 200, retryAfter = null) {
   return Response.json(value, { status, headers });
 }
 
+async function lookupPlatform(platform, game, player, env, signal) {
+  const gameId = (platform === 'steam' ? steamGames : xboxGames).get(game);
+  if (!gameId) throw new LookupError('unsupported-game', 404);
+  return platform === 'steam'
+    ? steamAchievements(player, gameId, signal)
+    : xboxAchievements(player, gameId, env.OPENXBL_API_KEY, signal);
+}
+
 export async function lookupPlayerAchievements(request, env) {
   const origin = request.headers.get('Origin');
   if (origin && origin !== new URL(request.url).origin) return json({ error: 'invalid-request' }, 403);
@@ -237,21 +261,31 @@ export async function lookupPlayerAchievements(request, env) {
   if (typeof player !== 'string' || !player.trim() || player.length > 160) {
     return json({ error: 'invalid-player' }, 400);
   }
-  if (platform !== 'steam' && platform !== 'xbox') {
-    return json({ error: 'invalid-request' }, 400);
-  }
-  const gameId = (platform === 'steam' ? steamGames : xboxGames).get(game);
-  if (!gameId) return json({ error: 'unsupported-game' }, 404);
+  const name = player.trim().normalize('NFC');
+  const signal = AbortSignal.timeout(10_000);
 
-  try {
-    const name = player.trim().normalize('NFC');
-    const signal = AbortSignal.timeout(10_000);
-    const progress = platform === 'steam'
-      ? await steamAchievements(name, gameId, signal)
-      : await xboxAchievements(name, gameId, env.OPENXBL_API_KEY, signal);
-    return json(progress);
-  } catch (error) {
-    if (error instanceof LookupError) return json({ error: error.message }, error.status, error.retryAfter);
-    return json({ error: 'provider-unavailable' }, 502);
+  // Keep existing callers that already specify a platform working.
+  if (platform !== undefined) {
+    if (platform !== 'steam' && platform !== 'xbox') return json({ error: 'invalid-request' }, 400);
+    try {
+      return json(await lookupPlatform(platform, game, name, env, signal));
+    } catch (error) {
+      if (error instanceof LookupError) return json({ error: error.message }, error.status, error.retryAfter);
+      return json({ error: 'provider-unavailable' }, 502);
+    }
   }
+
+  const candidates = detectPlayerPlatforms(name);
+  if (!candidates.length) return json({ error: 'invalid-player' }, 400);
+  const results = await Promise.all(candidates.map(async (candidate) => {
+    try {
+      return { platform: candidate, ...await lookupPlatform(candidate, game, name, env, signal) };
+    } catch (error) {
+      return {
+        platform: candidate,
+        error: error instanceof LookupError ? error.message : 'provider-unavailable',
+      };
+    }
+  }));
+  return json({ results });
 }
