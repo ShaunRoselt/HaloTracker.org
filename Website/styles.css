@@ -652,10 +652,14 @@
     text-align: center;
   }
 
+  .settings-page,
+  .release-notes-page {
+    padding: 10px;
+  }
+
   .settings-page {
     display: block;
     min-height: calc(100dvh - var(--header-height) - 41px);
-    padding: 10px;
     border: 1px solid white;
     border-radius: 5px;
     background: rgb(0 0 0 / 70%);
@@ -699,7 +703,6 @@
   .release-notes-page {
     display: grid;
     gap: 0.75rem;
-    padding: clamp(0.75rem, 2vw, 1.5rem);
     border-radius: var(--radius-medium);
     backdrop-filter: blur(8px);
   }
