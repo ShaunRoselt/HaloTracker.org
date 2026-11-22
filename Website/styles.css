@@ -704,33 +704,20 @@
     backdrop-filter: blur(8px);
   }
 
-  .release-notes-heading {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem 1rem;
-  }
-
-  .release-notes-heading h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 400;
-  }
-
-  .release-notes-heading a {
-    text-underline-offset: 0.2em;
-  }
-
   .release-entry {
-    padding: 0.875rem;
     border-radius: var(--radius-medium);
     background: var(--color-surface-strong);
   }
 
-  .release-entry h2 {
-    margin: 0 0 0.5rem;
+  .release-entry > summary {
+    padding: 0.75rem 0.875rem;
     font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .release-entry-body {
+    padding: 0 0.875rem 0.875rem;
   }
 
   .release-entry ul {
