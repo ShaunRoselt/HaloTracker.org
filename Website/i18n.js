@@ -11,7 +11,7 @@ const translationIndex = { af: 0, zu: 1 };
 let language = 'en';
 let catalog = {};
 let releaseNotes = {};
-let collator = new Intl.Collator(language, { sensitivity: 'base', numeric: true });
+const collator = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
 let percentFormatter = new Intl.NumberFormat(language, {
   style: 'percent',
   maximumFractionDigits: 2,
@@ -48,7 +48,6 @@ export const setLanguage = async (nextLanguage) => {
 
   language = nextLanguage;
   document.documentElement.lang = language;
-  collator = new Intl.Collator(language, { sensitivity: 'base', numeric: true });
   percentFormatter = new Intl.NumberFormat(language, {
     style: 'percent',
     maximumFractionDigits: 2,
@@ -69,10 +68,7 @@ export const t = (source, values = {}) => {
 
 export const achievementText = (achievement, field) => catalog[achievement.id]?.[field] ?? achievement[field];
 
-export const compareNames = (first, second) => collator.compare(
-  achievementText(first, 'name'),
-  achievementText(second, 'name'),
-);
+export const compareNames = (first, second) => collator.compare(first.name, second.name);
 
 export const formatPercent = (percent) => (
   language === 'en' ? percent : percentFormatter.format(Number.parseFloat(percent) / 100)

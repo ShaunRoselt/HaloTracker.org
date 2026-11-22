@@ -408,7 +408,8 @@ const createAchievementCard = (achievement, index) => {
   const body = createElement('div', { className: 'achievement-body' });
   const heading = createElement('h3', {
     className: 'achievement-name',
-    text: achievementText(achievement, 'name'),
+    text: achievement.name,
+    attributes: { lang: 'en' },
   });
   const description = createElement('p', {
     className: 'achievement-description',
@@ -427,7 +428,7 @@ const createAchievementCard = (achievement, index) => {
       attributes: {
         type: 'button',
         'data-achievement-id': achievement.id,
-        'aria-label': t('Open guide for {achievement}', { achievement: achievementText(achievement, 'name') }),
+        'aria-label': t('Open guide for {achievement}', { achievement: achievement.name }),
       },
     }));
   }
@@ -651,8 +652,8 @@ const openGuide = (achievement) => {
     text: t('{percent} of players have this achievement', { percent: formatPercent(achievement.percentAchieved) }),
   });
   const title = createElement('h2', {
-    text: achievementText(achievement, 'name'),
-    attributes: { id: 'guide-title' },
+    text: achievement.name,
+    attributes: { id: 'guide-title', lang: 'en' },
   });
   const description = createElement('p', {
     className: 'guide-summary',
@@ -697,7 +698,7 @@ const openGuide = (achievement) => {
         attributes: {
           src: videoUrl,
           title: t('{achievement} video guide {number}', {
-            achievement: achievementText(achievement, 'name'),
+            achievement: achievement.name,
             number: index + 1,
           }),
           loading: 'lazy',
