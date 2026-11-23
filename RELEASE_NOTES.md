@@ -22,6 +22,7 @@
 - [Version 1.1.0 (2026/11/21)](#version-110-20261121)
 - [Version 1.2.0 (2026/11/22)](#version-120-20261122)
 - [Version 1.3.0 (2026/11/23)](#version-130-20261123)
+- [Version 1.4.0 (2026/11/24)](#version-140-20261124)
   
 
 ## Version 1.0.0 (2024/03/07)
@@ -125,3 +126,15 @@ This is the first version of the website. The first version is quite basic and b
 - Added 72 display languages alongside English
 - Added official artwork for Halo 5: Guardians Achievements
 - Improved Achievement Guide dialogs so scrollbars stay inside the border and appear only when needed
+
+## Version 1.4.0 (2026/11/24)
+![ShaunRoselt’s Steam profile showing achievement totals and progress by game](Website/assets/release-notes/v1-4-0-shaunroselt-profile.webp)
+
+- Added Player Search to the header with automatic Steam ID and Xbox Gamertag detection
+- Added Steam Achievement Progress and an Unlock Status filter for supported games
+- Added Player Profiles with profile pictures, unlock totals, completed games, and progress by game
+- Added a Profile menu with Profile and Sign Out
+- Player Search now keeps you on the current page
+- Added icons to the Profile and Unlock Status menus and improved dropdown placement
+- Matched the Home and Profile borders to the Achievement pages
+- Xbox Achievement Progress requires a provider connection
