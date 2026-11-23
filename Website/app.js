@@ -342,6 +342,7 @@ const menuItemIcon = (icon) => createElement('img', {
 
 const updatePlayerHeader = () => {
   const account = state.player?.accounts.values().next().value;
+  const lookupHadFocus = elements.playerLookup.contains(document.activeElement);
   elements.playerLookup.hidden = Boolean(account);
   elements.playerProfile.hidden = !account;
   const avatarUrl = account?.avatarUrl ?? null;
@@ -353,13 +354,14 @@ const updatePlayerHeader = () => {
   }
   if (!account) return;
 
-  document.querySelector('#player-profile-trigger').setAttribute('aria-label',
-    t('Profile for {player}', { player: account.player }));
+  const trigger = document.querySelector('#player-profile-trigger');
+  trigger.setAttribute('aria-label', t('Profile for {player}', { player: account.player }));
   document.querySelector('#player-profile-name').textContent = account.player;
   elements.playerInitial.textContent = Array.from(account.player)[0].toLocaleUpperCase();
   document.querySelector('#player-sign-out span').textContent = t('Sign Out');
 
   document.querySelector('#player-profile-link span').textContent = t('Profile');
+  if (lookupHadFocus) trigger.focus({ preventScroll: true });
 };
 
 const localizeShell = () => {
@@ -608,6 +610,14 @@ const progressForGame = (player, collection) => {
   return player.games.get(collection);
 };
 
+const playerLookupErrors = (reports) => reports.map((report) => {
+  const message = PLAYER_ERRORS.get(report?.error) ?? (report?.achievements
+    ? 'No public achievement data is available for this player in this game.'
+    : 'Could not load the player’s achievements. Try again.');
+  const platform = PLATFORM_NAMES[report?.platform];
+  return reports.length > 1 && platform ? `${platform} · ${t(message)}` : t(message);
+});
+
 const achievementNameKey = (name) => name.normalize('NFC').trim().replaceAll('’', "'").toLowerCase();
 
 const matchUnlocks = (achievements, reported) => {
@@ -826,12 +836,8 @@ const renderAchievements = (game) => {
 
       playerStatus.replaceChildren();
       if (!playerProgress.length) {
-        for (const report of reports) {
-          const message = PLAYER_ERRORS.get(report?.error) ?? (report?.achievements
-            ? 'No public achievement data is available for this player in this game.'
-            : 'Could not load the player’s achievements. Try again.');
-          const prefix = reports.length > 1 ? PLATFORM_NAMES[report?.platform] + ' · ' : '';
-          playerStatus.append(createElement('p', { text: prefix + t(message) }));
+        for (const message of playerLookupErrors(reports)) {
+          playerStatus.append(createElement('p', { text: message }));
         }
         return;
       }
@@ -1522,22 +1528,21 @@ elements.playerLookup.addEventListener('submit', (event) => {
 
   state.player?.controller.abort();
   savePlayerSession(null);
-  state.player = createPlayer(id);
+  const player = createPlayer(id);
+  state.player = player;
 
-  const route = getRoute();
-  if (route.page === 'profile') {
-    renderRoute({ focus: true });
-    return;
+  const route = state.renderedRoute;
+  if (route.page === 'achievements' && GAME_CONFIG.has(route.game)) {
+    renderAchievements(route.game);
+  } else if (route.page === 'profile') {
+    void renderPlayerProfile();
+  } else {
+    void progressForGame(player, 'halomcc').then((reports) => {
+      if (state.player === player && !player.accounts.size && state.renderedRoute === route) {
+        showToast(playerLookupErrors(reports).join(' '));
+      }
+    });
   }
-  const game = route.page === 'achievements' && GAME_CONFIG.has(route.game) ? route.game : 'halomcc';
-  if (route.page !== 'achievements' || route.game !== game || route.achievement) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('page', 'achievements');
-    url.searchParams.set('game', game);
-    url.searchParams.delete('achievement');
-    window.history.pushState(null, '', url);
-  }
-  renderRoute({ focus: true });
 });
 
 elements.playerAvatar.addEventListener('load', () => {
