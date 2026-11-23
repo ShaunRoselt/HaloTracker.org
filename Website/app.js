@@ -379,31 +379,6 @@ const localizeShell = () => {
   pageDescription.content = t(englishPageDescription);
 };
 
-const createHomePlayerSearch = () => {
-  const labelText = t('Steam ID or Xbox Gamertag');
-  const search = createElement('search', { attributes: { 'aria-labelledby': 'home-player-label' } });
-  const form = createElement('form', { className: 'player-lookup home-player-lookup' });
-  const label = createElement('label', {
-    text: labelText,
-    attributes: { id: 'home-player-label', for: 'home-player-id' },
-  });
-  const input = createElement('input', {
-    attributes: {
-      id: 'home-player-id', name: 'player', type: 'search', required: '', maxlength: 160,
-      autocomplete: 'off', autocorrect: 'off', autocapitalize: 'none', spellcheck: 'false', enterkeyhint: 'search',
-    },
-  });
-  const submit = createElement('button', {
-    className: 'button primary-button',
-    text: t('Search'),
-    attributes: { type: 'submit' },
-  });
-  form.append(label, input, submit);
-  form.addEventListener('submit', submitPlayerLookup);
-  search.append(form);
-  return search;
-};
-
 const renderHome = () => {
   const section = createElement('section', {
     className: 'home-page',
@@ -428,7 +403,7 @@ const renderHome = () => {
     text: t(HOME_DESCRIPTION),
   });
 
-  content.append(title, description, createHomePlayerSearch());
+  content.append(title, description);
   hero.append(heroImage, content);
   section.append(hero);
   elements.routeView.replaceChildren(section);
@@ -1536,21 +1511,18 @@ desktopMediaQuery.addEventListener('change', () => {
   }
 });
 
-function submitPlayerLookup(event) {
+elements.playerLookup.addEventListener('submit', (event) => {
   event.preventDefault();
-  const input = event.currentTarget.elements.namedItem('player');
-  const id = input.value.trim();
+  const id = elements.playerId.value.trim();
   if (!id) {
-    input.value = '';
-    input.reportValidity();
+    elements.playerId.value = '';
+    elements.playerId.reportValidity();
     return;
   }
 
   state.player?.controller.abort();
   savePlayerSession(null);
   state.player = createPlayer(id);
-  elements.playerId.value = id;
-  updatePlayerHeader();
 
   const route = getRoute();
   if (route.page === 'profile') {
@@ -1566,9 +1538,7 @@ function submitPlayerLookup(event) {
     window.history.pushState(null, '', url);
   }
   renderRoute({ focus: true });
-}
-
-elements.playerLookup.addEventListener('submit', submitPlayerLookup);
+});
 
 elements.playerAvatar.addEventListener('load', () => {
   elements.playerAvatar.hidden = false;

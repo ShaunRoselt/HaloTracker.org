@@ -531,15 +531,6 @@
     min-height: 44px;
   }
 
-  .home-player-lookup {
-    margin: 1.25rem auto 0;
-    text-align: start;
-  }
-
-  .home-player-lookup label {
-    grid-column: 1 / -1;
-  }
-
   .player-profile {
     max-width: min(15rem, 36vw);
     margin-inline-start: auto;
