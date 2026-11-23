@@ -375,7 +375,7 @@
     height: auto;
     overflow: hidden;
     border: 2px solid var(--color-border-strong);
-    border-radius: 25px;
+    border-radius: var(--radius-small);
     background: rgb(0 0 0 / 70%);
     box-shadow: none;
     backdrop-filter: blur(8px);
@@ -388,7 +388,6 @@
     aspect-ratio: 16 / 9;
     object-fit: fill;
     object-position: center;
-    border-radius: 25px 25px 0 0;
   }
 
   .home-hero-content {
@@ -431,7 +430,7 @@
     min-height: calc(100dvh - 111px);
     padding: 10px;
     border: 1px solid white;
-    border-radius: 5px;
+    border-radius: var(--radius-small);
     background: rgb(0 0 0 / 70%);
     backdrop-filter: blur(8px);
   }
@@ -530,6 +529,15 @@
 
   .player-lookup button {
     min-height: 44px;
+  }
+
+  .home-player-lookup {
+    margin: 1.25rem auto 0;
+    text-align: start;
+  }
+
+  .home-player-lookup label {
+    grid-column: 1 / -1;
   }
 
   .player-profile {
