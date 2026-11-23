@@ -132,9 +132,4 @@ This is the first version of the website. The first version is quite basic and b
 
 - Added Player Search to the header with automatic Steam ID and Xbox Gamertag detection
 - Added Steam Achievement Progress and an Unlock Status filter for supported games
-- Added Player Profiles with profile pictures, unlock totals, completed games, and progress by game
-- Added a Profile menu with Profile and Sign Out
-- Player Search now keeps you on the current page
-- Added icons to the Profile and Unlock Status menus and improved dropdown placement
-- Matched the Home and Profile borders to the Achievement pages
-- Xbox Achievement Progress requires a provider connection
+- Added Player Profile
