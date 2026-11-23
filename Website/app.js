@@ -559,6 +559,7 @@ const createPlayer = (id) => ({
   id,
   accounts: new Map(),
   games: new Map(),
+  failedReports: null,
   controller: new AbortController(),
 });
 
@@ -1367,6 +1368,10 @@ const renderPlayerProfile = async () => {
     status.textContent = t('Search for a player to view their profile.');
     return;
   }
+  if (player.failedReports && !player.accounts.size) {
+    status.textContent = playerLookupErrors(player.failedReports).join(' ');
+    return;
+  }
   status.textContent = t('Looking up achievements…');
   // Each collection includes its subgames. Query it once and count its achievements once.
   const collections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
@@ -1532,17 +1537,18 @@ elements.playerLookup.addEventListener('submit', (event) => {
   state.player = player;
 
   const route = state.renderedRoute;
-  if (route.page === 'achievements' && GAME_CONFIG.has(route.game)) {
-    renderAchievements(route.game);
-  } else if (route.page === 'profile') {
+  if (route.page === 'profile') {
     void renderPlayerProfile();
-  } else {
-    void progressForGame(player, 'halomcc').then((reports) => {
-      if (state.player === player && !player.accounts.size && state.renderedRoute === route) {
-        showToast(playerLookupErrors(reports).join(' '));
-      }
-    });
+    return;
   }
+  const game = route.page === 'achievements' ? GAME_CONFIG.get(route.game) : undefined;
+  if (game) renderAchievements(route.game);
+  void progressForGame(player, game?.collection ?? 'halomcc').then((reports) => {
+    if (state.player !== player || player.accounts.size || state.renderedRoute !== route) return;
+    player.failedReports = reports;
+    window.history.pushState(null, '', getNavigationUrl('?page=profile'));
+    renderRoute({ focus: true });
+  });
 });
 
 elements.playerAvatar.addEventListener('load', () => {
