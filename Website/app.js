@@ -25,6 +25,7 @@ const PLAYER_ERRORS = new Map([
   ['xbox-not-configured', 'Xbox achievement lookup is not connected yet.'],
 ]);
 const PLATFORM_NAMES = { steam: 'Steam', xbox: 'Xbox' };
+const PLAYER_SESSION_KEY = 'halo-tracker-player';
 
 const HOME_DESCRIPTION = 'Browse Halo achievements by game and game mode, and open guides where available.';
 
@@ -340,8 +341,7 @@ const menuItemIcon = (icon) => createElement('img', {
 });
 
 const updatePlayerHeader = () => {
-  const accounts = [...(state.player?.accounts.values() ?? [])];
-  const account = accounts[0];
+  const account = state.player?.accounts.values().next().value;
   elements.playerLookup.hidden = Boolean(account);
   elements.playerProfile.hidden = !account;
   const avatarUrl = account?.avatarUrl ?? null;
@@ -359,14 +359,7 @@ const updatePlayerHeader = () => {
   elements.playerInitial.textContent = Array.from(account.player)[0].toLocaleUpperCase();
   document.querySelector('#player-sign-out span').textContent = t('Sign Out');
 
-  const links = accounts.map(({ platform, profileUrl }) => {
-    const link = createElement('a', { attributes: { href: profileUrl, target: '_blank', rel: 'noopener noreferrer' } });
-    link.append(menuItemIcon('person'), accounts.length === 1
-      ? t('Profile')
-      : t('{platform} Profile', { platform: PLATFORM_NAMES[platform] }));
-    return link;
-  });
-  document.querySelector('#player-profile-links').replaceChildren(...links);
+  document.querySelector('#player-profile-link span').textContent = t('Profile');
 };
 
 const localizeShell = () => {
@@ -560,9 +553,57 @@ async function fetchPlayerProgress(player, collection) {
   }
 }
 
+const createPlayer = (id) => ({
+  id,
+  accounts: new Map(),
+  games: new Map(),
+  controller: new AbortController(),
+});
+
+const savePlayerSession = (session) => {
+  try {
+    if (session) window.sessionStorage.setItem(PLAYER_SESSION_KEY, JSON.stringify(session));
+    else window.sessionStorage.removeItem(PLAYER_SESSION_KEY);
+  } catch {
+    // Player lookup still works when storage is disabled.
+  }
+};
+
+const restorePlayer = () => {
+  let session;
+  try {
+    session = JSON.parse(window.sessionStorage.getItem(PLAYER_SESSION_KEY));
+  } catch {
+    return;
+  }
+  if (typeof session?.id !== 'string' || !GAME_CONFIG.has(session.collection)) return;
+  state.player = createPlayer(session.id);
+  elements.playerId.value = session.id;
+  void progressForGame(state.player, session.collection);
+};
+
 const progressForGame = (player, collection) => {
   if (!player.games.has(collection)) {
-    player.games.set(collection, fetchPlayerProgress(player, collection));
+    const request = fetchPlayerProgress(player, collection).then((result) => {
+      const reports = Array.isArray(result?.results) ? result.results : [result];
+      if (state.player === player) {
+        const accountCount = player.accounts.size;
+        for (const report of reports) {
+          if (report?.player && report.profileUrl && !player.accounts.has(report.platform)) {
+            player.accounts.set(report.platform, report);
+          }
+        }
+        if (accountCount !== player.accounts.size) {
+          if (!accountCount) savePlayerSession({ id: player.id, collection });
+          updatePlayerHeader();
+        }
+      }
+      if (reports.some((report) => ['provider-unavailable', 'rate-limited'].includes(report?.error))) {
+        player.games.delete(collection);
+      }
+      return reports;
+    });
+    player.games.set(collection, request);
   }
   return player.games.get(collection);
 };
@@ -582,6 +623,25 @@ const matchUnlocks = (achievements, reported) => {
     if (typeof unlocked === 'boolean') matches.set(achievement.id, unlocked);
   }
   return matches;
+};
+
+const matchedPlayerProgress = (achievements, reports) => reports.flatMap((report) => {
+  if (!Array.isArray(report?.achievements)) return [];
+  const unlocks = matchUnlocks(achievements, report.achievements);
+  return unlocks.size ? [{ ...report, unlocks }] : [];
+});
+
+const unlockCount = (unlocks) => [...unlocks.values()].filter(Boolean).length;
+
+const formatPlayerUnlocks = ({ unlocked, reported, total }) => {
+  const number = new Intl.NumberFormat(currentLanguage());
+  return t(reported === total
+    ? '{unlocked} of {total} unlocked'
+    : '{unlocked} unlocked · Status available for {reported} of {total}', {
+    unlocked: number.format(unlocked),
+    reported: number.format(reported),
+    total: number.format(total),
+  });
 };
 
 const renderAchievements = (game) => {
@@ -760,21 +820,9 @@ const renderAchievements = (game) => {
   });
 
   if (player) {
-    void progressForGame(player, config.collection).then((result) => {
-      if (state.player !== player) return;
-      const reports = Array.isArray(result?.results) ? result.results : [result];
-      for (const report of reports) {
-        if (report?.player && report.profileUrl && !player.accounts.has(report.platform)) {
-          player.accounts.set(report.platform, report);
-          updatePlayerHeader();
-        }
-      }
-      if (!playerInfo.isConnected) return;
-      playerProgress = reports.flatMap((report) => {
-        if (!Array.isArray(report?.achievements)) return [];
-        const unlocks = matchUnlocks(achievements, report.achievements);
-        return unlocks.size ? [{ ...report, unlocks }] : [];
-      });
+    void progressForGame(player, config.collection).then((reports) => {
+      if (state.player !== player || !playerInfo.isConnected) return;
+      playerProgress = matchedPlayerProgress(achievements, reports);
 
       playerStatus.replaceChildren();
       if (!playerProgress.length) {
@@ -788,18 +836,14 @@ const renderAchievements = (game) => {
         return;
       }
 
-      const number = new Intl.NumberFormat(currentLanguage());
       for (const { player: name, platform, unlocks } of playerProgress) {
-        const unlocked = [...unlocks.values()].filter(Boolean).length;
         const result = createElement('p');
         const playerName = createElement('bdi', { className: 'player-progress-name', text: name });
         const total = createElement('span', {
-          text: t(unlocks.size === achievements.length
-            ? '{unlocked} of {total} unlocked'
-            : '{unlocked} unlocked · Status available for {reported} of {total}', {
-            unlocked: number.format(unlocked),
-            reported: number.format(unlocks.size),
-            total: number.format(achievements.length),
+          text: formatPlayerUnlocks({
+            unlocked: unlockCount(unlocks),
+            reported: unlocks.size,
+            total: achievements.length,
           }),
         });
         result.append(PLATFORM_NAMES[platform] + ' · ', playerName, ' · ', total);
@@ -1229,6 +1273,136 @@ const renderReleaseNotes = () => {
   document.title = `${t('Release Notes')} | ${APP_NAME}`;
 };
 
+const createProfileAvatar = ({ player, avatarUrl }) => {
+  const avatar = createElement('span', { className: 'profile-portrait', attributes: { 'aria-hidden': 'true' } });
+  const initial = createElement('span', { text: Array.from(player)[0].toLocaleUpperCase() });
+  avatar.append(initial);
+
+  if (avatarUrl) {
+    const image = createElement('img', {
+      attributes: { alt: '', width: 88, height: 88, referrerpolicy: 'no-referrer', hidden: '' },
+    });
+    image.addEventListener('load', () => {
+      initial.hidden = true;
+      image.hidden = false;
+    }, { once: true });
+    image.src = avatarUrl;
+    avatar.append(image);
+  }
+  return avatar;
+};
+
+const createProfileGame = ({ game, unlocked, reported, total }, platform) => {
+  const config = GAME_CONFIG.get(game);
+  const headingId = `profile-${platform}-${game}`;
+  const link = createElement('a', {
+    attributes: { href: `?page=achievements&game=${game}`, 'data-route': '', id: headingId },
+    text: config.title,
+  });
+  const icon = createImage({ source: config.icon, className: 'profile-game-icon' });
+  icon.width = 40;
+  icon.height = 40;
+  const heading = createElement('h3', { className: 'profile-game-heading' });
+  heading.append(icon, link);
+
+  const progress = createElement('progress', {
+    className: 'profile-game-progress',
+    attributes: { value: unlocked, max: total, 'aria-labelledby': headingId },
+  });
+  const count = createElement('p', { className: 'profile-game-count', text: formatPlayerUnlocks({ unlocked, reported, total }) });
+  const item = createElement('li', { className: 'profile-game surface' });
+  item.append(heading, progress, count);
+  return item;
+};
+
+const createProfileProgress = ({ platform, player, games }, hasMultiplePlatforms) => {
+  const headingId = `profile-progress-${platform}`;
+  const section = createElement('section', {
+    className: 'profile-progress',
+    attributes: { 'aria-labelledby': headingId },
+  });
+  const heading = createElement('h2', { attributes: { id: headingId } });
+  if (hasMultiplePlatforms) {
+    heading.append(PLATFORM_NAMES[platform], ' · ', createElement('bdi', { text: player }));
+  } else {
+    heading.textContent = t('Achievements');
+  }
+  const totals = createElement('dl', { className: 'profile-totals surface' });
+  for (const [label, value] of [
+    ['Unlocked', games.reduce((sum, game) => sum + game.unlocked, 0)],
+    ['Games tracked', games.length],
+    ['Games completed', games.filter(({ unlocked, total }) => unlocked === total).length],
+  ]) {
+    const stat = createElement('div');
+    stat.append(createElement('dt', { text: t(label) }), createElement('dd', { text: value.toLocaleString(currentLanguage()) }));
+    totals.append(stat);
+  }
+  const gameList = createElement('ul', { className: 'profile-games' });
+  gameList.append(...games.map((game) => createProfileGame(game, platform)));
+  section.append(heading, totals, gameList);
+  return section;
+};
+
+const renderPlayerProfile = async () => {
+  const page = createElement('section', { className: 'profile-page', attributes: { 'aria-labelledby': 'profile-title' } });
+  const hero = createElement('header', { className: 'profile-hero surface' });
+  const title = createElement('h1', { text: t('Profile'), attributes: { id: 'profile-title' } });
+  const identity = createElement('div');
+  identity.append(title);
+  hero.append(identity);
+  const status = createElement('p', { className: 'profile-status', attributes: { role: 'status' } });
+  identity.append(status);
+  page.append(hero);
+  elements.routeView.replaceChildren(page);
+  document.title = `${t('Profile')} | ${APP_NAME}`;
+
+  const player = state.player;
+  if (!player) {
+    status.textContent = t('Search for a player to view their profile.');
+    return;
+  }
+  status.textContent = t('Looking up achievements…');
+  // Each collection includes its subgames. Query it once and count its achievements once.
+  const collections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
+  const progress = new Map();
+  const errors = new Set();
+  for (let offset = 0; offset < collections.length; offset += 3) {
+    const batch = collections.slice(offset, offset + 3);
+    const results = await Promise.all(batch.map((game) => progressForGame(player, game)));
+    if (player !== state.player || !page.isConnected) return;
+    for (const [index, reports] of results.entries()) {
+      const game = batch[index];
+      const achievements = getAchievementsForGame(game);
+      for (const report of reports) {
+        if (report?.error) errors.add(report.error);
+      }
+      for (const { platform, player: name, unlocks } of matchedPlayerProgress(achievements, reports)) {
+        if (!progress.has(platform)) progress.set(platform, { platform, player: name, games: [] });
+        progress.get(platform).games.push({
+          game, unlocked: unlockCount(unlocks), reported: unlocks.size, total: achievements.length,
+        });
+      }
+    }
+  }
+
+  const account = player.accounts.values().next().value;
+  if (account) {
+    title.replaceChildren(createElement('bdi', { text: account.player }));
+    hero.prepend(createProfileAvatar(account));
+    document.title = `${account.player} | ${APP_NAME}`;
+  }
+  if (!progress.size) {
+    const error = [...errors].find((code) => code !== 'unsupported-game' && code !== 'no-game-data');
+    status.textContent = t(PLAYER_ERRORS.get(error) ?? 'Could not load the player’s achievements. Try again.');
+    return;
+  }
+  status.textContent = [...player.accounts.keys()].map((platform) => PLATFORM_NAMES[platform]).join(' · ');
+  for (const platform of Object.keys(PLATFORM_NAMES)) {
+    const platformProgress = progress.get(platform);
+    if (platformProgress) page.append(createProfileProgress(platformProgress, progress.size > 1));
+  }
+};
+
 const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
   const route = getRoute();
   const previous = state.renderedRoute;
@@ -1246,6 +1420,8 @@ const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
     renderHome();
   } else if (route.page === 'achievements') {
     renderAchievements(route.game);
+  } else if (route.page === 'profile') {
+    void renderPlayerProfile();
   } else if (route.page === 'settings') {
     renderSettings();
   } else if (route.page === 'release-notes') {
@@ -1282,6 +1458,7 @@ document.addEventListener('click', (event) => {
   }
 
   event.preventDefault();
+  if (elements.playerProfileMenu.contains(routeLink)) elements.playerProfileMenu.hidePopover();
   window.history.pushState(null, '', getNavigationUrl(destination));
   renderRoute({ focus: true });
 });
@@ -1344,9 +1521,14 @@ elements.playerLookup.addEventListener('submit', (event) => {
   }
 
   state.player?.controller.abort();
-  state.player = { id, accounts: new Map(), games: new Map(), controller: new AbortController() };
+  savePlayerSession(null);
+  state.player = createPlayer(id);
 
   const route = getRoute();
+  if (route.page === 'profile') {
+    renderRoute({ focus: true });
+    return;
+  }
   const game = route.page === 'achievements' && GAME_CONFIG.has(route.game) ? route.game : 'halomcc';
   if (route.page !== 'achievements' || route.game !== game || route.achievement) {
     const url = new URL(window.location.href);
@@ -1367,6 +1549,7 @@ document.querySelector('#player-sign-out').addEventListener('click', () => {
   elements.playerProfileMenu.hidePopover();
   state.player?.controller.abort();
   state.player = null;
+  savePlayerSession(null);
   elements.playerId.value = '';
   updatePlayerHeader();
   renderRoute();
@@ -1387,4 +1570,5 @@ try {
 }
 localizeShell();
 updateHeaderOffset();
+restorePlayer();
 renderRoute();

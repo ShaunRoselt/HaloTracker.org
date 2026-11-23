@@ -170,10 +170,12 @@ async function steamAvatar(profileUrl) {
     if (response.ok) {
       const xml = await readLimited(response, 128_000);
       if (xmlText(xml, 'steamID64') === new URL(profileUrl).pathname.split('/')[2]) {
-        return avatarFrom(xmlText(xml, 'avatarIcon'), [
+        const allowedHosts = [
           'avatars.fastly.steamstatic.com', 'avatars.akamai.steamstatic.com',
           'avatars.cloudflare.steamstatic.com', 'steamcdn-a.akamaihd.net',
-        ]);
+        ];
+        return avatarFrom(xmlText(xml, 'avatarFull'), allowedHosts)
+          ?? avatarFrom(xmlText(xml, 'avatarIcon'), allowedHosts);
       }
     }
   } catch {
