@@ -424,6 +424,10 @@
 
   .achievements-page {
     display: block;
+  }
+
+  .achievements-page,
+  .profile-page {
     min-height: calc(100dvh - 111px);
     padding: 10px;
     border: 1px solid white;
@@ -621,9 +625,8 @@
 
   .profile-page {
     display: grid;
+    align-content: start;
     gap: 1.5rem;
-    max-inline-size: 72rem;
-    margin-inline: auto;
   }
 
   .profile-hero {
