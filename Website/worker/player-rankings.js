@@ -71,11 +71,18 @@ export async function readLeaderboard(request, db) {
         SELECT platform, account_id, SUM(unlocked) AS unlocked, SUM(minutes) AS minutes,
           COUNT(unlocked) AS games_tracked, COUNT(minutes) AS games_with_time, MAX(MAX(achievements_updated, activity_updated)) AS updated_at
         FROM player_rankings
-        WHERE ${filter} AND (? = 'all' OR platform = ?)
+        WHERE ${filter}
         GROUP BY platform, account_id
+      ), accounts AS (
+        SELECT DISTINCT platform, account_id
+        FROM player_rankings
+        WHERE (unlocked IS NOT NULL OR minutes IS NOT NULL) AND (? = 'all' OR platform = ?)
       ), scores AS (
-        SELECT *, CASE WHEN unlocked IS NOT NULL THEN RANK() OVER (ORDER BY unlocked DESC) END AS rank
-        FROM totals
+        SELECT accounts.platform, accounts.account_id, COALESCE(totals.unlocked, 0) AS unlocked,
+          totals.minutes, totals.games_with_time, totals.games_tracked, totals.updated_at,
+          RANK() OVER (ORDER BY COALESCE(totals.unlocked, 0) DESC) AS rank
+        FROM accounts
+        LEFT JOIN totals USING (platform, account_id)
       )
       SELECT scores.platform, scores.account_id AS accountId, identity.player,
         identity.display_name AS displayName, identity.avatar_url AS avatarUrl,
@@ -87,7 +94,6 @@ export async function readLeaderboard(request, db) {
         WHERE platform = scores.platform AND account_id = scores.account_id
         ORDER BY achievements_updated DESC, activity_updated DESC LIMIT 1
       )
-      WHERE scores.unlocked IS NOT NULL OR scores.minutes IS NOT NULL
       ORDER BY (${order} IS NULL), ${order} ${direction.toUpperCase()}, identity.display_name COLLATE NOCASE, scores.platform, scores.account_id
       LIMIT 100
     `).bind(...(game === 'all' ? collections : [game]), platform, platform).all();

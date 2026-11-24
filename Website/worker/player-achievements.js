@@ -393,7 +393,7 @@ export async function lookupSteamProfile(request, env) {
     activityOnly ? '' : readSteamPage(communityUrl, 900_000),
     steamOwnedGames(id, env.STEAM_WEB_API_KEY),
     activityOnly ? [] : Promise.all([...steamGames].map(([game, appId]) => steamScreenshots(communityUrl, game, appId))),
-    activityOnly ? [] : Promise.all([...steamGames].map(([game, appId]) => steamGameReview(communityUrl, game, appId))),
+    Promise.all([...steamGames].map(([game, appId]) => steamGameReview(communityUrl, game, appId))),
   ]);
   const publicHours = publicSteamHours(xml);
   const games = {};

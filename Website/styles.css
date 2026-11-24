@@ -433,7 +433,8 @@
   }
 
   .achievements-page,
-  .guide-page {
+  .guide-page,
+  .leaderboard-page {
     --game-header-inset: 6px;
   }
 
@@ -649,8 +650,8 @@
     background: var(--color-surface-strong);
   }
 
-  .leaderboard-page {
-    padding: clamp(11px, 2vw, 21px);
+  .leaderboard-page > :is(p, .leaderboard-results) {
+    margin-inline: 11px;
   }
 
   .leaderboard-page > p {
@@ -714,14 +715,9 @@
     gap: 0.5rem;
   }
 
-  .leaderboard-avatar {
-    inline-size: 2rem;
+  .profile-portrait.leaderboard-avatar {
+    inline-size: 1.75rem;
     font-size: 0.875rem;
-  }
-
-  .leaderboard-results small {
-    display: block;
-    color: var(--color-text-muted);
   }
 
   .leaderboard-results tbody tr:last-child > * {
