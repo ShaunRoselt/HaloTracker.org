@@ -1746,6 +1746,30 @@ const steamCountryFlag = (countryCode) => {
   });
 };
 
+// Share successful appearance lookups across the leaderboard and Friends views.
+const rankingAppearance = new Map();
+const appearanceQueues = [Promise.resolve(), Promise.resolve()];
+let nextAppearanceQueue = 0;
+
+const loadRankingAppearance = (accountId, target) => {
+  if (rankingAppearance.has(accountId)) return rankingAppearance.get(accountId);
+  const queue = nextAppearanceQueue;
+  nextAppearanceQueue = (queue + 1) % appearanceQueues.length;
+  const request = appearanceQueues[queue].then(async () => {
+    const player = { profileUrl: steamProfileUrl(accountId) };
+    let details = await loadSteamProfile(player, 'appearance');
+    if (target.isConnected && !Object.hasOwn(details, 'countryCode')) {
+      await new Promise((resolve) => window.setTimeout(resolve, 750));
+      if (target.isConnected) details = await loadSteamProfile(player, 'appearance');
+    }
+    if (!Object.hasOwn(details, 'countryCode')) rankingAppearance.delete(accountId);
+    return details;
+  });
+  appearanceQueues[queue] = request;
+  rankingAppearance.set(accountId, request);
+  return request;
+};
+
 const createRankingTable = (game, label, onSort) => {
   const results = createElement('div', {
     className: 'leaderboard-results surface',
@@ -1758,17 +1782,13 @@ const createRankingTable = (game, label, onSort) => {
   const total = game === 'all'
     ? playerCollections.reduce((sum, id) => sum + getAchievementsForGame(id).length, 0)
     : getAchievementsForGame(game).length;
-  const appearance = new Map();
   const accounts = new WeakMap();
   const observer = new IntersectionObserver((entries) => {
     for (const { target, isIntersecting } of entries) {
       if (!isIntersecting) continue;
       observer.unobserve(target);
       const { accountId, avatar } = accounts.get(target);
-      if (!appearance.has(accountId)) {
-        appearance.set(accountId, loadSteamProfile({ profileUrl: steamProfileUrl(accountId) }, 'appearance'));
-      }
-      void appearance.get(accountId).then((details) => {
+      void loadRankingAppearance(accountId, target).then((details) => {
         if (!target.isConnected) return;
         setAvatarFrame(avatar, details);
         const flag = steamCountryFlag(details.countryCode);
@@ -1780,11 +1800,11 @@ const createRankingTable = (game, label, onSort) => {
   const header = table.createTHead().insertRow();
   const body = table.createTBody();
   const columns = [
-    ['rank', 'Rank', 'asc'], ['player', 'Player', 'asc'], ['platform', 'Platform', 'asc'],
+    ['rank', 'Rank'], ['player', 'Player', 'asc'], ['platform', 'Platform', 'asc'],
     ['unlocked', 'Achievements', 'desc'], ['minutes', 'Time played', 'desc'],
   ];
-  let sort = 'rank';
-  let direction = 'asc';
+  let sort = 'unlocked';
+  let direction = 'desc';
   const headers = new Map();
   const showSort = () => {
     for (const [key, cell] of headers) {
@@ -1794,6 +1814,11 @@ const createRankingTable = (game, label, onSort) => {
   };
   for (const [key, title, initialDirection] of columns) {
     const cell = createElement('th', { attributes: { scope: 'col' } });
+    header.append(cell);
+    if (!initialDirection) {
+      cell.textContent = t(title);
+      continue;
+    }
     const button = createElement('button', { text: t(title), attributes: { type: 'button' } });
     const indicator = menuItemIcon('chevron-up');
     indicator.classList.add('leaderboard-sort-indicator');
@@ -1805,7 +1830,6 @@ const createRankingTable = (game, label, onSort) => {
       onSort();
     });
     cell.append(button);
-    header.append(cell);
     headers.set(key, cell);
   }
   showSort();
