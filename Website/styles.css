@@ -466,7 +466,8 @@
     padding-inline: var(--game-header-inset);
   }
 
-  .achievements-page .game-hero-overlay {
+  .achievements-page .game-hero-overlay,
+  .leaderboard-page .game-hero-overlay {
     padding-inline-end: var(--achievement-inline-inset);
   }
 
@@ -716,7 +717,7 @@
   }
 
   .profile-portrait.leaderboard-avatar {
-    inline-size: 1.75rem;
+    inline-size: 2rem;
     font-size: 0.875rem;
   }
 

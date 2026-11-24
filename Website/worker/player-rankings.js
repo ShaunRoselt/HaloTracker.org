@@ -47,11 +47,33 @@ export async function saveSteamActivity(db, account, games, fetchedAt) {
   )));
 }
 
+const collections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
+
+export async function readSteamFriendScores(db, accountIds) {
+  if (!db || !accountIds.length) return [];
+  const { results } = await db.prepare(`
+    WITH friends AS (SELECT value AS account_id FROM json_each(?)),
+    totals AS (
+      SELECT account_id, SUM(unlocked) AS unlocked, SUM(minutes) AS minutes
+      FROM friends JOIN player_rankings USING (account_id)
+      WHERE platform = 'steam' AND game IN (${collections.map(() => '?').join(', ')})
+      GROUP BY account_id
+    )
+    SELECT account_id AS accountId, totals.unlocked, totals.minutes,
+      sync.sync_after AS syncAfter
+    FROM friends
+    LEFT JOIN totals USING (account_id)
+    LEFT JOIN steam_friend_sync AS sync USING (account_id)
+  `).bind(JSON.stringify(accountIds), ...collections).all();
+  return results;
+}
+
 export async function readLeaderboard(request, db) {
   if (request.method !== 'GET') return Response.json({ error: 'invalid-request' }, { status: 405 });
   const params = new URL(request.url).searchParams;
   const game = params.get('game') ?? 'all';
   const platform = params.get('platform') ?? 'all';
+  const search = (params.get('search') ?? '').trim().normalize('NFC');
   const sort = params.get('sort') ?? 'unlocked';
   const order = new Map([
     ['rank', 'scores.rank'], ['player', 'identity.display_name COLLATE NOCASE'],
@@ -59,11 +81,11 @@ export async function readLeaderboard(request, db) {
   ]).get(sort);
   const direction = params.get('direction') ?? (sort === 'rank' ? 'asc' : 'desc');
   if ((game !== 'all' && !GAME_CONFIG.has(game))
-    || !['all', 'steam', 'xbox'].includes(platform) || !order || !['asc', 'desc'].includes(direction)) {
+    || !['all', 'steam', 'xbox'].includes(platform) || !order || !['asc', 'desc'].includes(direction)
+    || search.length > 100) {
     return Response.json({ error: 'invalid-request' }, { status: 400 });
   }
 
-  const collections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
   const filter = game === 'all' ? `game IN (${collections.map(() => '?').join(', ')})` : 'game = ?';
   try {
     const { results } = await db.prepare(`
@@ -94,9 +116,11 @@ export async function readLeaderboard(request, db) {
         WHERE platform = scores.platform AND account_id = scores.account_id
         ORDER BY achievements_updated DESC, activity_updated DESC LIMIT 1
       )
+      WHERE INSTR(LOWER(identity.display_name), LOWER(?)) > 0
+        OR INSTR(LOWER(identity.player), LOWER(?)) > 0
       ORDER BY (${order} IS NULL), ${order} ${direction.toUpperCase()}, identity.display_name COLLATE NOCASE, scores.platform, scores.account_id
       LIMIT 100
-    `).bind(...(game === 'all' ? collections : [game]), platform, platform).all();
+    `).bind(...(game === 'all' ? collections : [game]), platform, platform, search, search).all();
     return Response.json({ players: results }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('Leaderboard query failed', error.message);

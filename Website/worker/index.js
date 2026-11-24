@@ -1,5 +1,5 @@
 import { readLeaderboard } from './player-rankings.js';
-import { lookupPlayerAchievements, lookupSteamFriends, lookupSteamProfile } from "./player-achievements.js";
+import { lookupPlayerAchievements, lookupSteamFriends, lookupSteamProfile, syncSteamFriend } from "./player-achievements.js";
 import { getAchievementsForGame, guidePageTitle, hasGuide } from "./game-catalog.js";
 
 const titleForGuide = ({ searchParams }) => {
@@ -54,7 +54,8 @@ export default {
       return lookupPlayerAchievements(request, env);
     }
     if (pathname === "/api/leaderboard") return readLeaderboard(request, env.DB);
-    if (pathname === "/api/steam-friends") return lookupSteamFriends(request);
+    if (pathname === "/api/steam-friends") return lookupSteamFriends(request, env.DB);
+    if (pathname === "/api/steam-friend-sync") return syncSteamFriend(request, env);
     if (pathname === "/api/steam-profile") {
       return lookupSteamProfile(request, env);
     }

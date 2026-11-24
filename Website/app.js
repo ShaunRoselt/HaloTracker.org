@@ -635,6 +635,19 @@ const createGameHeader = (config, title, accessory) => {
   return hero;
 };
 
+const createGameSearch = (id, label, controls) => {
+  const search = createElement('div', { className: 'achievement-search' });
+  const searchInput = createElement('input', {
+    attributes: {
+      id, type: 'search', placeholder: t(label), autocomplete: 'off', 'aria-controls': controls,
+    },
+  });
+  search.append(createElement('label', {
+    className: 'achievement-search-label', text: t(label), attributes: { for: id },
+  }), searchInput);
+  return { search, searchInput };
+};
+
 const renderAchievements = (game) => {
   const config = GAME_CONFIG.get(game);
   if (!config) {
@@ -663,23 +676,8 @@ const renderAchievements = (game) => {
     },
   });
 
-  const search = createElement('div', { className: 'achievement-search' });
-  const searchLabel = createElement('label', {
-    className: 'achievement-search-label',
-    text: t('Search Achievements'),
-    attributes: { for: 'achievement-search' },
-  });
-  const searchInput = createElement('input', {
-    attributes: {
-      id: 'achievement-search',
-      type: 'search',
-      placeholder: t('Search Achievements'),
-      autocomplete: 'off',
-      'aria-controls': 'achievement-list',
-    },
-  });
+  const { search, searchInput } = createGameSearch('achievement-search', 'Search Achievements', 'achievement-list');
   searchInput.value = state.searchByGame.get(game) ?? '';
-  search.append(searchLabel, searchInput);
 
   const hero = createGameHeader(config, title, search);
 
@@ -1418,77 +1416,116 @@ const attachProfileTabs = (page) => {
   return { panels: ['Achievements', 'Screenshots', 'Friends'].map(addTab), addTab };
 };
 
-const setupProfileFriends = (panel, steam) => {
+const setupProfileFriends = async (panel, steam) => {
   const status = createElement('p', { attributes: { role: 'status' } });
   panel.append(status);
   if (!steam) {
     status.textContent = t('No public Steam friends list is available.');
     return;
   }
-  panel.addEventListener('profile-tab-open', async () => {
-    status.textContent = t('Loading friends…');
-    try {
-      const id = new URL(steam.profileUrl).pathname.split('/')[2];
-      const response = await fetch(`/api/steam-friends?${new URLSearchParams({ id })}`, {
-        signal: AbortSignal.timeout(12_000),
-      });
-      if (!response.ok) throw new Error('Friends unavailable');
-      const { friends } = await response.json();
-      if (!panel.isConnected) return;
-      if (!friends.length) {
-        status.textContent = t('This player has no public Steam friends.');
-        return;
-      }
 
-      const wrapper = createElement('div', {
-        className: 'leaderboard-results surface',
-        attributes: { role: 'region', 'aria-label': t('Steam friends'), tabindex: '0' },
-      });
-      const table = createElement('table');
-      const header = table.createTHead().insertRow();
-      for (const label of ['#', 'Friend']) {
-        header.append(createElement('th', { text: t(label), attributes: { scope: 'col' } }));
-      }
-      const rows = table.createTBody();
-      wrapper.append(table);
-      const navigation = createElement('div', { className: 'profile-friends-pagination' });
-      const previous = createElement('button', { className: 'button secondary-button', text: t('Previous'), attributes: { type: 'button' } });
-      const next = createElement('button', { className: 'button secondary-button', text: t('Next'), attributes: { type: 'button' } });
-      navigation.append(previous, next);
-      panel.append(navigation, wrapper);
-      const pageSize = 48;
-      let start = 0;
-      const showPage = () => {
-        const end = Math.min(start + pageSize, friends.length);
-        const format = new Intl.NumberFormat(currentLanguage());
-        status.textContent = t('Friends {first}–{last} of {total}', {
-          first: format.format(start + 1), last: format.format(end), total: format.format(friends.length),
-        });
-        rows.replaceChildren(...friends.slice(start, end).map(({ accountId, displayName, avatarUrl }, index) => {
-          const row = createElement('tr');
-          row.insertCell().textContent = format.format(start + index + 1);
-          const name = createElement('th', { attributes: { scope: 'row' } });
-          const link = steamLink(`https://steamcommunity.com/profiles/${accountId}/`);
-          link.classList.add('leaderboard-identity');
-          if (avatarUrl) link.append(createElement('img', {
-            attributes: { src: avatarUrl, alt: '', width: 32, height: 32, loading: 'lazy', referrerpolicy: 'no-referrer' },
-          }));
-          link.append(createElement('bdi', { text: displayName }));
-          name.append(link);
-          row.append(name);
-          return row;
-        }));
-        previous.disabled = start === 0;
-        next.disabled = end === friends.length;
-        navigation.hidden = friends.length <= pageSize;
-      };
-      previous.addEventListener('click', () => { start -= pageSize; showPage(); });
-      next.addEventListener('click', () => { start += pageSize; showPage(); });
-      showPage();
-    } catch {
-      status.textContent = t('The Steam friends list is private or unavailable.');
+  status.textContent = t('Loading friends…');
+  let friends;
+  try {
+    const id = new URL(steam.profileUrl).pathname.split('/')[2];
+    const response = await fetch(`/api/steam-friends?${new URLSearchParams({ id })}`, {
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!response.ok) throw new Error('Friends unavailable');
+    ({ friends } = await response.json());
+  } catch {
+    status.textContent = t('The Steam friends list is private or unavailable.');
+    return;
+  }
+  if (!panel.isConnected) return;
+
+  const navigation = createElement('div', { className: 'profile-friends-pagination' });
+  const previous = createElement('button', { className: 'button secondary-button', text: t('Previous'), attributes: { type: 'button' } });
+  const next = createElement('button', { className: 'button secondary-button', text: t('Next'), attributes: { type: 'button' } });
+  navigation.append(previous, next);
+
+  const rankedFriends = friends.map((friend) => ({ ...friend, player: friend.displayName, platform: 'steam' }));
+  const pageSize = 48;
+  const format = new Intl.NumberFormat(currentLanguage());
+  const names = new Intl.Collator(currentLanguage(), { sensitivity: 'base' });
+  let start = 0;
+  const showPage = () => {
+    const end = Math.min(start + pageSize, rankedFriends.length);
+    const { sort, direction } = ranking;
+    const compareName = (a, b) => names.compare(a.displayName, b.displayName) || a.accountId.localeCompare(b.accountId);
+    rankedFriends.sort((a, b) => (b.unlocked ?? 0) - (a.unlocked ?? 0) || compareName(a, b));
+    for (const [index, friend] of rankedFriends.entries()) {
+      const previousFriend = rankedFriends[index - 1];
+      friend.rank = previousFriend && (friend.unlocked ?? 0) === (previousFriend.unlocked ?? 0)
+        ? previousFriend.rank : index + 1;
     }
-  }, { once: true });
+
+    rankedFriends.sort((a, b) => {
+      if (sort === 'minutes' && (a.minutes == null || b.minutes == null)) {
+        return Number(a.minutes == null) - Number(b.minutes == null) || compareName(a, b);
+      }
+      const difference = sort === 'player' ? names.compare(a.displayName, b.displayName)
+        : sort === 'platform' ? 0 : (a[sort] ?? 0) - (b[sort] ?? 0);
+      return (direction === 'asc' ? difference : -difference) || compareName(a, b);
+    });
+    status.textContent = rankedFriends.length ? t('Friends {first}–{last} of {total}', {
+      first: format.format(start + 1), last: format.format(end), total: format.format(rankedFriends.length),
+    }) : '';
+    ranking.showRows(rankedFriends.slice(start, end), 'This player has no public Steam friends.');
+    previous.disabled = start === 0;
+    next.disabled = end === rankedFriends.length;
+  };
+  const ranking = createRankingTable('all', { 'aria-label': t('Steam friends') }, () => {
+    start = 0;
+    showPage();
+  });
+  navigation.hidden = rankedFriends.length <= pageSize;
+  panel.append(navigation, ranking.results);
+  previous.addEventListener('click', () => { start -= pageSize; showPage(); });
+  next.addEventListener('click', () => { start += pageSize; showPage(); });
+  showPage();
+  panel.addEventListener('profile-tab-open', showPage);
+
+  for (const friend of rankedFriends) {
+    if (friend.syncAfter > Date.now()) continue;
+    pendingFriendSync.set(friend.accountId, (score) => {
+      const changed = score.unlocked !== friend.unlocked || score.minutes !== friend.minutes;
+      Object.assign(friend, score);
+      if (changed && !panel.hidden && panel.isConnected) showPage();
+    });
+  }
+  void syncProfileFriends();
+};
+
+const pendingFriendSync = new Map();
+let syncingFriends = false;
+const syncProfileFriends = async () => {
+  if (syncingFriends) return;
+  syncingFriends = true;
+  try {
+    for (const [id] of pendingFriendSync) {
+      let delay = 1_000;
+      try {
+        const response = await fetch(`/api/steam-friend-sync?${new URLSearchParams({ id })}`, {
+          method: 'POST', signal: AbortSignal.timeout(25_000),
+        });
+        if (response.ok) {
+          const score = await response.json();
+          pendingFriendSync.get(id)?.(score);
+        } else if ([429, 502, 503].includes(response.status)) {
+          const retryAfter = Number(response.headers.get('Retry-After')) * 1_000;
+          delay = Math.max(15_000, Math.min(retryAfter, 120_000));
+        }
+      } catch {
+        delay = 15_000;
+      } finally {
+        pendingFriendSync.delete(id);
+      }
+      await new Promise((resolve) => window.setTimeout(resolve, delay));
+    }
+  } finally {
+    syncingFriends = false;
+  }
 };
 
 const renderPlayerProfile = async (route) => {
@@ -1528,7 +1565,9 @@ const renderPlayerProfile = async (route) => {
   const progress = new Map();
   const unlockedAchievements = new Set();
   const errors = new Set();
-  const steamAccount = player.accounts.get('steam');
+  const steamAccount = player.accounts.get('steam')
+    ?? (shared?.[1] === 'steam' && /^7656\d{13}$/.test(player.id)
+      ? { profileUrl: steamProfileUrl(player.id) } : null);
   const pendingSteamDetails = steamAccount && loadSteamProfile(steamAccount);
   for (let offset = 0; offset < collections.length; offset += 3) {
     const batch = collections.slice(offset, offset + 3);
@@ -1553,6 +1592,11 @@ const renderPlayerProfile = async (route) => {
     }
   }
 
+  if (!player.accounts.has('steam') && pendingSteamDetails) {
+    const { account } = await pendingSteamDetails;
+    if (stale()) return;
+    if (account) player.accounts.set('steam', account);
+  }
   const account = player.accounts.values().next().value;
   let portrait;
   if (account) {
@@ -1562,6 +1606,9 @@ const renderPlayerProfile = async (route) => {
     hero.prepend(portrait);
     document.title = `${displayName} | ${APP_NAME}`;
     if (!shared) window.history.replaceState(window.history.state, '', profileHref(account));
+  }
+  if (!progress.size && player.accounts.has('steam')) {
+    progress.set('steam', { platform: 'steam', player: player.accounts.get('steam').player, games: [] });
   }
   if (!progress.size) {
     const error = [...errors].find((code) => code !== 'unsupported-game' && code !== 'no-game-data');
@@ -1617,19 +1664,16 @@ const renderPlayerProfile = async (route) => {
 
   const steam = player.accounts.get('steam');
   screenshotStatus.textContent = t(steam ? 'Loading screenshots…' : 'No public Halo screenshots are available.');
-  setupProfileFriends(friendPanel, steam);
+  void setupProfileFriends(friendPanel, steam);
   if (!steam) return;
   const details = await (pendingSteamDetails || loadSteamProfile(steam));
   if (stale()) return;
   if (details.location && account === steam) {
     const location = createElement('p', { className: 'profile-location' });
-    if (/^[a-z]{2}$/.test(details.countryCode)) {
-      location.append(createElement('img', {
-        attributes: {
-          src: `https://community.fastly.steamstatic.com/public/images/countryflags/${details.countryCode}.gif`,
-          alt: '', width: 16, height: 11, referrerpolicy: 'no-referrer',
-        },
-      }));
+    const flag = steamCountryFlag(details.countryCode);
+    if (flag) {
+      flag.alt = '';
+      location.append(flag);
     }
     location.append(details.location);
     identity.append(location);
@@ -1689,49 +1733,46 @@ const renderPlayerProfile = async (route) => {
   else screenshotStatus.textContent = t('No public Halo screenshots are available.');
 };
 
-let refreshLeaderboard;
+const steamProfileUrl = (accountId) => `https://steamcommunity.com/profiles/${encodeURIComponent(accountId)}/`;
 
-const renderLeaderboard = (game) => {
-  const section = createElement('section', { className: 'leaderboard-page' });
-  const config = GAME_CONFIG.get(game) ?? { icon: 'assets/trophy.svg' };
-  const title = game === 'all' ? t('Leaderboards') : `${t('Leaderboard')} · ${config.title}`;
-  const heading = createElement('h1', { text: title, attributes: { id: 'leaderboard-title' } });
-  section.setAttribute('aria-labelledby', heading.id);
-  const intro = createElement('p', {
-    text: t(game === 'all'
-      ? 'Rankings use public data. Playtime includes only Halo games with reported hours.'
-      : 'Rankings use public data from players looked up on Halo Achievement Tracker.'),
+const steamCountryFlag = (countryCode) => {
+  if (!/^[a-z]{2}$/.test(countryCode)) return null;
+  const countries = new Intl.DisplayNames(currentLanguage(), { type: 'region' });
+  return createElement('img', {
+    attributes: {
+      src: `https://community.fastly.steamstatic.com/public/images/countryflags/${countryCode}.gif`,
+      alt: countries.of(countryCode.toUpperCase()), width: 16, height: 11, referrerpolicy: 'no-referrer',
+    },
   });
-  const status = createElement('p', { className: 'leaderboard-status', attributes: { role: 'status' } });
+};
+
+const createRankingTable = (game, label, onSort) => {
   const results = createElement('div', {
     className: 'leaderboard-results surface',
-    attributes: { role: 'region', 'aria-labelledby': heading.id, tabindex: '0' },
+    attributes: { role: 'region', tabindex: '0', ...label },
   });
-  section.append(createGameHeader(config, heading), intro, status, results);
-  elements.routeView.replaceChildren(section);
-  document.title = `${title} | ${APP_NAME}`;
-
   const number = new Intl.NumberFormat(currentLanguage());
   const hours = new Intl.NumberFormat(currentLanguage(), {
-    style: 'unit', unit: 'hour', maximumFractionDigits: 1,
+    style: 'unit', unit: 'hour', unitDisplay: 'long', maximumFractionDigits: 1,
   });
   const total = game === 'all'
     ? playerCollections.reduce((sum, id) => sum + getAchievementsForGame(id).length, 0)
     : getAchievementsForGame(game).length;
-  const frames = new Map();
-  const avatarAccounts = new WeakMap();
+  const appearance = new Map();
+  const accounts = new WeakMap();
   const observer = new IntersectionObserver((entries) => {
     for (const { target, isIntersecting } of entries) {
       if (!isIntersecting) continue;
       observer.unobserve(target);
-      const accountId = avatarAccounts.get(target);
-      if (!frames.has(accountId)) {
-        frames.set(accountId, loadSteamProfile({
-          profileUrl: `https://steamcommunity.com/profiles/${accountId}/`,
-        }, 'appearance'));
+      const { accountId, avatar } = accounts.get(target);
+      if (!appearance.has(accountId)) {
+        appearance.set(accountId, loadSteamProfile({ profileUrl: steamProfileUrl(accountId) }, 'appearance'));
       }
-      void frames.get(accountId).then((details) => {
-        if (target.isConnected) setAvatarFrame(target, details);
+      void appearance.get(accountId).then((details) => {
+        if (!target.isConnected) return;
+        setAvatarFrame(avatar, details);
+        const flag = steamCountryFlag(details.countryCode);
+        if (flag) target.append(flag);
       });
     }
   });
@@ -1740,39 +1781,106 @@ const renderLeaderboard = (game) => {
   const body = table.createTBody();
   const columns = [
     ['rank', 'Rank', 'asc'], ['player', 'Player', 'asc'], ['platform', 'Platform', 'asc'],
-    ['unlocked', 'Unlocked', 'desc'], ['minutes', 'Time played', 'desc'],
+    ['unlocked', 'Achievements', 'desc'], ['minutes', 'Time played', 'desc'],
   ];
   let sort = 'rank';
   let direction = 'asc';
-  let controller;
   const headers = new Map();
-  for (const [key, label, initialDirection] of columns) {
+  const showSort = () => {
+    for (const [key, cell] of headers) {
+      if (key === sort) cell.setAttribute('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
+      else cell.removeAttribute('aria-sort');
+    }
+  };
+  for (const [key, title, initialDirection] of columns) {
     const cell = createElement('th', { attributes: { scope: 'col' } });
-    const button = createElement('button', { text: t(label), attributes: { type: 'button' } });
+    const button = createElement('button', { text: t(title), attributes: { type: 'button' } });
     const indicator = menuItemIcon('chevron-up');
     indicator.classList.add('leaderboard-sort-indicator');
     button.append(indicator);
     button.addEventListener('click', () => {
       direction = sort === key ? (direction === 'asc' ? 'desc' : 'asc') : initialDirection;
       sort = key;
-      void update();
+      showSort();
+      onSort();
     });
     cell.append(button);
     header.append(cell);
     headers.set(key, cell);
   }
+  showSort();
   results.append(table);
 
+  const showRows = (players, emptyMessage) => {
+    observer.disconnect();
+    body.replaceChildren();
+    if (!players.length) {
+      const empty = body.insertRow().insertCell();
+      empty.colSpan = columns.length;
+      empty.textContent = t(emptyMessage);
+    }
+
+    for (const player of players) {
+      const row = body.insertRow();
+      row.insertCell().textContent = player.rank == null ? '—' : number.format(player.rank);
+      const name = createElement('th', { attributes: { scope: 'row' } });
+      const identity = createElement('span', { className: 'leaderboard-identity' });
+      const link = createElement('a', {
+        className: 'leaderboard-identity',
+        attributes: { href: profileHref(player), 'data-route': '' },
+      });
+      const avatar = createProfileAvatar({ player: player.displayName, avatarUrl: player.avatarUrl });
+      avatar.classList.add('leaderboard-avatar');
+      link.append(avatar, createElement('bdi', { text: player.displayName }));
+      identity.append(link);
+      name.append(identity);
+      row.append(name);
+      const isSteam = player.platform === 'steam';
+      if (isSteam && player.accountId) {
+        accounts.set(identity, { accountId: player.accountId, avatar });
+        observer.observe(identity);
+      }
+      const platform = steamLink(isSteam ? steamProfileUrl(player.accountId)
+        : `https://www.xbox.com/en-US/play/user/${encodeURIComponent(player.player)}`);
+      platform.classList.add('leaderboard-identity');
+      platform.append(menuItemIcon(player.platform), PLATFORM_NAMES[player.platform]);
+      row.insertCell().append(platform);
+      row.insertCell().textContent = t('{unlocked} of {total}', {
+        unlocked: number.format(player.unlocked ?? 0), total: number.format(total),
+      });
+      row.insertCell().textContent = player.minutes == null ? '—' : hours.format(player.minutes / 60);
+    }
+  };
+
+  return { results, showRows, get sort() { return sort; }, get direction() { return direction; } };
+};
+
+let refreshLeaderboard;
+
+const renderLeaderboard = (game) => {
+  const section = createElement('section', { className: 'leaderboard-page' });
+  const config = GAME_CONFIG.get(game) ?? { icon: 'assets/trophy.svg', title: t('All Games') };
+  const heading = createElement('h1', { text: config.title, attributes: { id: 'leaderboard-title' } });
+  section.setAttribute('aria-labelledby', heading.id);
+  const { search, searchInput } = createGameSearch('leaderboard-search', 'Search Players', 'leaderboard-results');
+  searchInput.maxLength = 100;
+  const status = createElement('p', { className: 'leaderboard-status', attributes: { role: 'status' } });
+  const ranking = createRankingTable(game, { 'aria-labelledby': heading.id }, () => void update());
+  ranking.results.id = 'leaderboard-results';
+  section.append(createGameHeader(config, heading, search), status, ranking.results);
+  elements.routeView.replaceChildren(section);
+  document.title = `${config.title} | ${t('Leaderboards')} | ${APP_NAME}`;
+
+  let controller;
+  let searchTimer;
   const update = async () => {
     if (!section.isConnected) return;
+    window.clearTimeout(searchTimer);
     controller?.abort();
     const request = new AbortController();
     controller = request;
-    const query = new URLSearchParams({ game, sort, direction });
-    for (const [key, cell] of headers) {
-      if (key === sort) cell.setAttribute('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
-      else cell.removeAttribute('aria-sort');
-    }
+    const search = searchInput.value.trim();
+    const query = new URLSearchParams({ game, sort: ranking.sort, direction: ranking.direction, search });
     status.textContent = t('Loading leaderboard…');
 
     try {
@@ -1782,47 +1890,19 @@ const renderLeaderboard = (game) => {
       if (!response.ok) throw new Error('Leaderboard unavailable');
       const { players } = await response.json();
       if (!section.isConnected || request.signal.aborted) return;
-      observer.disconnect();
-      body.replaceChildren();
       status.textContent = '';
-      if (!players.length) {
-        const empty = body.insertRow().insertCell();
-        empty.colSpan = columns.length;
-        empty.textContent = t('No players have recorded progress for this ranking yet.');
-      }
-
-      for (const player of players) {
-        const row = body.insertRow();
-        row.insertCell().textContent = player.rank == null ? '—' : number.format(player.rank);
-        const name = createElement('th', { attributes: { scope: 'row' } });
-        const link = createElement('a', {
-          className: 'leaderboard-identity',
-          attributes: { href: profileHref(player), 'data-route': '' },
-        });
-        const avatar = createProfileAvatar({ player: player.displayName, avatarUrl: player.avatarUrl });
-        avatar.classList.add('leaderboard-avatar');
-        if (player.platform === 'steam' && player.accountId) {
-          avatarAccounts.set(avatar, player.accountId);
-          observer.observe(avatar);
-        }
-        link.append(avatar, createElement('bdi', { text: player.displayName }));
-        name.append(link);
-        row.append(name);
-        const platform = createElement('span', { className: 'leaderboard-identity' });
-        platform.append(menuItemIcon(player.platform), PLATFORM_NAMES[player.platform]);
-        row.insertCell().append(platform);
-        row.insertCell().textContent = t('{unlocked} of {total}', {
-          unlocked: number.format(player.unlocked ?? 0),
-          total: number.format(total),
-        });
-        row.insertCell().textContent = player.minutes == null ? '—' : hours.format(player.minutes / 60);
-      }
+      ranking.showRows(players, search ? 'No matching players.' : 'No players have recorded progress for this ranking yet.');
     } catch {
       if (!request.signal.aborted && section.isConnected) {
         status.textContent = t('Could not load the leaderboard. Try again.');
       }
     }
   };
+  searchInput.addEventListener('input', () => {
+    controller?.abort();
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(update, 250);
+  });
   refreshLeaderboard = update;
   void update();
 };

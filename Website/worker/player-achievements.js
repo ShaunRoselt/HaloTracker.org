@@ -1,4 +1,4 @@
-import { clearPrivateRanking, saveAchievementRanking, saveSteamActivity } from './player-rankings.js';
+import { clearPrivateRanking, readSteamFriendScores, saveAchievementRanking, saveSteamActivity } from './player-rankings.js';
 
 // Steam Community app IDs and Xbox title IDs identify the versions represented by the tracker.
 const steamGames = new Map([
@@ -174,6 +174,21 @@ function avatarFrom(value, allowedHosts) {
   return null;
 }
 
+function steamIdentity(xml, id) {
+  const player = xmlText(xml, 'customURL') || id;
+  const allowedHosts = [
+    'avatars.fastly.steamstatic.com', 'avatars.akamai.steamstatic.com',
+    'avatars.cloudflare.steamstatic.com', 'steamcdn-a.akamaihd.net',
+  ];
+  return {
+    id,
+    player,
+    displayName: xmlText(xml, 'steamID') || player,
+    avatarUrl: avatarFrom(xmlText(xml, 'avatarFull'), allowedHosts)
+      ?? avatarFrom(xmlText(xml, 'avatarIcon'), allowedHosts),
+  };
+}
+
 async function steamProfileDetails(profileUrl) {
   try {
     const response = await fetch(profileUrl + '?xml=1', {
@@ -183,17 +198,8 @@ async function steamProfileDetails(profileUrl) {
     });
     if (response.ok) {
       const xml = await readLimited(response, 128_000);
-      if (xmlText(xml, 'steamID64') === new URL(profileUrl).pathname.split('/')[2]) {
-        const allowedHosts = [
-          'avatars.fastly.steamstatic.com', 'avatars.akamai.steamstatic.com',
-          'avatars.cloudflare.steamstatic.com', 'steamcdn-a.akamaihd.net',
-        ];
-        return {
-          displayName: xmlText(xml, 'steamID'),
-          avatarUrl: avatarFrom(xmlText(xml, 'avatarFull'), allowedHosts)
-            ?? avatarFrom(xmlText(xml, 'avatarIcon'), allowedHosts),
-        };
-      }
+      const id = new URL(profileUrl).pathname.split('/')[2];
+      if (xmlText(xml, 'steamID64') === id) return steamIdentity(xml, id);
     }
   } catch {
     // Achievement results remain usable if Steam's separate profile request fails.
@@ -293,7 +299,7 @@ function decodeSteamHtml(text) {
   });
 }
 
-export async function lookupSteamFriends(request) {
+export async function lookupSteamFriends(request, db) {
   if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
   const id = new URL(request.url).searchParams.get('id') ?? '';
   if (!steamId64.test(id)) return json({ error: 'invalid-player' }, 400);
@@ -318,6 +324,12 @@ export async function lookupSteamFriends(request) {
       displayName,
       avatarUrl: avatarFrom(avatar, ['avatars.fastly.steamstatic.com', 'avatars.akamai.steamstatic.com', 'avatars.cloudflare.steamstatic.com']),
     });
+  }
+  try {
+    const scores = await readSteamFriendScores(db, [...friends.keys()]);
+    for (const { accountId, ...score } of scores) Object.assign(friends.get(accountId), score);
+  } catch (error) {
+    console.error('Steam friend scores lookup failed', error.message);
   }
   return json({ friends: [...friends.values()] });
 }
@@ -388,13 +400,35 @@ export async function lookupSteamProfile(request, env) {
     return json({});
   }
 
-  const vanity = xmlText(xml, 'customURL');
+  const identity = steamIdentity(xml, id);
   const communityUrl = steamPublicUrl(xml, profileUrl);
   if (appearanceOnly) return json(steamAvatarFrame(await readSteamPage(communityUrl, 900_000)));
-  const [html, ownedGames, galleries, reviews] = await Promise.all([
+  const [html, galleries, activity] = await Promise.all([
     activityOnly ? '' : readSteamPage(communityUrl, 900_000),
-    steamOwnedGames(id, env.STEAM_WEB_API_KEY),
     activityOnly ? [] : Promise.all([...steamGames].map(([game, appId]) => steamScreenshots(communityUrl, game, appId))),
+    steamActivity(xml, id, communityUrl, env),
+  ]);
+  const { games, reviews } = activity;
+  try {
+    await saveSteamActivity(env.DB, identity, games, fetchedAt);
+  } catch (error) {
+    console.error('Steam activity save failed', error.message);
+  }
+  if (activityOnly) return json({ games });
+  return json({
+    account: { ...identity, accountId: id, profileUrl, platform: 'steam' },
+    location: xmlText(xml, 'location'),
+    ...steamPageMetadata(xml, html),
+    reviews: reviews.map(({ game, url, text, recommended }) => ({ game, url, text, recommended })),
+    ...steamAvatarFrame(html),
+    games,
+    galleries: galleries.filter(({ screenshots }) => screenshots.length),
+  });
+}
+
+async function steamActivity(xml, id, communityUrl, env) {
+  const [ownedGames, reviews] = await Promise.all([
+    steamOwnedGames(id, env.STEAM_WEB_API_KEY),
     Promise.all([...steamGames].map(([game, appId]) => steamGameReview(communityUrl, game, appId))),
   ]);
   const publicHours = publicSteamHours(xml);
@@ -410,24 +444,10 @@ export async function lookupSteamProfile(request, env) {
       };
     }
   }
-  const player = vanity || id;
-  try {
-    await saveSteamActivity(env.DB, { id, player, displayName: xmlText(xml, 'steamID') || player }, games, fetchedAt);
-  } catch (error) {
-    console.error('Steam activity save failed', error.message);
-  }
-  if (activityOnly) return json({ games });
-  return json({
-    location: xmlText(xml, 'location'),
-    ...steamPageMetadata(xml, html),
-    reviews: reviews.filter(Boolean).map(({ game, url, text, recommended }) => ({ game, url, text, recommended })),
-    ...steamAvatarFrame(html),
-    games,
-    galleries: galleries.filter(({ screenshots }) => screenshots.length),
-  });
+  return { games, reviews: reviews.filter(Boolean) };
 }
 
-async function steamAchievements(player, appId, signal) {
+async function steamAchievements(player, appId, signal, identity) {
   const profile = steamProfilePath(player);
   const url = new URL(`${profile}/stats/${appId}/achievements/`, 'https://steamcommunity.com');
   url.search = 'xml=1&l=english';
@@ -441,8 +461,61 @@ async function steamAchievements(player, appId, signal) {
   }
   if (!response.ok) throw unavailable();
   const progress = parseSteamAchievements(await readLimited(response, 2_000_000), appId, profile);
-  const details = await steamProfileDetails(progress.profileUrl);
+  const details = identity ?? await steamProfileDetails(progress.profileUrl);
   return { ...progress, displayName: details?.displayName || progress.player, avatarUrl: details?.avatarUrl ?? null };
+}
+
+export async function syncSteamFriend(request, env) {
+  const origin = request.headers.get('Origin');
+  if (origin && origin !== new URL(request.url).origin) return json({ error: 'invalid-request' }, 403);
+  if (request.method !== 'POST') return json({ error: 'invalid-request' }, 405);
+  const id = new URL(request.url).searchParams.get('id') ?? '';
+  if (!steamId64.test(id)) return json({ error: 'invalid-player' }, 400);
+  const { DB: db } = env;
+  const now = Date.now();
+  const lease = now + 120_000;
+  try {
+    const claimed = await db.prepare(`
+      INSERT INTO steam_friend_sync (account_id, sync_after) VALUES (?, ?)
+      ON CONFLICT (account_id) DO UPDATE SET sync_after = excluded.sync_after
+      WHERE steam_friend_sync.sync_after <= ?
+      RETURNING account_id
+    `).bind(id, lease, now).first();
+    if (claimed) {
+      const profileUrl = `https://steamcommunity.com/profiles/${id}/`;
+      const xml = await readSteamPage(profileUrl + '?xml=1', 128_000);
+      const privacy = xmlText(xml, 'privacyState');
+      if (xmlText(xml, 'steamID64') !== id || !privacy) throw unavailable();
+      let retry = false;
+      if (privacy === 'public') {
+        const identity = steamIdentity(xml, id);
+        const signal = AbortSignal.timeout(10_000);
+        for (const [game, appId] of steamGames) {
+          try {
+            const progress = await steamAchievements(id, appId, signal, identity);
+            await saveAchievementRanking(db, 'steam', game, progress, now);
+          } catch (error) {
+            if (error.message === 'rate-limited') throw error;
+            if (error.message === 'private-achievements') await clearPrivateRanking(db, 'steam', id, now, game);
+            else if (!['no-game-data', 'player-not-found'].includes(error.message)) retry = true;
+          }
+        }
+        const { games } = await steamActivity(xml, id, steamPublicUrl(xml, profileUrl), env);
+        await saveSteamActivity(db, identity, games, now);
+      } else if (privacy === 'private' || privacy === 'friendsonly') {
+        await clearPrivateRanking(db, 'steam', id, now);
+      }
+      const nextSync = Date.now() + (retry ? 60 * 60_000 : 24 * 60 * 60_000);
+      await db.prepare('UPDATE steam_friend_sync SET sync_after = ? WHERE account_id = ? AND sync_after = ?')
+        .bind(nextSync, id, lease).run();
+    }
+    const [score] = await readSteamFriendScores(db, [id]);
+    return json(score);
+  } catch (error) {
+    if (error instanceof LookupError) return json({ error: error.message }, error.status, error.retryAfter);
+    console.error('Steam friend sync failed', error.message);
+    return json({ error: 'provider-unavailable' }, 502);
+  }
 }
 
 async function xboxRequest(path, apiKey, signal) {
