@@ -1128,7 +1128,16 @@ const renderNotFound = () => {
 
 const renderReleaseNotes = () => {
   const template = document.querySelector('#release-notes-template');
-  elements.routeView.replaceChildren(translateReleaseNotes(template.content.cloneNode(true)));
+  const content = translateReleaseNotes(template.content.cloneNode(true));
+  for (const entry of content.querySelectorAll('.release-entry')) {
+    const screenshotCount = entry.querySelectorAll('.release-entry-body img').length;
+    if (!screenshotCount) continue;
+    entry.querySelector('summary').append(createElement('span', {
+      className: 'release-screenshot-label',
+      text: t(screenshotCount === 1 ? 'Screenshot' : 'Screenshots'),
+    }));
+  }
+  elements.routeView.replaceChildren(content);
   document.title = `${t('Release Notes')} | ${APP_NAME}`;
 };
 

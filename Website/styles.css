@@ -1116,6 +1116,14 @@
     cursor: pointer;
   }
 
+  .release-screenshot-label {
+    display: inline-block;
+    margin-inline-start: 0.75rem;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
   .release-entry-body {
     padding: 0 0.875rem 0.875rem;
   }
