@@ -22,6 +22,7 @@ const xboxGames = new Map([
 
 const steamIdBase = 76561197960265728n;
 const steamId64 = /^7656\d{13}$/;
+const friendRefreshInterval = 60 * 60_000;
 const steamVanity = /^[a-z\d_-]{2,64}$/i;
 const xboxUserId = /^\d{1,20}$/;
 const gamertag = /^[\p{L}\p{N}][\p{L}\p{M}\p{N}]*(?: [\p{L}\p{M}\p{N}]+)*(?:#\d{1,6})?$/u;
@@ -389,6 +390,16 @@ export async function lookupSteamProfile(request, env) {
   const profileUrl = `https://steamcommunity.com/profiles/${id}/`;
   const xml = await readSteamPage(profileUrl + '?xml=1', 128_000);
   if (xmlText(xml, 'steamID64') !== id) return json({});
+  if (!activityOnly && !appearanceOnly && env.DB) {
+    try {
+      await env.DB.prepare(`
+        INSERT INTO steam_friend_sync (account_id, sync_after) VALUES (?, ?)
+        ON CONFLICT (account_id) DO UPDATE SET sync_after = MAX(sync_after, excluded.sync_after)
+      `).bind(id, Date.now() + friendRefreshInterval).run();
+    } catch (error) {
+      console.error('Steam profile refresh timestamp save failed', error.message);
+    }
+  }
   if (xmlText(xml, 'privacyState') !== 'public') {
     if (xmlText(xml, 'privacyState') === 'private') {
       try {
@@ -486,7 +497,6 @@ export async function syncSteamFriend(request, env) {
       const xml = await readSteamPage(profileUrl + '?xml=1', 128_000);
       const privacy = xmlText(xml, 'privacyState');
       if (xmlText(xml, 'steamID64') !== id || !privacy) throw unavailable();
-      let retry = false;
       if (privacy === 'public') {
         const identity = steamIdentity(xml, id);
         const signal = AbortSignal.timeout(10_000);
@@ -497,7 +507,6 @@ export async function syncSteamFriend(request, env) {
           } catch (error) {
             if (error.message === 'rate-limited') throw error;
             if (error.message === 'private-achievements') await clearPrivateRanking(db, 'steam', id, now, game);
-            else if (!['no-game-data', 'player-not-found'].includes(error.message)) retry = true;
           }
         }
         const { games } = await steamActivity(xml, id, steamPublicUrl(xml, profileUrl), env);
@@ -505,7 +514,7 @@ export async function syncSteamFriend(request, env) {
       } else if (privacy === 'private' || privacy === 'friendsonly') {
         await clearPrivateRanking(db, 'steam', id, now);
       }
-      const nextSync = Date.now() + (retry ? 60 * 60_000 : 24 * 60 * 60_000);
+      const nextSync = Date.now() + friendRefreshInterval;
       await db.prepare('UPDATE steam_friend_sync SET sync_after = ? WHERE account_id = ? AND sync_after = ?')
         .bind(nextSync, id, lease).run();
     }
