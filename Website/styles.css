@@ -457,7 +457,8 @@
     object-fit: contain;
   }
 
-  .game-hero h1 {
+  .game-hero h1,
+  .guide-game-link {
     display: table-cell;
     margin: 0;
     font-size: 22.6667px;
@@ -1428,16 +1429,14 @@
   }
 
   .guide-game-link {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: 44px;
-    margin-block-end: 1rem;
-    color: var(--color-text-muted);
+    padding-block: 0.5rem;
+    text-decoration: none;
     text-underline-offset: 0.2em;
   }
 
-  .guide-game-link:hover {
-    color: var(--color-focus);
+  .guide-game-link:hover,
+  .guide-game-link:focus-visible {
+    text-decoration: underline;
   }
 
   .guide-header {

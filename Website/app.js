@@ -542,6 +542,25 @@ const formatPlayerUnlocks = ({ unlocked, reported, total }) => {
   });
 };
 
+const createGameHeader = (config, title, accessory) => {
+  const hero = createElement('header', { className: 'game-hero surface' });
+  const heroOverlay = createElement('div', { className: 'game-hero-overlay' });
+  const gameIcon = createImage({
+    source: config.icon,
+    alt: '',
+    className: 'game-hero-icon',
+    eager: true,
+  });
+  gameIcon.width = 72;
+  gameIcon.height = 72;
+  const heroText = createElement('div', { className: 'game-hero-text' });
+  heroText.append(title);
+  heroOverlay.append(gameIcon, heroText);
+  if (accessory) heroOverlay.append(accessory);
+  hero.append(heroOverlay);
+  return hero;
+};
+
 const renderAchievements = (game) => {
   const config = GAME_CONFIG.get(game);
   if (!config) {
@@ -558,17 +577,6 @@ const renderAchievements = (game) => {
     className: 'achievements-page',
     attributes: { 'aria-labelledby': 'achievements-title' },
   });
-  const hero = createElement('header', { className: 'game-hero surface' });
-  const heroOverlay = createElement('div', { className: 'game-hero-overlay' });
-  const gameIcon = createImage({
-    source: config.icon,
-    alt: '',
-    className: 'game-hero-icon',
-    eager: true,
-  });
-  gameIcon.width = 72;
-  gameIcon.height = 72;
-  const heroText = createElement('div', { className: 'game-hero-text' });
   const title = createElement('h1', {
     text: config.title,
     attributes: { id: 'achievements-title' },
@@ -599,9 +607,7 @@ const renderAchievements = (game) => {
   searchInput.value = state.searchByGame.get(game) ?? '';
   search.append(searchLabel, searchInput);
 
-  heroText.append(title);
-  heroOverlay.append(gameIcon, heroText, search);
-  hero.append(heroOverlay);
+  const hero = createGameHeader(config, title, search);
 
   const summary = createElement('section', {
     className: 'achievement-summary surface',
@@ -836,8 +842,12 @@ const renderGuide = (game, achievement) => {
   const config = GAME_CONFIG.get(game);
   const gameLink = createElement('a', {
     className: 'guide-game-link',
-    text: t('{game} Achievements', { game: t(config.shortTitle) }),
-    attributes: { href: achievementPageHref(game), 'data-route': '' },
+    text: config.title,
+    attributes: {
+      href: achievementPageHref(game),
+      'data-route': '',
+      'aria-label': t('{game} Achievements', { game: config.title }),
+    },
   });
   const header = createElement('header', { className: 'guide-header' });
   const image = createImage({
@@ -864,7 +874,7 @@ const renderGuide = (game, achievement) => {
   });
   headingGroup.append(eyebrow, title, description);
   header.append(image, headingGroup);
-  content.append(gameLink, header);
+  content.append(header);
 
   if (achievement.guideDescription.trim()) {
     const guideSection = createElement('section', {
@@ -919,7 +929,7 @@ const renderGuide = (game, achievement) => {
     content.append(videoSection);
   }
 
-  article.append(content);
+  article.append(createGameHeader(config, gameLink), content);
   elements.routeView.replaceChildren(article);
   document.title = guidePageTitle(achievement);
 };
