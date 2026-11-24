@@ -805,7 +805,11 @@ const renderAchievements = (game) => {
 
       playerStatus.replaceChildren();
       if (!playerProgress.length) {
-        for (const message of playerLookupErrors(reports)) {
+        const visibleReports = config.collection === 'halo5'
+          ? reports.filter((report) => !['unsupported-game', 'xbox-not-configured'].includes(report?.error))
+          : reports;
+        if (!visibleReports.length) playerInfo.parentElement.remove();
+        for (const message of playerLookupErrors(visibleReports)) {
           playerStatus.append(createElement('p', { text: message }));
         }
         return;
