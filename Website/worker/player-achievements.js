@@ -358,7 +358,9 @@ function steamPageMetadata(xml, html) {
   return {
     backgroundUrl: avatarFrom(background, hosts),
     backgroundVideoUrl: avatarFrom(videoUrl, hosts),
-    presence: playing || presence === 'online' ? 'online' : presence === 'offline' ? 'offline' : null,
+    presence: playing ? 'online'
+      : ['away', 'snooze'].includes(presence) || /^(?:currently )?(?:away|snooze|snoozing)$/i.test(status.replace(/<[^>]*>/g, '').trim()) ? 'away'
+      : ['online', 'offline'].includes(presence) ? presence : null,
     currentGame: currentGame ?? null,
     joinedAt: Number.isFinite(joined) ? joined / 1000 : null,
   };

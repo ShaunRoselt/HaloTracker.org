@@ -1251,16 +1251,15 @@ const profileDate = (timestamp) => new Intl.DateTimeFormat(currentLanguage(), {
 }).format(timestamp * 1000);
 
 const createProfileActivity = (game, { minutes, lastPlayed } = {}) => {
-  const hours = Number.isFinite(minutes) ? new Intl.NumberFormat(currentLanguage(), {
+  const hours = new Intl.NumberFormat(currentLanguage(), {
     style: 'unit', unit: 'hour', maximumFractionDigits: 1,
-  }).format(minutes / 60) : null;
-  const missingDate = game.unlocked === 0 && game.reported === game.total ? t('None yet') : t('Unavailable');
+  }).format(Number.isFinite(minutes) ? minutes / 60 : 0);
   const stats = createElement('dl', { className: 'profile-game-activity' });
   for (const [label, value] of [
-    ['Time played', hours ?? t('Unavailable')],
+    ['Time played', hours],
     ['Last played', lastPlayed && profileDate(lastPlayed)],
-    ['First achievement', game.firstUnlockAt ? profileDate(game.firstUnlockAt) : missingDate],
-    ['Latest achievement', game.lastUnlockAt ? profileDate(game.lastUnlockAt) : missingDate],
+    ['First achievement', game.firstUnlockAt ? profileDate(game.firstUnlockAt) : t('N/A')],
+    ['Latest achievement', game.lastUnlockAt ? profileDate(game.lastUnlockAt) : t('N/A')],
   ]) {
     if (value == null) continue;
     const stat = createElement('div');
@@ -1271,7 +1270,7 @@ const createProfileActivity = (game, { minutes, lastPlayed } = {}) => {
 };
 
 const createProfileGame = (data, platform) => {
-  const { game, unlocked, reported, total } = data;
+  const { game, unlocked = 0, reported, total = getAchievementsForGame(game).length } = data;
   const config = GAME_CONFIG.get(game);
   const headingId = `profile-${platform}-${game}`;
   const link = createElement('a', {
@@ -1282,52 +1281,37 @@ const createProfileGame = (data, platform) => {
   icon.width = 40;
   icon.height = 40;
   const heading = createElement('h3', { className: 'profile-game-heading' });
-  heading.append(icon, link);
+  link.prepend(icon);
+  heading.append(link);
 
   const count = createElement('p', {
     className: 'profile-game-count',
-    text: unlocked == null ? t('Xbox progress unavailable') : formatPlayerUnlocks({ unlocked, reported, total }),
+    text: formatPlayerUnlocks({ unlocked, reported: reported ?? total, total }),
   });
   const item = createElement('li', {
     className: 'profile-game surface',
     attributes: { 'data-profile-game': game },
   });
-  item.append(heading);
-  if (unlocked != null) {
-    item.append(createElement('progress', {
-      className: 'profile-game-progress',
-      attributes: { value: unlocked, max: total, 'aria-labelledby': headingId },
-    }));
-  }
-  item.append(count, createProfileActivity(data));
+  const progress = createElement('progress', {
+    className: 'profile-game-progress',
+    attributes: { value: unlocked, max: total, 'aria-labelledby': headingId },
+  });
+  item.append(heading, progress, count, createProfileActivity(data));
   return item;
 };
 
 const createProfileProgress = ({ platform, player, games }, hasMultiplePlatforms) => {
   const headingId = `profile-progress-${platform}`;
-  const section = createElement('section', {
-    className: 'profile-progress',
-    attributes: { 'aria-labelledby': headingId },
-  });
-  const heading = createElement('h2', { attributes: { id: headingId } });
+  const section = createElement(hasMultiplePlatforms ? 'section' : 'div', { className: 'profile-progress' });
   if (hasMultiplePlatforms) {
+    const heading = createElement('h2', { attributes: { id: headingId } });
     heading.append(PLATFORM_NAMES[platform], ' · ', createElement('bdi', { text: player }));
-  } else {
-    heading.textContent = t('Achievements');
-  }
-  const totals = createElement('dl', { className: 'profile-totals surface' });
-  for (const [label, value] of [
-    ['Unlocked', games.reduce((sum, game) => sum + game.unlocked, 0)],
-    ['Games tracked', games.length],
-    ['Games completed', games.filter(({ unlocked, total }) => unlocked === total).length],
-  ]) {
-    const stat = createElement('div');
-    stat.append(createElement('dt', { text: t(label) }), createElement('dd', { text: value.toLocaleString(currentLanguage()) }));
-    totals.append(stat);
+    section.setAttribute('aria-labelledby', headingId);
+    section.append(heading);
   }
   const gameList = createElement('ul', { className: 'profile-games' });
   gameList.append(...games.map((game) => createProfileGame(game, platform)));
-  section.append(heading, totals, gameList);
+  section.append(gameList);
   return section;
 };
 
@@ -1542,6 +1526,7 @@ const renderPlayerProfile = async (route) => {
   // Each collection includes its subgames. Query it once and count its achievements once.
   const collections = playerCollections;
   const progress = new Map();
+  const unlockedAchievements = new Set();
   const errors = new Set();
   const steamAccount = player.accounts.get('steam');
   const pendingSteamDetails = steamAccount && loadSteamProfile(steamAccount);
@@ -1556,6 +1541,9 @@ const renderPlayerProfile = async (route) => {
         if (report?.error) errors.add(report.error);
       }
       for (const { platform, player: name, unlocks, firstUnlockAt, lastUnlockAt } of matchedPlayerProgress(achievements, reports)) {
+        for (const [id, unlocked] of unlocks) {
+          if (unlocked) unlockedAchievements.add(id);
+        }
         if (!progress.has(platform)) progress.set(platform, { platform, player: name, games: [] });
         progress.get(platform).games.push({
           game, unlocked: unlockCount(unlocks), reported: unlocks.size, total: achievements.length,
@@ -1582,7 +1570,7 @@ const renderPlayerProfile = async (route) => {
   }
   const platforms = createElement('div', { className: 'profile-platforms' });
   for (const [platform, profile] of player.accounts) {
-    const link = steamLink(profile.profileUrl, PLATFORM_NAMES[platform]);
+    const link = steamLink(profile.profileUrl, platform === 'steam' ? '' : PLATFORM_NAMES[platform]);
     if (platform === 'steam') {
       link.classList.add('profile-steam-link');
       link.setAttribute('aria-label', t('View Steam profile'));
@@ -1599,6 +1587,19 @@ const renderPlayerProfile = async (route) => {
     attributes: { role: 'status' }, text: t('Loading screenshots…'),
   });
   screenshotPanel.append(screenshotStatus);
+
+  const overall = createElement('div', { className: 'profile-overall-progress surface' });
+  const total = collections.reduce((sum, game) => sum + getAchievementsForGame(game).length, 0);
+  const unlocked = unlockedAchievements.size;
+  const label = createElement('p', {
+    text: formatPlayerUnlocks({ unlocked, reported: total, total }),
+    attributes: { id: 'profile-overall-label' },
+  });
+  overall.append(label, createElement('progress', {
+    className: 'profile-game-progress',
+    attributes: { value: unlocked, max: total, 'aria-labelledby': label.id },
+  }));
+  achievementPanel.append(overall);
 
   let steamSection;
   let firstSection;
@@ -1652,7 +1653,7 @@ const renderPlayerProfile = async (route) => {
       const presence = createElement('p', {
         className: `profile-presence is-${details.presence}`,
         text: currentGame ? t('Playing {game}', { game: currentGame.title })
-          : t(details.presence === 'online' ? 'Online' : 'Offline'),
+          : t({ online: 'Online', offline: 'Offline', away: 'Away' }[details.presence]),
       });
       identity.append(presence);
     }
@@ -1660,7 +1661,7 @@ const renderPlayerProfile = async (route) => {
       const date = new Intl.DateTimeFormat(currentLanguage(), { dateStyle: 'medium', timeZone: 'UTC' });
       identity.append(createElement('p', {
         className: 'profile-joined',
-        text: t('Steam member since {date}', { date: date.format(details.joinedAt * 1000) }),
+        text: t('Account Created: {date}', { date: date.format(details.joinedAt * 1000) }),
       }));
     }
   }
