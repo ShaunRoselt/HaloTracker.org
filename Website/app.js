@@ -1539,6 +1539,40 @@ const loadSavedProfile = async (platform, id) => {
   return [];
 };
 
+const profileLinkServices = new Map([
+  ['website', ['Personal website', 'profile-links/globe']],
+  ['github', ['GitHub', 'github']],
+  ['linkedin', ['LinkedIn', 'profile-links/linkedin']],
+  ['youtube', ['YouTube', 'profile-links/youtube']],
+  ['instagram', ['Instagram', 'profile-links/instagram']],
+  ['facebook', ['Facebook', 'profile-links/facebook']],
+  ['x', ['X', 'profile-links/twitter-x']],
+]);
+
+const showExternalProfileLinks = async (container, platform, id) => {
+  if (!platform || !/^\d{1,20}$/.test(id)) return;
+  try {
+    const params = new URLSearchParams({ platform, id });
+    const response = await fetch(`/api/profile-links?${params}`, { signal: AbortSignal.timeout(5_000) });
+    if (!response.ok || !container.isConnected) return;
+    const { links } = await response.json();
+    for (const { service, url } of links) {
+      const entry = profileLinkServices.get(service);
+      if (!entry || !URL.canParse(url) || new URL(url).protocol !== 'https:') continue;
+      const [name, icon] = entry;
+      const label = t(name);
+      const link = steamLink(url);
+      link.classList.add('profile-icon-link');
+      link.setAttribute('aria-label', label);
+      link.title = label;
+      link.append(menuItemIcon(icon));
+      container.append(link);
+    }
+  } catch {
+    // External links are optional when the database is unavailable.
+  }
+};
+
 const renderPlayerProfile = async (route) => {
   const page = createElement('section', { className: 'profile-page', attributes: { 'aria-labelledby': 'profile-title' } });
   const hero = createElement('header', { className: 'profile-hero surface' });
@@ -1677,6 +1711,9 @@ const renderPlayerProfile = async (route) => {
     progress.set('steam', { platform: 'steam', player: player.accounts.get('steam').player, games: [] });
   }
   if (!progress.size) {
+    const links = createElement('div', { className: 'profile-platforms' });
+    nameRow.append(links);
+    void showExternalProfileLinks(links, account?.platform ?? shared?.[1], account?.accountId ?? player.id);
     const error = [...errors].find((code) => code !== 'unsupported-game' && code !== 'no-game-data');
     status.textContent = t(PLAYER_ERRORS.get(error) ?? 'Could not load the player’s achievements. Try again.');
     return;
@@ -1695,6 +1732,7 @@ const renderPlayerProfile = async (route) => {
   if (usingSavedProgress) status.textContent = t('Showing saved achievement progress where the live lookup failed.');
   else status.remove();
   nameRow.append(platforms);
+  void showExternalProfileLinks(platforms, account?.platform ?? shared?.[1], account?.accountId ?? player.id);
 
   const { panels: [achievementPanel, screenshotPanel, friendPanel], addTab } = attachProfileTabs(page);
   const screenshotStatus = createElement('p', {

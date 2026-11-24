@@ -4,6 +4,7 @@
   "entries": [
     { "idx": 0, "version": "6", "when": 1795548000000, "tag": "0000_player_rankings", "breakpoints": true },
     { "idx": 1, "version": "6", "when": 1795634400000, "tag": "0001_steam_friend_sync", "breakpoints": true },
-    { "idx": 2, "version": "6", "when": 1795634400001, "tag": "0002_steam_friend_refresh_interval", "breakpoints": true }
+    { "idx": 2, "version": "6", "when": 1795634400001, "tag": "0002_steam_friend_refresh_interval", "breakpoints": true },
+    { "idx": 3, "version": "6", "when": 1795634400002, "tag": "0003_player_profile_links", "breakpoints": true }
   ]
 }

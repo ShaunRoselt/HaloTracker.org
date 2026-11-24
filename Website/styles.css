@@ -813,7 +813,8 @@
     text-underline-offset: 0.2em;
   }
 
-  .profile-steam-link {
+  .profile-steam-link,
+  .profile-icon-link {
     min-inline-size: 1.75rem;
     min-block-size: 1.75rem;
     justify-content: center;
