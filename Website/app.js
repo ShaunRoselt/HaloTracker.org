@@ -1544,6 +1544,9 @@ const loadSavedProfile = async (platform, id) => {
 };
 
 const profileLinkServices = new Map([
+  ['email', ['Email', 'profile-links/envelope']],
+  ['stackoverflow', ['Stack Overflow', 'profile-links/stack-overflow']],
+  ['arqade', ['Arqade', 'profile-links/controller']],
   ['website', ['Personal website', 'profile-links/globe']],
   ['github', ['GitHub', 'github']],
   ['linkedin', ['LinkedIn', 'profile-links/linkedin']],
@@ -1562,7 +1565,9 @@ const showExternalProfileLinks = async (container, platform, id) => {
     const { links } = await response.json();
     for (const { service, url } of links) {
       const entry = profileLinkServices.get(service);
-      if (!entry || !URL.canParse(url) || new URL(url).protocol !== 'https:') continue;
+      if (!entry || !URL.canParse(url)) continue;
+      const target = new URL(url);
+      if (service === 'email' ? target.protocol !== 'mailto:' : target.protocol !== 'https:') continue;
       const [name, icon] = entry;
       const label = t(name);
       const link = steamLink(url);

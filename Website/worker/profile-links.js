@@ -1,6 +1,9 @@
-// Shaun's website links back to this Steam account and publishes these profiles.
+// Shaun’s website and cross-linked Stack Exchange profiles identify these public links.
 const publishedLinks = new Map([
   ['steam:76561198215789693', [
+    ['email', 'mailto:Me@ShaunRoselt.com'],
+    ['stackoverflow', 'https://stackoverflow.com/users/shaunroselt'],
+    ['arqade', 'https://gaming.stackexchange.com/users/shaunroselt'],
     ['website', 'https://www.shaunroselt.com/'],
     ['github', 'https://github.com/ShaunRoselt'],
     ['linkedin', 'https://www.linkedin.com/in/shaunroselt/'],
@@ -26,13 +29,15 @@ export async function readProfileLinks(request, db) {
       ORDER BY service
     `).bind(platform, id);
     let { results } = await select.all();
-    const seed = publishedLinks.get(`${platform}:${id}`);
-    if (!results.length && seed) {
+    const savedServices = new Set(results.map(({ service }) => service));
+    const missing = (publishedLinks.get(`${platform}:${id}`) ?? [])
+      .filter(([service]) => !savedServices.has(service));
+    if (missing.length) {
       const insert = db.prepare(`
         INSERT INTO player_profile_links (platform, account_id, service, url)
         VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING
       `);
-      await db.batch(seed.map(([service, url]) => insert.bind(platform, id, service, url)));
+      await db.batch(missing.map(([service, url]) => insert.bind(platform, id, service, url)));
       ({ results } = await select.all());
     }
     return Response.json({ links: results }, { headers: { 'Cache-Control': 'no-store' } });
