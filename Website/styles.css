@@ -1116,12 +1116,9 @@
     cursor: pointer;
   }
 
-  .release-screenshot-label {
-    display: inline-block;
+  .release-screenshot-icon {
     margin-inline-start: 0.75rem;
-    color: var(--color-text-muted);
-    font-size: 0.875rem;
-    font-weight: 500;
+    vertical-align: middle;
   }
 
   .release-entry-body {
@@ -1137,7 +1134,7 @@
     margin-block-start: 0.25rem;
   }
 
-  .release-entry img {
+  .release-entry-body img {
     max-width: 100%;
     height: auto;
     border-radius: var(--radius-small);

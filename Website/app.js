@@ -1132,9 +1132,10 @@ const renderReleaseNotes = () => {
   for (const entry of content.querySelectorAll('.release-entry')) {
     const screenshotCount = entry.querySelectorAll('.release-entry-body img').length;
     if (!screenshotCount) continue;
-    entry.querySelector('summary').append(createElement('span', {
-      className: 'release-screenshot-label',
-      text: t(screenshotCount === 1 ? 'Screenshot' : 'Screenshots'),
+    const label = t(screenshotCount === 1 ? 'Screenshot' : 'Screenshots');
+    entry.querySelector('summary').append(createElement('img', {
+      className: 'release-screenshot-icon',
+      attributes: { src: 'assets/image.svg', alt: label, title: label, width: 18, height: 18 },
     }));
   }
   elements.routeView.replaceChildren(content);
