@@ -1614,7 +1614,6 @@ const renderPlayerProfile = async (route) => {
   const progress = new Map();
   const unlockedByGame = new Map();
   const failedGames = new Map();
-  let usingSavedProgress = false;
   const errors = new Set();
   const steamAccount = player.accounts.get('steam')
     ?? (shared?.[1] === 'steam' && /^7656\d{13}$/.test(player.id)
@@ -1695,7 +1694,6 @@ const renderPlayerProfile = async (route) => {
         : `https://www.xbox.com/en-US/play/user/${encodeURIComponent(name)}`;
       player.accounts.set(platform, { ...saved, platform, profileUrl });
     }
-    usingSavedProgress = true;
   }
   const account = player.accounts.values().next().value;
   if (account) {
@@ -1733,8 +1731,7 @@ const renderPlayerProfile = async (route) => {
     }
     platforms.append(link);
   }
-  if (usingSavedProgress) status.textContent = t('Showing saved achievement progress where the live lookup failed.');
-  else status.remove();
+  status.remove();
   nameRow.append(platforms);
   void showExternalProfileLinks(platforms, account?.platform ?? shared?.[1], account?.accountId ?? player.id);
 

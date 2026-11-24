@@ -379,6 +379,30 @@ function steamPageMetadata(xml, html) {
   };
 }
 
+async function readSavedSteamDetails(db, id) {
+  if (!db) return {};
+  try {
+    const row = await db.prepare('SELECT details FROM steam_profile_details WHERE account_id = ?').bind(id).first();
+    return row?.details ? JSON.parse(row.details) : {};
+  } catch (error) {
+    console.error('Steam profile details read failed', error.message);
+    return {};
+  }
+}
+
+async function saveSteamDetails(db, id, details, fetchedAt) {
+  if (!db) return;
+  try {
+    await db.prepare(`
+      INSERT INTO steam_profile_details (account_id, details, fetched_at) VALUES (?, ?, ?)
+      ON CONFLICT (account_id) DO UPDATE SET details = excluded.details, fetched_at = excluded.fetched_at
+      WHERE excluded.fetched_at >= steam_profile_details.fetched_at
+    `).bind(id, details === null ? null : JSON.stringify(details), fetchedAt).run();
+  } catch (error) {
+    console.error('Steam profile details save failed', error.message);
+  }
+}
+
 export async function lookupSteamProfile(request, env) {
   if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
   const params = new URL(request.url).searchParams;
@@ -388,8 +412,15 @@ export async function lookupSteamProfile(request, env) {
   const fetchedAt = Date.now();
   if (!steamId64.test(id)) return json({ error: 'invalid-player' }, 400);
   const profileUrl = `https://steamcommunity.com/profiles/${id}/`;
+  const fallback = async () => {
+    if (activityOnly) return json({});
+    const details = await readSavedSteamDetails(env.DB, id);
+    if (!appearanceOnly) return json(details);
+    const { countryCode, avatarFrameUrl, avatarFrameStillUrl } = details;
+    return json({ countryCode, avatarFrameUrl, avatarFrameStillUrl });
+  };
   const xml = await readSteamPage(profileUrl + '?xml=1', 128_000);
-  if (xmlText(xml, 'steamID64') !== id) return json({});
+  if (xmlText(xml, 'steamID64') !== id) return fallback();
   if (!activityOnly && !appearanceOnly && env.DB) {
     try {
       await env.DB.prepare(`
@@ -403,18 +434,22 @@ export async function lookupSteamProfile(request, env) {
   if (xmlText(xml, 'privacyState') !== 'public') {
     const privacy = xmlText(xml, 'privacyState');
     if (['private', 'friendsonly'].includes(privacy)) {
+      await saveSteamDetails(env.DB, id, null, fetchedAt);
       try {
         await clearPrivateRanking(env.DB, 'steam', id, fetchedAt);
       } catch (error) {
         console.error('Private Steam ranking removal failed', error.message);
       }
     }
-    return json({ private: ['private', 'friendsonly'].includes(privacy) });
+    return ['private', 'friendsonly'].includes(privacy) ? json({ private: true }) : fallback();
   }
 
   const identity = steamIdentity(xml, id);
   const communityUrl = steamPublicUrl(xml, profileUrl);
-  if (appearanceOnly) return json(steamAvatarFrame(await readSteamPage(communityUrl, 900_000)));
+  if (appearanceOnly) {
+    const html = await readSteamPage(communityUrl, 900_000);
+    return html ? json(steamAvatarFrame(html)) : fallback();
+  }
   const [html, galleries, activity] = await Promise.all([
     activityOnly ? '' : readSteamPage(communityUrl, 900_000),
     activityOnly ? [] : Promise.all([...steamGames].map(([game, appId]) => steamScreenshots(communityUrl, game, appId))),
@@ -427,15 +462,27 @@ export async function lookupSteamProfile(request, env) {
     console.error('Steam activity save failed', error.message);
   }
   if (activityOnly) return json({ games });
-  return json({
+  const saved = html ? {} : await readSavedSteamDetails(env.DB, id);
+  const metadata = steamPageMetadata(xml, html);
+  const { presence, currentGame, joinedAt, ...appearance } = metadata;
+  const publicReviews = reviews.map(({ game, url, text, recommended }) => ({ game, url, text, recommended }));
+  const publicGalleries = galleries.filter(({ screenshots }) => screenshots.length);
+  const details = {
     account: { ...identity, accountId: id, profileUrl, platform: 'steam' },
     location: xmlText(xml, 'location'),
-    ...steamPageMetadata(xml, html),
-    reviews: reviews.map(({ game, url, text, recommended }) => ({ game, url, text, recommended })),
-    ...steamAvatarFrame(html),
-    games,
-    galleries: galleries.filter(({ screenshots }) => screenshots.length),
-  });
+    joinedAt: joinedAt ?? saved.joinedAt ?? null,
+    ...(html ? { ...appearance, ...steamAvatarFrame(html) } : {
+      backgroundUrl: saved.backgroundUrl,
+      backgroundVideoUrl: saved.backgroundVideoUrl,
+      countryCode: saved.countryCode,
+      avatarFrameUrl: saved.avatarFrameUrl,
+      avatarFrameStillUrl: saved.avatarFrameStillUrl,
+    }),
+    reviews: publicReviews.length || html ? publicReviews : saved.reviews ?? [],
+    galleries: publicGalleries.length || html ? publicGalleries : saved.galleries ?? [],
+  };
+  await saveSteamDetails(env.DB, id, details, fetchedAt);
+  return json({ ...details, games, presence, currentGame });
 }
 
 async function steamActivity(xml, id, communityUrl, env) {
@@ -514,6 +561,7 @@ export async function syncSteamFriend(request, env) {
         const { games } = await steamActivity(xml, id, steamPublicUrl(xml, profileUrl), env);
         await saveSteamActivity(db, identity, games, now);
       } else if (privacy === 'private' || privacy === 'friendsonly') {
+        await saveSteamDetails(db, id, null, now);
         await clearPrivateRanking(db, 'steam', id, now);
       }
       const nextSync = Date.now() + friendRefreshInterval;
