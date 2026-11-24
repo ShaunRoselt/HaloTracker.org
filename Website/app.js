@@ -216,7 +216,7 @@ const updateActiveNavigation = ({ page, game }) => {
     }
   }
 
-  if (page === 'achievements' || page === 'leaderboard') {
+  if (page === 'achievements') {
     setGamesExpanded(true);
   }
 };
@@ -243,6 +243,24 @@ const profileHref = (account) => {
   return id ? `?page=profile&${new URLSearchParams({ player: `${account.platform}:${id}` })}` : '?page=profile';
 };
 
+const setAvatarFrame = (container, { avatarFrameUrl, avatarFrameStillUrl } = {}) => {
+  container.querySelector('.profile-avatar-frame')?.remove();
+  if (!avatarFrameUrl) return;
+  const frame = createElement('picture', { className: 'profile-avatar-frame' });
+  if (avatarFrameStillUrl) {
+    frame.append(createElement('source', {
+      attributes: { media: '(prefers-reduced-motion: reduce)', srcset: avatarFrameStillUrl },
+    }));
+  }
+  const image = createElement('img', {
+    attributes: { alt: '', src: avatarFrameUrl, referrerpolicy: 'no-referrer' },
+  });
+  image.addEventListener('error', () => frame.remove(), { once: true });
+  frame.append(image);
+  container.append(frame);
+};
+
+let framedHeaderAccount;
 const updatePlayerHeader = () => {
   const account = state.player?.accounts.values().next().value;
   const lookupHadFocus = elements.playerLookup.contains(document.activeElement);
@@ -254,6 +272,16 @@ const updatePlayerHeader = () => {
     elements.playerInitial.hidden = false;
     if (avatarUrl) elements.playerAvatar.src = avatarUrl;
     else elements.playerAvatar.removeAttribute('src');
+  }
+  if (framedHeaderAccount !== account) {
+    framedHeaderAccount = account;
+    const avatarSlot = elements.playerAvatar.parentElement;
+    setAvatarFrame(avatarSlot);
+    if (account?.platform === 'steam') {
+      void loadSteamProfile(account, 'appearance').then((details) => {
+        if (framedHeaderAccount === account) setAvatarFrame(avatarSlot, details);
+      });
+    }
   }
   if (!account) return;
 
@@ -524,7 +552,7 @@ const refreshSelectedPlayer = async (player, firstGame) => {
     await Promise.all(remaining.slice(offset, offset + 3).map((game) => progressForGame(player, game)));
   }
   const steam = player.accounts.get('steam');
-  if (steam && state.player === player) await loadSteamProfile(steam, true);
+  if (steam && state.player === player) await loadSteamProfile(steam, 'activity');
   if (state.player === player && state.renderedRoute?.page === 'leaderboard') void refreshLeaderboard?.();
   return firstReports;
 };
@@ -1285,7 +1313,10 @@ const createSteamGalleries = (galleries) => {
   for (const { game, galleryUrl, screenshots } of galleries) {
     const gameTitle = GAME_CONFIG.get(game).title;
     const heading = createElement('h3');
-    heading.append(steamLink(galleryUrl, gameTitle));
+    const logo = createImage({ source: GAME_CONFIG.get(game).icon });
+    logo.width = 28;
+    logo.height = 28;
+    heading.append(logo, steamLink(galleryUrl, gameTitle));
     const gallery = createElement('section', { className: 'profile-gallery surface' });
     const images = createElement('div', { className: 'profile-screenshots' });
     for (const [index, { id, thumbnail }] of screenshots.entries()) {
@@ -1303,11 +1334,11 @@ const createSteamGalleries = (galleries) => {
   return section;
 };
 
-const loadSteamProfile = async (account, activityOnly = false) => {
+const loadSteamProfile = async (account, view) => {
   try {
     const id = new URL(account.profileUrl).pathname.split('/')[2];
     const params = new URLSearchParams({ id });
-    if (activityOnly) params.set('view', 'activity');
+    if (view) params.set('view', view);
     const response = await fetch(`/api/steam-profile?${params}`, {
       signal: AbortSignal.timeout(12_000),
     });
@@ -1316,6 +1347,116 @@ const loadSteamProfile = async (account, activityOnly = false) => {
     // The achievement summary is usable even when profile extras are unavailable.
   }
   return {};
+};
+
+const attachProfileTabs = (page) => {
+  const tabList = createElement('div', {
+    className: 'profile-tabs',
+    attributes: { role: 'tablist', 'aria-label': t('Profile sections') },
+  });
+  const entries = ['Achievements', 'Screenshots', 'Friends'].map((label, index) => {
+    const id = `profile-tab-${label.toLowerCase()}`;
+    const panelId = `${id}-panel`;
+    const tab = createElement('button', {
+      text: t(label),
+      attributes: {
+        type: 'button', role: 'tab', id, 'aria-controls': panelId,
+        'aria-selected': String(index === 0), tabindex: index === 0 ? '0' : '-1',
+      },
+    });
+    const panel = createElement('div', {
+      className: 'profile-tab-panel',
+      attributes: { role: 'tabpanel', id: panelId, 'aria-labelledby': id, tabindex: '0' },
+    });
+    panel.hidden = index !== 0;
+    tabList.append(tab);
+    return { tab, panel };
+  });
+
+  for (const [index, { tab, panel }] of entries.entries()) {
+    tab.addEventListener('click', () => {
+      for (const entry of entries) {
+        const active = entry.tab === tab;
+        entry.tab.setAttribute('aria-selected', String(active));
+        entry.tab.tabIndex = active ? 0 : -1;
+        entry.panel.hidden = !active;
+      }
+      panel.dispatchEvent(new Event('profile-tab-open'));
+    });
+    tab.addEventListener('keydown', (event) => {
+      const rtl = getComputedStyle(tabList).direction === 'rtl';
+      const next = { ArrowRight: index + (rtl ? -1 : 1), ArrowLeft: index + (rtl ? 1 : -1), Home: 0, End: entries.length - 1 }[event.key];
+      if (next === undefined) return;
+      event.preventDefault();
+      const target = entries[(next + entries.length) % entries.length].tab;
+      tab.tabIndex = -1;
+      target.tabIndex = 0;
+      target.focus();
+    });
+  }
+
+  const panels = entries.map(({ panel }) => panel);
+  page.append(tabList, ...panels);
+  return panels;
+};
+
+const setupProfileFriends = (panel, steam) => {
+  const status = createElement('p', { attributes: { role: 'status' } });
+  panel.append(status);
+  if (!steam) {
+    status.textContent = t('No public Steam friends list is available.');
+    return;
+  }
+  panel.addEventListener('profile-tab-open', async () => {
+    status.textContent = t('Loading friends…');
+    try {
+      const id = new URL(steam.profileUrl).pathname.split('/')[2];
+      const response = await fetch(`/api/steam-friends?${new URLSearchParams({ id })}`, {
+        signal: AbortSignal.timeout(12_000),
+      });
+      if (!response.ok) throw new Error('Friends unavailable');
+      const { friends } = await response.json();
+      if (!panel.isConnected) return;
+      if (!friends.length) {
+        status.textContent = t('This player has no public Steam friends.');
+        return;
+      }
+
+      const grid = createElement('ul', { className: 'profile-friends' });
+      const navigation = createElement('div', { className: 'profile-friends-pagination' });
+      const previous = createElement('button', { className: 'button secondary-button', text: t('Previous'), attributes: { type: 'button' } });
+      const next = createElement('button', { className: 'button secondary-button', text: t('Next'), attributes: { type: 'button' } });
+      navigation.append(previous, next);
+      panel.append(navigation, grid);
+      const pageSize = 48;
+      let start = 0;
+      const showPage = () => {
+        const end = Math.min(start + pageSize, friends.length);
+        const format = new Intl.NumberFormat(currentLanguage());
+        status.textContent = t('Friends {first}–{last} of {total}', {
+          first: format.format(start + 1), last: format.format(end), total: format.format(friends.length),
+        });
+        grid.replaceChildren(...friends.slice(start, end).map(({ accountId, displayName, avatarUrl }) => {
+          const item = createElement('li', { className: 'surface' });
+          const link = steamLink(`https://steamcommunity.com/profiles/${accountId}/`);
+          if (avatarUrl) link.append(createElement('img', {
+            attributes: { src: avatarUrl, alt: '', width: 32, height: 32, loading: 'lazy', referrerpolicy: 'no-referrer' },
+          }));
+          link.append(createElement('bdi', { text: displayName }));
+          item.append(link);
+          return item;
+        }));
+        previous.disabled = start === 0;
+        next.disabled = end === friends.length;
+        navigation.hidden = friends.length <= pageSize;
+      };
+      previous.addEventListener('click', () => { start -= pageSize; showPage(); });
+      next.addEventListener('click', () => { start += pageSize; showPage(); });
+      showPage();
+    } catch {
+      status.textContent = t('The Steam friends list is private or unavailable.');
+    }
+  }, { once: true });
 };
 
 const renderPlayerProfile = async (route) => {
@@ -1391,11 +1532,22 @@ const renderPlayerProfile = async (route) => {
   }
   const platforms = createElement('div', { className: 'profile-platforms' });
   for (const [platform, profile] of player.accounts) {
-    const link = steamLink(profile.profileUrl, PLATFORM_NAMES[platform]);
-    if (platform === 'steam') link.prepend(menuItemIcon('steam'));
+    const link = steamLink(profile.profileUrl, platform === 'steam' ? '' : PLATFORM_NAMES[platform]);
+    if (platform === 'steam') {
+      link.classList.add('profile-steam-link');
+      link.setAttribute('aria-label', t('View Steam profile'));
+      link.title = t('View Steam profile');
+      link.append(menuItemIcon('steam'));
+    }
     platforms.append(link);
   }
   status.replaceWith(platforms);
+
+  const [achievementPanel, screenshotPanel, friendPanel] = attachProfileTabs(page);
+  const screenshotStatus = createElement('p', {
+    attributes: { role: 'status' }, text: t('Loading screenshots…'),
+  });
+  screenshotPanel.append(screenshotStatus);
 
   let steamSection;
   for (const platform of Object.keys(PLATFORM_NAMES)) {
@@ -1403,36 +1555,37 @@ const renderPlayerProfile = async (route) => {
     if (!platformProgress) continue;
     const section = createProfileProgress(platformProgress, progress.size > 1);
     if (platform === 'steam') steamSection = section;
-    page.append(section);
+    achievementPanel.append(section);
   }
 
   const steam = player.accounts.get('steam');
+  screenshotStatus.textContent = t(steam ? 'Loading screenshots…' : 'No public Halo screenshots are available.');
+  setupProfileFriends(friendPanel, steam);
   if (!steam) return;
   const details = await (pendingSteamDetails || loadSteamProfile(steam));
   if (stale()) return;
   if (details.location && account === steam) {
-    identity.append(createElement('p', { className: 'profile-location', text: details.location }));
-  }
-  if (details.avatarFrameUrl && account === steam && portrait) {
-    const frame = createElement('picture', { className: 'profile-avatar-frame' });
-    if (details.avatarFrameStillUrl) {
-      frame.append(createElement('source', {
-        attributes: { media: '(prefers-reduced-motion: reduce)', srcset: details.avatarFrameStillUrl },
+    const location = createElement('p', { className: 'profile-location' });
+    if (/^[a-z]{2}$/.test(details.countryCode)) {
+      location.append(createElement('img', {
+        attributes: {
+          src: `https://community.fastly.steamstatic.com/public/images/countryflags/${details.countryCode}.gif`,
+          alt: '', width: 16, height: 11, referrerpolicy: 'no-referrer',
+        },
       }));
     }
-    const image = createElement('img', {
-      attributes: { alt: '', src: details.avatarFrameUrl, referrerpolicy: 'no-referrer' },
-    });
-    frame.append(image);
-    portrait.append(frame);
+    location.append(details.location);
+    identity.append(location);
   }
+  if (account === steam && portrait) setAvatarFrame(portrait, details);
   if (steamSection) {
     for (const game of progress.get('steam').games) {
       const activity = createProfileActivity(game, details.games?.[game.game]);
       if (activity) steamSection.querySelector(`[data-profile-game="${game.game}"]`).append(activity);
     }
   }
-  if (details.galleries?.length) page.append(createSteamGalleries(details.galleries));
+  if (details.galleries?.length) screenshotPanel.replaceChildren(createSteamGalleries(details.galleries));
+  else screenshotStatus.textContent = t('No public Halo screenshots are available.');
 };
 
 let refreshLeaderboard;

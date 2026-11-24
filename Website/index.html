@@ -59,8 +59,10 @@
         <div class="player-profile" id="player-profile" hidden>
           <button class="player-profile-trigger" type="button" id="player-profile-trigger"
             popovertarget="player-profile-menu">
-            <img class="player-profile-avatar" id="player-profile-avatar" alt="" width="28" height="28" referrerpolicy="no-referrer" hidden>
-            <span class="player-profile-initial" aria-hidden="true" id="player-profile-initial"></span>
+            <span class="player-profile-picture" aria-hidden="true">
+              <img class="player-profile-avatar" id="player-profile-avatar" alt="" width="28" height="28" referrerpolicy="no-referrer" hidden>
+              <span class="player-profile-initial" id="player-profile-initial"></span>
+            </span>
             <bdi class="player-profile-name" id="player-profile-name"></bdi>
             <img src="assets/chevron-down.svg" alt="" width="16" height="16">
           </button>
@@ -97,12 +99,6 @@
           </button>
 
           <ul class="game-navigation" id="game-navigation">
-            <li>
-              <a class="nav-item nav-game" href="?page=leaderboard" data-route data-page="leaderboard">
-                <img src="assets/trophy.svg" alt="" width="24" height="24">
-                <span>Leaderboard</span>
-              </a>
-            </li>
             <li>
               <a
                 class="nav-item nav-game"
@@ -260,6 +256,11 @@
               </a>
             </li>
           </ul>
+
+          <a class="nav-item" href="?page=leaderboard" data-route data-page="leaderboard">
+            <img src="assets/trophy.svg" alt="" width="24" height="24">
+            <span>Leaderboard</span>
+          </a>
 
           <a
             class="nav-item nav-settings"

@@ -220,8 +220,10 @@ function steamAvatarFrame(html) {
   const frame = /<div class="profile_avatar_frame">([\s\S]*?)<\/div>/.exec(header)?.[1] ?? '';
   const hosts = ['shared.fastly.steamstatic.com', 'shared.akamai.steamstatic.com', 'shared.cloudflare.steamstatic.com'];
   const animated = /<img\b[^>]*\bsrc="([^"]+)"/i.exec(frame)?.[1];
+  const countryCode = /class="header_location"[\s\S]{0,900}?\/countryflags\/([a-z]{2})\.gif/i.exec(header)?.[1];
   const still = /<source\b[^>]*prefers-reduced-motion[^>]*\bsrcset="([^"]+)"/i.exec(frame)?.[1];
   return {
+    countryCode: countryCode?.toLowerCase() ?? null,
     avatarFrameUrl: avatarFrom(animated, hosts),
     avatarFrameStillUrl: avatarFrom(still, hosts),
   };
@@ -277,11 +279,55 @@ async function steamOwnedGames(id, key) {
   }
 }
 
+function steamPublicUrl(xml, profileUrl) {
+  const vanity = xmlText(xml, 'customURL');
+  return steamVanity.test(vanity) ? `https://steamcommunity.com/id/${vanity}/` : profileUrl;
+}
+
+function decodeSteamHtml(text) {
+  return text.replace(/&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi, (entity, value) => {
+    if (value[0] !== '#') return entities[value.toLowerCase()] ?? (value === 'nbsp' ? ' ' : entity);
+    const hex = value[1].toLowerCase() === 'x';
+    const code = Number.parseInt(value.slice(hex ? 2 : 1), hex ? 16 : 10);
+    return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : entity;
+  });
+}
+
+export async function lookupSteamFriends(request) {
+  if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
+  const id = new URL(request.url).searchParams.get('id') ?? '';
+  if (!steamId64.test(id)) return json({ error: 'invalid-player' }, 400);
+  const profileUrl = `https://steamcommunity.com/profiles/${id}/`;
+  const xml = await readSteamPage(profileUrl + '?xml=1', 128_000);
+  if (xmlText(xml, 'steamID64') !== id || xmlText(xml, 'privacyState') !== 'public') {
+    return json({ error: 'friends-unavailable' }, 404);
+  }
+  const html = await readSteamPage(steamPublicUrl(xml, profileUrl) + 'friends', 8_000_000);
+  if (!html.includes('id="search_results"')) return json({ error: 'friends-unavailable' }, 404);
+
+  const friends = new Map();
+  for (const block of html.split(/<div\b[^>]*class="[^"]*\bfriend_block_v2\b[^"]*"[^>]*\bdata-steamid="/i).slice(1)) {
+    const accountId = /^(7656\d{13})"/.exec(block)?.[1];
+    const name = /class="friend_block_content"[^>]*>([\s\S]*?)<br\s*\/?\s*>/i.exec(block)?.[1];
+    if (!accountId || !name) continue;
+    const displayName = decodeSteamHtml(name.replace(/<[^>]*>/g, '').trim());
+    if (!displayName) continue;
+    const avatar = /class="player_avatar[^"]*"[^>]*>\s*<img\b[^>]*\bsrc="([^"]+)"/i.exec(block)?.[1];
+    friends.set(accountId, {
+      accountId,
+      displayName,
+      avatarUrl: avatarFrom(avatar, ['avatars.fastly.steamstatic.com', 'avatars.akamai.steamstatic.com', 'avatars.cloudflare.steamstatic.com']),
+    });
+  }
+  return json({ friends: [...friends.values()] });
+}
+
 export async function lookupSteamProfile(request, env) {
   if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
   const params = new URL(request.url).searchParams;
   const id = params.get('id') ?? '';
   const activityOnly = params.get('view') === 'activity';
+  const appearanceOnly = params.get('view') === 'appearance';
   const fetchedAt = Date.now();
   if (!steamId64.test(id)) return json({ error: 'invalid-player' }, 400);
   const profileUrl = `https://steamcommunity.com/profiles/${id}/`;
@@ -299,9 +345,8 @@ export async function lookupSteamProfile(request, env) {
   }
 
   const vanity = xmlText(xml, 'customURL');
-  const communityUrl = steamVanity.test(vanity)
-    ? `https://steamcommunity.com/id/${vanity}/`
-    : profileUrl;
+  const communityUrl = steamPublicUrl(xml, profileUrl);
+  if (appearanceOnly) return json(steamAvatarFrame(await readSteamPage(communityUrl, 900_000)));
   const [html, ownedGames, galleries] = await Promise.all([
     activityOnly ? '' : readSteamPage(communityUrl, 900_000),
     steamOwnedGames(id, env.STEAM_WEB_API_KEY),
