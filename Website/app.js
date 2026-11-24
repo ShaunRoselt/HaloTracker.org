@@ -1862,7 +1862,7 @@ const renderLeaderboard = (game) => {
   const config = GAME_CONFIG.get(game) ?? { icon: 'assets/trophy.svg', title: t('All Games') };
   const heading = createElement('h1', { text: config.title, attributes: { id: 'leaderboard-title' } });
   section.setAttribute('aria-labelledby', heading.id);
-  const { search, searchInput } = createGameSearch('leaderboard-search', 'Search Players', 'leaderboard-results');
+  const { search, searchInput } = createGameSearch('leaderboard-search', 'Search Leaderboard', 'leaderboard-results');
   searchInput.maxLength = 100;
   const status = createElement('p', { className: 'leaderboard-status', attributes: { role: 'status' } });
   const ranking = createRankingTable(game, { 'aria-labelledby': heading.id }, () => void update());

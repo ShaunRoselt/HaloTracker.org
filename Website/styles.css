@@ -424,7 +424,8 @@
   }
 
   .achievements-page,
-  .guide-page {
+  .guide-page,
+  .leaderboard-page {
     --achievement-inline-inset: 11px;
   }
 
@@ -651,11 +652,13 @@
     background: var(--color-surface-strong);
   }
 
-  .leaderboard-page > :is(p, .leaderboard-results) {
-    margin-inline: 11px;
+  .achievement-summary,
+  .leaderboard-page > .leaderboard-results {
+    margin: 10px var(--achievement-inline-inset) 0;
   }
 
   .leaderboard-page > p {
+    margin-inline: var(--achievement-inline-inset);
     margin-block: 0.5rem 1rem;
     color: var(--color-text-muted);
   }
@@ -1175,7 +1178,6 @@
     display: flex;
     align-items: center;
     min-height: 80px;
-    margin: 10px var(--achievement-inline-inset) 0;
     padding: 14px 15px 12px 14px;
     border-radius: 5px;
     background: rgb(25 29 36);
