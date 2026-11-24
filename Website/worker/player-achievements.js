@@ -135,15 +135,26 @@ export function parseSteamAchievements(xml, appId, requestedPath) {
 
   const section = /<achievements>([\s\S]*?)<\/achievements>/.exec(xml)?.[1] ?? '';
   const achievements = [];
+  let firstUnlockAt = null;
+  let lastUnlockAt = null;
   const rowPattern = /<achievement\s+closed="([01])"[^>]*>([\s\S]*?)<\/achievement>/g;
   for (const [, closed, row] of section.matchAll(rowPattern)) {
     const name = xmlText(row, 'name');
-    if (name) achievements.push({ name, unlocked: closed === '1' });
+    if (!name) continue;
+    const unlocked = closed === '1';
+    achievements.push({ name, unlocked });
+    const timestamp = Number(xmlText(row, 'unlockTimestamp'));
+    if (unlocked && Number.isSafeInteger(timestamp) && timestamp > 0 && timestamp < 10_000_000_000) {
+      firstUnlockAt = Math.min(firstUnlockAt ?? timestamp, timestamp);
+      lastUnlockAt = Math.max(lastUnlockAt ?? timestamp, timestamp);
+    }
   }
   if (achievements.length === 0) throw missingData();
   return {
     player: xmlText(player, 'customURL') || id,
     profileUrl: `https://steamcommunity.com/profiles/${id}/`,
+    firstUnlockAt,
+    lastUnlockAt,
     achievements,
   };
 }
@@ -185,6 +196,122 @@ async function steamProfileDetails(profileUrl) {
     // Achievement results remain usable if Steam's separate profile request fails.
   }
   return null;
+}
+
+// Public Steam pages use stable account IDs. Optional profile data must
+// never prevent the achievement lookup from working.
+async function readSteamPage(url, maxBytes) {
+  try {
+    const response = await fetch(url, {
+      redirect: 'manual',
+      signal: AbortSignal.timeout(4_500),
+    });
+    return response.ok ? await readLimited(response, maxBytes) : '';
+  } catch {
+    return '';
+  }
+}
+
+function steamAvatarFrame(html) {
+  const header = html.split('profile_header_badgeinfo', 1)[0];
+  const frame = /<div class="profile_avatar_frame">([\s\S]*?)<\/div>/.exec(header)?.[1] ?? '';
+  const hosts = ['shared.fastly.steamstatic.com', 'shared.akamai.steamstatic.com', 'shared.cloudflare.steamstatic.com'];
+  const animated = /<img\b[^>]*\bsrc="([^"]+)"/i.exec(frame)?.[1];
+  const still = /<source\b[^>]*prefers-reduced-motion[^>]*\bsrcset="([^"]+)"/i.exec(frame)?.[1];
+  return {
+    avatarFrameUrl: avatarFrom(animated, hosts),
+    avatarFrameStillUrl: avatarFrom(still, hosts),
+  };
+}
+
+async function steamScreenshots(profileUrl, game, appId) {
+  const galleryUrl = `${profileUrl}screenshots?appid=${appId}`;
+  const html = await readSteamPage(galleryUrl, 450_000);
+  const screenshots = [];
+  const seen = new Set();
+  const entries = html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi);
+  for (const [, attributes, content] of entries) {
+    if (!attributes.includes(`data-appid="${appId}"`)) continue;
+    const id = /\bdata-publishedfileid="(\d{1,20})"/.exec(attributes)?.[1];
+    const src = /<img\b[^>]*\bsrc="([^"]+)"/i.exec(content)?.[1]
+      ?? /background-image:\s*url\('([^']+)'\)/i.exec(content)?.[1];
+    const thumbnail = avatarFrom(src, ['images.steamusercontent.com', 'steamuserimages-a.akamaihd.net']);
+    if (!id || !thumbnail || seen.has(id)) continue;
+    const image = new URL(thumbnail);
+    if (!image.pathname.startsWith('/ugc/')) continue;
+    image.search = 'imw=480&ima=fit&impolicy=Letterbox&letterbox=false';
+    seen.add(id);
+    screenshots.push({ id, thumbnail: image.href });
+    if (screenshots.length === 3) break;
+  }
+  return { game, galleryUrl, screenshots };
+}
+
+function publicSteamHours(xml) {
+  const minutes = new Map();
+  for (const [, game] of xml.matchAll(/<mostPlayedGame>([\s\S]*?)<\/mostPlayedGame>/g)) {
+    const appId = xmlText(game, 'gameLink').match(/\/app\/(\d+)\/?$/)?.[1];
+    const hours = xmlText(game, 'hoursOnRecord').replaceAll(',', '');
+    if (appId && /^\d+(?:\.\d+)?$/.test(hours)) minutes.set(appId, Math.round(Number(hours) * 60));
+  }
+  return minutes;
+}
+
+async function steamOwnedGames(id, key) {
+  if (!key) return [];
+  const url = new URL('https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/');
+  url.searchParams.set('key', key);
+  url.searchParams.set('input_json', JSON.stringify({
+    steamid: id,
+    include_played_free_games: true,
+    appids_filter: [...steamGames.values()].map(Number),
+  }));
+  try {
+    const games = JSON.parse(await readSteamPage(url, 128_000)).response?.games;
+    return Array.isArray(games) ? games : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function lookupSteamProfile(request, env) {
+  if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
+  const id = new URL(request.url).searchParams.get('id') ?? '';
+  if (!steamId64.test(id)) return json({ error: 'invalid-player' }, 400);
+  const profileUrl = `https://steamcommunity.com/profiles/${id}/`;
+  const xml = await readSteamPage(profileUrl + '?xml=1', 128_000);
+  if (xmlText(xml, 'steamID64') !== id || xmlText(xml, 'privacyState') !== 'public') {
+    return json({});
+  }
+
+  const vanity = xmlText(xml, 'customURL');
+  const communityUrl = steamVanity.test(vanity)
+    ? `https://steamcommunity.com/id/${vanity}/`
+    : profileUrl;
+  const [html, ownedGames, galleries] = await Promise.all([
+    readSteamPage(communityUrl, 900_000),
+    steamOwnedGames(id, env.STEAM_WEB_API_KEY),
+    Promise.all([...steamGames].map(([game, appId]) => steamScreenshots(communityUrl, game, appId))),
+  ]);
+  const publicHours = publicSteamHours(xml);
+  const games = {};
+  for (const [game, appId] of steamGames) {
+    const owned = ownedGames.find(({ appid }) => String(appid) === appId);
+    const minutes = owned?.playtime_forever ?? publicHours.get(appId);
+    const lastPlayed = owned?.rtime_last_played;
+    if (Number.isFinite(minutes) && minutes >= 0 || Number.isFinite(lastPlayed) && lastPlayed > 0) {
+      games[game] = {
+        ...(Number.isFinite(minutes) && minutes >= 0 ? { minutes } : {}),
+        ...(Number.isFinite(lastPlayed) && lastPlayed > 0 && lastPlayed < 10_000_000_000 ? { lastPlayed } : {}),
+      };
+    }
+  }
+  return json({
+    location: xmlText(xml, 'location'),
+    ...steamAvatarFrame(html),
+    games,
+    galleries: galleries.filter(({ screenshots }) => screenshots.length),
+  });
 }
 
 async function steamAchievements(player, appId, signal) {

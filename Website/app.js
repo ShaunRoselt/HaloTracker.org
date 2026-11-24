@@ -1184,6 +1184,29 @@ const createProfileAvatar = ({ player, avatarUrl }) => {
   return avatar;
 };
 
+const profileDate = (timestamp) => new Intl.DateTimeFormat(currentLanguage(), {
+  dateStyle: 'medium',
+}).format(timestamp * 1000);
+
+const createProfileActivity = (game, { minutes, lastPlayed } = {}) => {
+  const hours = Number.isFinite(minutes) ? new Intl.NumberFormat(currentLanguage(), {
+    style: 'unit', unit: 'hour', maximumFractionDigits: 1,
+  }).format(minutes / 60) : null;
+  const stats = createElement('dl', { className: 'profile-game-activity' });
+  for (const [label, value] of [
+    ['Time played', hours],
+    ['Last played', lastPlayed && profileDate(lastPlayed)],
+    ['First achievement', game.firstUnlockAt && profileDate(game.firstUnlockAt)],
+    ['Latest achievement', game.lastUnlockAt && profileDate(game.lastUnlockAt)],
+  ]) {
+    if (value == null) continue;
+    const stat = createElement('div');
+    stat.append(createElement('dt', { text: t(label) }), createElement('dd', { text: value }));
+    stats.append(stat);
+  }
+  return stats.childElementCount ? stats : null;
+};
+
 const createProfileGame = ({ game, unlocked, reported, total }, platform) => {
   const config = GAME_CONFIG.get(game);
   const headingId = `profile-${platform}-${game}`;
@@ -1202,7 +1225,10 @@ const createProfileGame = ({ game, unlocked, reported, total }, platform) => {
     attributes: { value: unlocked, max: total, 'aria-labelledby': headingId },
   });
   const count = createElement('p', { className: 'profile-game-count', text: formatPlayerUnlocks({ unlocked, reported, total }) });
-  const item = createElement('li', { className: 'profile-game surface' });
+  const item = createElement('li', {
+    className: 'profile-game surface',
+    attributes: { 'data-profile-game': game },
+  });
   item.append(heading, progress, count);
   return item;
 };
@@ -1235,6 +1261,54 @@ const createProfileProgress = ({ platform, player, games }, hasMultiplePlatforms
   return section;
 };
 
+const steamLink = (href, label) => createElement('a', {
+  text: label,
+  attributes: { href, rel: 'noreferrer' },
+});
+
+const createSteamGalleries = (galleries) => {
+  const section = createElement('section', {
+    className: 'profile-progress',
+    attributes: { 'aria-labelledby': 'profile-screenshots-title' },
+  });
+  section.append(createElement('h2', {
+    text: t('Halo screenshots'), attributes: { id: 'profile-screenshots-title' },
+  }));
+  const grid = createElement('div', { className: 'profile-gallery-grid' });
+  for (const { game, galleryUrl, screenshots } of galleries) {
+    const gameTitle = GAME_CONFIG.get(game).title;
+    const heading = createElement('h3');
+    heading.append(steamLink(galleryUrl, gameTitle));
+    const gallery = createElement('section', { className: 'profile-gallery surface' });
+    const images = createElement('div', { className: 'profile-screenshots' });
+    for (const [index, { id, thumbnail }] of screenshots.entries()) {
+      const link = steamLink(`https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`);
+      const alt = t('{game} screenshot {number}', { game: gameTitle, number: index + 1 });
+      link.append(createElement('img', {
+        attributes: { src: thumbnail, alt, loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' },
+      }));
+      images.append(link);
+    }
+    gallery.append(heading, images);
+    grid.append(gallery);
+  }
+  section.append(grid);
+  return section;
+};
+
+const loadSteamProfile = async (account) => {
+  try {
+    const id = new URL(account.profileUrl).pathname.split('/')[2];
+    const response = await fetch(`/api/steam-profile?id=${encodeURIComponent(id)}`, {
+      signal: AbortSignal.timeout(12_000),
+    });
+    if (response.ok) return await response.json();
+  } catch {
+    // The achievement summary is usable even when profile extras are unavailable.
+  }
+  return {};
+};
+
 const renderPlayerProfile = async () => {
   const page = createElement('section', { className: 'profile-page', attributes: { 'aria-labelledby': 'profile-title' } });
   const hero = createElement('header', { className: 'profile-hero surface' });
@@ -1262,6 +1336,8 @@ const renderPlayerProfile = async () => {
   const collections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
   const progress = new Map();
   const errors = new Set();
+  const steamAccount = player.accounts.get('steam');
+  const pendingSteamDetails = steamAccount && loadSteamProfile(steamAccount);
   for (let offset = 0; offset < collections.length; offset += 3) {
     const batch = collections.slice(offset, offset + 3);
     const results = await Promise.all(batch.map((game) => progressForGame(player, game)));
@@ -1272,20 +1348,23 @@ const renderPlayerProfile = async () => {
       for (const report of reports) {
         if (report?.error) errors.add(report.error);
       }
-      for (const { platform, player: name, unlocks } of matchedPlayerProgress(achievements, reports)) {
+      for (const { platform, player: name, unlocks, firstUnlockAt, lastUnlockAt } of matchedPlayerProgress(achievements, reports)) {
         if (!progress.has(platform)) progress.set(platform, { platform, player: name, games: [] });
         progress.get(platform).games.push({
           game, unlocked: unlockCount(unlocks), reported: unlocks.size, total: achievements.length,
+          firstUnlockAt, lastUnlockAt,
         });
       }
     }
   }
 
   const account = player.accounts.values().next().value;
+  let portrait;
   if (account) {
     const displayName = account.displayName || account.player;
     title.replaceChildren(createElement('bdi', { text: displayName }));
-    hero.prepend(createProfileAvatar({ player: displayName, avatarUrl: account.avatarUrl }));
+    portrait = createProfileAvatar({ player: displayName, avatarUrl: account.avatarUrl });
+    hero.prepend(portrait);
     document.title = `${displayName} | ${APP_NAME}`;
   }
   if (!progress.size) {
@@ -1293,11 +1372,50 @@ const renderPlayerProfile = async () => {
     status.textContent = t(PLAYER_ERRORS.get(error) ?? 'Could not load the player’s achievements. Try again.');
     return;
   }
-  status.textContent = [...player.accounts.keys()].map((platform) => PLATFORM_NAMES[platform]).join(' · ');
+  const platforms = createElement('div', { className: 'profile-platforms' });
+  for (const [platform, profile] of player.accounts) {
+    const link = steamLink(profile.profileUrl, PLATFORM_NAMES[platform]);
+    if (platform === 'steam') link.prepend(menuItemIcon('steam'));
+    platforms.append(link);
+  }
+  status.replaceWith(platforms);
+
+  let steamSection;
   for (const platform of Object.keys(PLATFORM_NAMES)) {
     const platformProgress = progress.get(platform);
-    if (platformProgress) page.append(createProfileProgress(platformProgress, progress.size > 1));
+    if (!platformProgress) continue;
+    const section = createProfileProgress(platformProgress, progress.size > 1);
+    if (platform === 'steam') steamSection = section;
+    page.append(section);
   }
+
+  const steam = player.accounts.get('steam');
+  if (!steam) return;
+  const details = await (pendingSteamDetails || loadSteamProfile(steam));
+  if (player !== state.player || !page.isConnected) return;
+  if (details.location && account === steam) {
+    identity.append(createElement('p', { className: 'profile-location', text: details.location }));
+  }
+  if (details.avatarFrameUrl && account === steam && portrait) {
+    const frame = createElement('picture', { className: 'profile-avatar-frame' });
+    if (details.avatarFrameStillUrl) {
+      frame.append(createElement('source', {
+        attributes: { media: '(prefers-reduced-motion: reduce)', srcset: details.avatarFrameStillUrl },
+      }));
+    }
+    const image = createElement('img', {
+      attributes: { alt: '', src: details.avatarFrameUrl, referrerpolicy: 'no-referrer' },
+    });
+    frame.append(image);
+    portrait.append(frame);
+  }
+  if (steamSection) {
+    for (const game of progress.get('steam').games) {
+      const activity = createProfileActivity(game, details.games?.[game.game]);
+      if (activity) steamSection.querySelector(`[data-profile-game="${game.game}"]`).append(activity);
+    }
+  }
+  if (details.galleries?.length) page.append(createSteamGalleries(details.galleries));
 };
 
 const renderRoute = ({ focus = false, fromHistory = false } = {}) => {

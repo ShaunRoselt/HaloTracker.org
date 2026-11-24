@@ -1,4 +1,4 @@
-import { lookupPlayerAchievements } from "./player-achievements.js";
+import { lookupPlayerAchievements, lookupSteamProfile } from "./player-achievements.js";
 import { getAchievementsForGame, guidePageTitle, hasGuide } from "./game-catalog.js";
 
 const titleForGuide = ({ searchParams }) => {
@@ -51,6 +51,9 @@ export default {
     const pathname = url.pathname || "/";
     if (pathname === "/api/player-achievements") {
       return lookupPlayerAchievements(request, env);
+    }
+    if (pathname === "/api/steam-profile") {
+      return lookupSteamProfile(request, env);
     }
     if ((pathname === "/" || pathname === "/index.html") && ["GET", "HEAD"].includes(request.method)) {
       const title = titleForGuide(url);
