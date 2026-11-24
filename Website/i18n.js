@@ -6,6 +6,14 @@ export { LANGUAGES };
 const rightToLeft = new Set(['prs', 'fa', 'he', 'pa-Arab', 'sd', 'ckb', 'ur', 'ug']);
 const STORAGE_KEY = 'halo-tracker-language';
 const translationIndex = { af: 0, zu: 1 };
+const previousLabels = {
+  'Sort By': 'Sort by',
+  'Most Unlocked': 'Most unlocked',
+  'Least Unlocked': 'Least unlocked',
+  'Search Achievements': 'Search achievements',
+  'All Statuses': 'All statuses',
+  Other: 'Other (Not Filtered Yet)',
+};
 let language = 'en';
 let messages = {};
 let catalog = {};
@@ -63,7 +71,11 @@ export const setLanguage = async (nextLanguage) => {
 };
 
 export const t = (source, values = {}) => {
-  const translation = messages[source] ?? ui[source]?.[translationIndex[language]] ?? source;
+  const previous = Object.hasOwn(previousLabels, source) ? previousLabels[source] : source;
+  const localized = messages[source] ?? messages[previous] ?? ui[previous]?.[translationIndex[language]];
+  const translation = source === 'Other'
+    ? localized?.split(/\s*[(（]/u, 1)[0] ?? source
+    : localized ?? source;
   return translation.replace(/\{(\w+)\}/g, (token, name) => values[name] ?? token);
 };
 

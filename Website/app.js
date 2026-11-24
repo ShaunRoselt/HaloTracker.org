@@ -34,13 +34,13 @@ const FILTERS = Object.freeze([
   Object.freeze({ value: 'Co-op Campaign', label: 'Co-op Campaign' }),
   Object.freeze({ value: 'PvE Multiplayer', label: 'PvE Multiplayer' }),
   Object.freeze({ value: 'PvP Multiplayer', label: 'PvP Multiplayer' }),
-  Object.freeze({ value: 'Other', label: 'Other (Not Filtered Yet)' }),
+  Object.freeze({ value: 'Other', label: 'Other' }),
 ]);
 
 const compareUnlockRate = (a, b) => Number.parseFloat(a.percentAchieved) - Number.parseFloat(b.percentAchieved);
 const ACHIEVEMENT_SORTS = new Map([
-  ['unlock-desc', { label: 'Most unlocked', compare: (a, b) => compareUnlockRate(b, a) }],
-  ['unlock-asc', { label: 'Least unlocked', compare: compareUnlockRate }],
+  ['unlock-desc', { label: 'Most Unlocked', compare: (a, b) => compareUnlockRate(b, a) }],
+  ['unlock-asc', { label: 'Least Unlocked', compare: compareUnlockRate }],
   ['name-asc', { label: 'Name (A–Z)', compare: compareNames }],
   ['name-desc', { label: 'Name (Z–A)', compare: (a, b) => compareNames(b, a) }],
 ]);
@@ -587,14 +587,14 @@ const renderAchievements = (game) => {
   const search = createElement('div', { className: 'achievement-search' });
   const searchLabel = createElement('label', {
     className: 'achievement-search-label',
-    text: t('Search achievements'),
+    text: t('Search Achievements'),
     attributes: { for: 'achievement-search' },
   });
   const searchInput = createElement('input', {
     attributes: {
       id: 'achievement-search',
       type: 'search',
-      placeholder: t('Search achievements'),
+      placeholder: t('Search Achievements'),
       autocomplete: 'off',
       'aria-controls': 'achievement-list',
     },
@@ -622,7 +622,7 @@ const renderAchievements = (game) => {
     attributes: { id: 'achievement-unlock-filter', 'aria-label': t('Filter by unlock status') },
   });
   for (const [value, label, icon] of [
-    ['all', 'All statuses', 'list'], ['unlocked', 'Unlocked', 'unlock'], ['locked', 'Locked', 'lock'],
+    ['all', 'All Statuses', 'list'], ['unlocked', 'Unlocked', 'unlock'], ['locked', 'Locked', 'lock'],
   ]) {
     const option = createElement('option', { attributes: { value } });
     option.append(menuItemIcon(icon), t(label));
@@ -658,7 +658,7 @@ const renderAchievements = (game) => {
 
   const sortControl = createElement('div', { className: 'achievement-sort' });
   const sortLabel = createElement('label', {
-    text: t('Sort by'),
+    text: t('Sort By'),
     attributes: { for: 'achievement-sort' },
   });
   const sortSelect = createElement('select', { attributes: { id: 'achievement-sort' } });
