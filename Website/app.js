@@ -1551,6 +1551,7 @@ const profileLinkServices = new Map([
   ['github', ['GitHub', 'github']],
   ['linkedin', ['LinkedIn', 'profile-links/linkedin']],
   ['youtube', ['YouTube', 'profile-links/youtube']],
+  ['twitch', ['Twitch', 'profile-links/twitch']],
   ['instagram', ['Instagram', 'profile-links/instagram']],
   ['facebook', ['Facebook', 'profile-links/facebook']],
   ['x', ['X', 'profile-links/twitter-x']],
@@ -1562,7 +1563,7 @@ const showExternalProfileLinks = async (container, platform, id) => {
     const params = new URLSearchParams({ platform, id });
     const response = await fetch(`/api/profile-links?${params}`, { signal: AbortSignal.timeout(5_000) });
     if (!response.ok || !container.isConnected) return;
-    const { links } = await response.json();
+    const { links, details } = await response.json();
     for (const { service, url } of links) {
       const entry = profileLinkServices.get(service);
       if (!entry || !URL.canParse(url)) continue;
@@ -1577,8 +1578,35 @@ const showExternalProfileLinks = async (container, platform, id) => {
       link.append(menuItemIcon(icon));
       container.append(link);
     }
+    return details;
   } catch {
-    // External links are optional when the database is unavailable.
+    // The profile remains usable when its additional details are unavailable.
+  }
+};
+
+const showProfileFacts = (nameRow, facts, steamDetails) => {
+  if (!facts || steamDetails?.private || !nameRow.isConnected) return;
+  const values = [];
+  if (facts.jobTitle) values.push(facts.jobTitle);
+  if (Number.isInteger(facts.age)) {
+    values.push(t('Age {age}', { age: new Intl.NumberFormat(currentLanguage()).format(facts.age) }));
+  }
+  if (values.length) {
+    nameRow.after(createElement('p', { className: 'profile-joined', text: values.join(' · ') }));
+  }
+  if (!/^[a-z]{2}$/.test(facts.countryCode)) return;
+  const identity = nameRow.parentElement;
+  const location = identity.querySelector('.profile-location');
+  if (location?.querySelector('img')) return;
+  const flag = steamCountryFlag(facts.countryCode);
+  if (location) {
+    location.prepend(flag);
+  } else {
+    const region = new Intl.DisplayNames(currentLanguage(), { type: 'region' }).of(facts.countryCode.toUpperCase());
+    const country = createElement('p', { className: 'profile-location' });
+    flag.alt = '';
+    country.append(flag, region);
+    identity.append(country);
   }
 };
 
@@ -1720,7 +1748,8 @@ const renderPlayerProfile = async (route) => {
   if (!progress.size) {
     const links = createElement('div', { className: 'profile-platforms' });
     nameRow.append(links);
-    void showExternalProfileLinks(links, account?.platform ?? shared?.[1], account?.accountId ?? player.id);
+    void showExternalProfileLinks(links, account?.platform ?? shared?.[1], account?.accountId ?? player.id)
+      .then((facts) => showProfileFacts(nameRow, facts, steamDetails));
     const error = [...errors].find((code) => code !== 'unsupported-game' && code !== 'no-game-data');
     status.textContent = t(PLAYER_ERRORS.get(error) ?? 'Could not load the player’s achievements. Try again.');
     return;
@@ -1738,7 +1767,7 @@ const renderPlayerProfile = async (route) => {
   }
   status.remove();
   nameRow.append(platforms);
-  void showExternalProfileLinks(platforms, account?.platform ?? shared?.[1], account?.accountId ?? player.id);
+  const profileFacts = showExternalProfileLinks(platforms, account?.platform ?? shared?.[1], account?.accountId ?? player.id);
 
   const { panels: [achievementPanel, screenshotPanel, friendPanel], addTab } = attachProfileTabs(page);
   const screenshotStatus = createElement('p', {
@@ -1777,9 +1806,13 @@ const renderPlayerProfile = async (route) => {
   const steam = player.accounts.get('steam');
   screenshotStatus.textContent = t(steam ? 'Loading screenshots…' : 'No public Halo screenshots are available.');
   void setupProfileFriends(friendPanel, steam);
-  if (!steam) return;
+  if (!steam) {
+    showProfileFacts(nameRow, await profileFacts);
+    return;
+  }
   const details = steamDetails ?? await loadSteamProfile(steam);
   if (stale()) return;
+  void profileFacts.then((facts) => showProfileFacts(nameRow, facts, details));
   if (details.location && account === steam) {
     const location = createElement('p', { className: 'profile-location' });
     const flag = steamCountryFlag(details.countryCode);
