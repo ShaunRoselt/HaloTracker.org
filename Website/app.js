@@ -557,9 +557,14 @@ const createGameHeader = (config, title, accessory) => {
   });
   gameIcon.width = 72;
   gameIcon.height = 72;
-  const heroText = createElement('div', { className: 'game-hero-text' });
-  heroText.append(title);
-  heroOverlay.append(gameIcon, heroText);
+  if (title.matches('a')) {
+    title.prepend(gameIcon);
+    heroOverlay.append(title);
+  } else {
+    const heroText = createElement('div', { className: 'game-hero-text' });
+    heroText.append(title);
+    heroOverlay.append(gameIcon, heroText);
+  }
   if (accessory) heroOverlay.append(accessory);
   hero.append(heroOverlay);
   return hero;

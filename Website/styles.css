@@ -1452,7 +1452,11 @@
   }
 
   .guide-game-link {
-    padding-block: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
     text-decoration: none;
     text-underline-offset: 0.2em;
   }
