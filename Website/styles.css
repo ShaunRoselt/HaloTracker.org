@@ -420,6 +420,8 @@
   }
 
   .achievements-page {
+    --achievement-inline-inset: 11px;
+
     display: block;
   }
 
@@ -452,7 +454,7 @@
     align-items: center;
     min-height: 78px;
     margin: 0;
-    padding-inline: var(--game-header-inset);
+    padding-inline: var(--game-header-inset) var(--achievement-inline-inset, var(--game-header-inset));
   }
 
   .game-hero-icon {
@@ -841,7 +843,7 @@
     display: flex;
     align-items: center;
     min-height: 80px;
-    margin: 10px var(--game-header-inset) 0;
+    margin: 10px var(--achievement-inline-inset) 0;
     padding: 14px 15px 12px 14px;
     border-radius: 5px;
     background: rgb(25 29 36);
@@ -852,7 +854,7 @@
     grid-template-columns: minmax(12rem, 28%) minmax(0, 1fr);
     gap: 20px;
     margin-top: 10px;
-    padding: 11px 11px 10px;
+    padding: 11px var(--achievement-inline-inset) 10px;
   }
 
   .filter-panel {
