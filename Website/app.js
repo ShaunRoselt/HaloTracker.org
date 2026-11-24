@@ -146,7 +146,10 @@ const createImage = ({ source, alt = '', className = '', eager = false, fetchPri
 const getRoute = () => {
   const url = new URL(window.location.href);
   const page = url.searchParams.get('page')?.trim().toLowerCase() || 'search';
-  const game = url.searchParams.get('game')?.trim().toLowerCase() || 'halomcc';
+  const requestedGame = url.searchParams.get('game')?.trim().toLowerCase();
+  const game = page === 'leaderboard' && !GAME_CONFIG.has(requestedGame)
+    ? 'all'
+    : requestedGame || 'halomcc';
 
   const achievement = url.searchParams.get('achievement');
   const profile = page === 'profile' ? url.searchParams.get('player') : null;
@@ -202,10 +205,20 @@ const setGamesExpanded = (expanded) => {
     : 'assets/chevron-up.svg';
 };
 
+const leaderboardToggle = document.querySelector('#leaderboard-toggle');
+const leaderboardNavigation = document.querySelector('#leaderboard-navigation');
+const setLeaderboardExpanded = (expanded) => {
+  leaderboardNavigation.hidden = !expanded;
+  leaderboardToggle.setAttribute('aria-expanded', String(expanded));
+  leaderboardToggle.querySelector('.nav-chevron').src = expanded
+    ? 'assets/chevron-up.svg' : 'assets/chevron-down.svg';
+};
+leaderboardToggle.addEventListener('click', () => setLeaderboardExpanded(leaderboardNavigation.hidden));
+
 const updateActiveNavigation = ({ page, game }) => {
   for (const navigationItem of document.querySelectorAll('[data-page]')) {
     const matchesPage = navigationItem.dataset.page === page;
-    const matchesGame = page !== 'achievements' || navigationItem.dataset.game === game;
+    const matchesGame = !['achievements', 'leaderboard'].includes(page) || navigationItem.dataset.game === game;
     const isActive = matchesPage && matchesGame;
 
     navigationItem.classList.toggle('is-active', isActive);
@@ -216,9 +229,8 @@ const updateActiveNavigation = ({ page, game }) => {
     }
   }
 
-  if (page === 'achievements') {
-    setGamesExpanded(true);
-  }
+  if (page === 'achievements') setGamesExpanded(true);
+  if (page === 'leaderboard') setLeaderboardExpanded(true);
 };
 
 const showToast = (message) => {
@@ -310,7 +322,22 @@ const localizeShell = () => {
   document.querySelector('[data-page="settings"] span').textContent = t('Settings');
   document.querySelector('[data-game="halomcc"] span').textContent = t('Halo MCC (All)');
   elements.achievementsToggle.querySelector('span').textContent = t('Achievements');
-  document.querySelector('[data-page="leaderboard"] span').textContent = t('Leaderboard');
+  leaderboardToggle.querySelector('span').textContent = t('Leaderboard');
+  leaderboardNavigation.replaceChildren(...[
+    ['all', { shortTitle: t('All games'), icon: 'assets/trophy.svg' }], ...GAME_CONFIG,
+  ].map(([game, config]) => {
+    const item = createElement('li');
+    const href = game === 'all' ? '?page=leaderboard' : `?page=leaderboard&game=${game}`;
+    const link = createElement('a', {
+      className: 'nav-item nav-game',
+      attributes: { href, 'data-route': '', 'data-page': 'leaderboard', 'data-game': game },
+    });
+    link.append(createElement('img', {
+      attributes: { src: config.icon, alt: '', width: 32, height: 32 },
+    }), createElement('span', { text: config.shortTitle || config.title }));
+    item.append(link);
+    return item;
+  }));
   elements.drawerBackdrop.setAttribute('aria-label', t('Close navigation'));
   pageDescription.content = t(englishPageDescription);
 };
@@ -1590,48 +1617,67 @@ const renderPlayerProfile = async (route) => {
 
 let refreshLeaderboard;
 
-const renderLeaderboard = () => {
+const renderLeaderboard = (game) => {
   const section = createElement('section', { className: 'leaderboard-page' });
-  const heading = createElement('h1', { text: t('Leaderboard'), attributes: { id: 'leaderboard-title' } });
+  const title = game === 'all' ? t('Leaderboard') : `${t('Leaderboard')} · ${GAME_CONFIG.get(game).title}`;
+  const heading = createElement('h1', { text: title, attributes: { id: 'leaderboard-title' } });
   section.setAttribute('aria-labelledby', heading.id);
   const intro = createElement('p', {
-    text: t('Rankings use public data from players looked up on Halo Achievement Tracker.'),
-  });
-  const filters = createElement('div', { className: 'leaderboard-filters' });
-  const controls = [
-    ['game', 'Game', [['all', t('All games')], ...playerCollections.map(game => [game, GAME_CONFIG.get(game).title])]],
-    ['platform', 'Platform', [['all', t('All platforms')], ...Object.entries(PLATFORM_NAMES)]],
-    ['sort', 'Rank by', [['unlocked', t('Achievements unlocked')], ['minutes', t('Time played')]]],
-  ].map(([key, label, options]) => {
-    const select = createElement('select', { attributes: { id: `leaderboard-${key}` } });
-    for (const [value, text] of options) select.add(new Option(text, value));
-    const labelElement = createElement('label', { text: t(label), attributes: { for: select.id } });
-    const group = createElement('div');
-    group.append(labelElement, select);
-    filters.append(group);
-    return [key, select];
+    text: t(game === 'all'
+      ? 'Rankings use public data. Playtime includes only Halo games with reported hours.'
+      : 'Rankings use public data from players looked up on Halo Achievement Tracker.'),
   });
   const status = createElement('p', { className: 'leaderboard-status', attributes: { role: 'status' } });
   const results = createElement('div', {
     className: 'leaderboard-results surface',
     attributes: { role: 'region', 'aria-labelledby': heading.id, tabindex: '0', hidden: '' },
   });
-  section.append(heading, intro, filters, status, results);
+  section.append(heading, intro, status, results);
   elements.routeView.replaceChildren(section);
-  document.title = `${t('Leaderboard')} | ${APP_NAME}`;
+  document.title = `${title} | ${APP_NAME}`;
 
   const number = new Intl.NumberFormat(currentLanguage());
   const hours = new Intl.NumberFormat(currentLanguage(), {
     style: 'unit', unit: 'hour', maximumFractionDigits: 1,
   });
+  const table = createElement('table');
+  const header = table.createTHead().insertRow();
+  const body = table.createTBody();
+  const columns = [
+    ['rank', 'Rank', 'asc'], ['player', 'Player', 'asc'], ['platform', 'Platform', 'asc'],
+    ['unlocked', 'Unlocked', 'desc'], ['minutes', game === 'all' ? 'Recorded Halo playtime' : 'Time played', 'desc'],
+  ];
+  let sort = 'rank';
+  let direction = 'asc';
   let controller;
+  const headers = new Map();
+  for (const [key, label, initialDirection] of columns) {
+    const cell = createElement('th', { attributes: { scope: 'col' } });
+    const button = createElement('button', { text: t(label), attributes: { type: 'button' } });
+    const indicator = menuItemIcon('chevron-up');
+    indicator.classList.add('leaderboard-sort-indicator');
+    button.append(indicator);
+    button.addEventListener('click', () => {
+      direction = sort === key ? (direction === 'asc' ? 'desc' : 'asc') : initialDirection;
+      sort = key;
+      void update();
+    });
+    cell.append(button);
+    header.append(cell);
+    headers.set(key, cell);
+  }
+  results.append(table);
+
   const update = async () => {
     if (!section.isConnected) return;
     controller?.abort();
     const request = new AbortController();
     controller = request;
-    const query = new URLSearchParams(controls.map(([key, select]) => [key, select.value]));
-    results.hidden = true;
+    const query = new URLSearchParams({ game, sort, direction });
+    for (const [key, cell] of headers) {
+      if (key === sort) cell.setAttribute('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
+      else cell.removeAttribute('aria-sort');
+    }
     status.textContent = t('Loading leaderboard…');
 
     try {
@@ -1641,51 +1687,43 @@ const renderLeaderboard = () => {
       if (!response.ok) throw new Error('Leaderboard unavailable');
       const { players } = await response.json();
       if (!section.isConnected || request.signal.aborted) return;
-      if (!players.length) {
-        status.textContent = t('No players have recorded progress for this ranking yet.');
-        return;
-      }
+      body.replaceChildren();
+      results.hidden = !players.length;
+      status.textContent = players.length ? '' : t('No players have recorded progress for this ranking yet.');
 
-      const table = createElement('table');
-      const header = table.createTHead().insertRow();
-      const byTime = query.get('sort') === 'minutes';
-      const metrics = byTime
-        ? [['minutes', 'Time played'], ['unlocked', 'Unlocked']]
-        : [['unlocked', 'Unlocked'], ['minutes', 'Time played']];
-      for (const title of ['Rank', 'Player', 'Platform', ...metrics.map(([, label]) => label)]) {
-        header.append(createElement('th', { text: t(title), attributes: { scope: 'col' } }));
-      }
-      const body = table.createTBody();
-      let rank = 0;
-      let previous;
-      for (const [index, player] of players.entries()) {
-        const score = player[query.get('sort')];
-        if (score !== previous) rank = index + 1;
-        previous = score;
+      for (const player of players) {
         const row = body.insertRow();
-        row.insertCell().textContent = number.format(rank);
+        row.insertCell().textContent = player.rank == null ? '—' : number.format(player.rank);
         const name = createElement('th', { attributes: { scope: 'row' } });
-        const link = createElement('a', { attributes: { href: profileHref(player), 'data-route': '' } });
-        link.append(createElement('bdi', { text: player.displayName }));
+        const link = createElement('a', {
+          className: 'leaderboard-identity',
+          attributes: { href: profileHref(player), 'data-route': '' },
+        });
+        const avatar = createProfileAvatar({ player: player.displayName, avatarUrl: player.avatarUrl });
+        avatar.classList.add('leaderboard-avatar');
+        link.append(avatar, createElement('bdi', { text: player.displayName }));
         name.append(link);
         row.append(name);
-        row.insertCell().textContent = PLATFORM_NAMES[player.platform];
-        for (const [metric] of metrics) {
-          const value = player[metric];
-          row.insertCell().textContent = value == null ? '—'
-            : metric === 'minutes' ? hours.format(value / 60) : number.format(value);
+        const platform = createElement('span', { className: 'leaderboard-identity' });
+        platform.append(menuItemIcon(player.platform), PLATFORM_NAMES[player.platform]);
+        row.insertCell().append(platform);
+        row.insertCell().textContent = player.unlocked == null ? '—' : number.format(player.unlocked);
+        const time = row.insertCell();
+        time.textContent = player.minutes == null ? '—' : hours.format(player.minutes / 60);
+        if (game === 'all' && player.gamesWithTime > 0) {
+          time.append(createElement('small', {
+            text: t(player.gamesWithTime === 1 ? '{count} game reported' : '{count} games reported', {
+              count: number.format(player.gamesWithTime),
+            }),
+          }));
         }
       }
-      results.replaceChildren(table);
-      results.hidden = false;
-      status.textContent = '';
     } catch {
       if (!request.signal.aborted && section.isConnected) {
         status.textContent = t('Could not load the leaderboard. Try again.');
       }
     }
   };
-  filters.addEventListener('change', update);
   refreshLeaderboard = update;
   void update();
 };
@@ -1715,7 +1753,7 @@ const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
   } else if (route.page === 'profile') {
     void renderPlayerProfile(route);
   } else if (route.page === 'leaderboard') {
-    renderLeaderboard();
+    renderLeaderboard(route.game);
   } else if (route.page === 'settings') {
     renderSettings();
   } else if (route.page === 'release-notes') {

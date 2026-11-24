@@ -257,10 +257,13 @@
             </li>
           </ul>
 
-          <a class="nav-item" href="?page=leaderboard" data-route data-page="leaderboard">
+          <button class="nav-item nav-section-toggle" id="leaderboard-toggle"
+            type="button" aria-controls="leaderboard-navigation" aria-expanded="false">
             <img src="assets/trophy.svg" alt="" width="24" height="24">
             <span>Leaderboard</span>
-          </a>
+            <img class="nav-chevron" src="assets/chevron-down.svg" alt="" width="20" height="20">
+          </button>
+          <ul class="game-navigation" id="leaderboard-navigation" hidden></ul>
 
           <a
             class="nav-item nav-settings"
