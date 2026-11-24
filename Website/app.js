@@ -7,8 +7,8 @@ import {
   LANGUAGES, savedLanguage, setLanguage, t, translateReleaseNotes,
 } from './i18n.js';
 
-const APP_VERSION = '1.4.0';
-const RELEASE_DATE = '2026/11/24';
+const APP_VERSION = '1.5.0';
+const RELEASE_DATE = '2026/11/25';
 const appVersionLabel = () => t('Version {version} | WEB | RELEASE | {date}', {
   version: APP_VERSION,
   date: RELEASE_DATE,
