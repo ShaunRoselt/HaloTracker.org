@@ -1,6 +1,5 @@
 'use strict';
 
-import { ACHIEVEMENTS } from './achievements.js';
 import { APP_NAME, GAME_CONFIG, getAchievementsForGame, guidePageTitle, hasGuide } from './game-catalog.js';
 import {
   achievementText, achievementTextLocale, compareNames, currentLanguage,
@@ -75,12 +74,6 @@ const EXTERNAL_LINKS = Object.freeze([
   }),
 ]);
 
-const achievementById = new Map(
-  Object.values(ACHIEVEMENTS)
-    .flat()
-    .map((achievement) => [achievement.id, achievement]),
-);
-
 const state = {
   filtersByGame: new Map(),
   searchByGame: new Map(),
@@ -97,10 +90,6 @@ const elements = {
   achievementsToggle: document.querySelector('#achievements-toggle'),
   drawerBackdrop: document.querySelector('#drawer-backdrop'),
   gameNavigation: document.querySelector('#game-navigation'),
-  guideClose: document.querySelector('#guide-close'),
-  guideContent: document.querySelector('#guide-content'),
-  guideDialog: document.querySelector('#guide-dialog'),
-  guideScroll: document.querySelector('#guide-scroll'),
   mainContent: document.querySelector('#main-content'),
   playerLookup: document.querySelector('#player-lookup'),
   playerId: document.querySelector('#player-id'),
@@ -285,7 +274,6 @@ const localizeShell = () => {
   document.querySelector('[data-game="halomcc"] span').textContent = t('Halo MCC (All)');
   elements.achievementsToggle.querySelector('span').textContent = t('Achievements');
   elements.drawerBackdrop.setAttribute('aria-label', t('Close navigation'));
-  elements.guideClose.setAttribute('aria-label', t('Close guide'));
   pageDescription.content = t(englishPageDescription);
 };
 
@@ -349,7 +337,13 @@ const appendUnlockStatuses = (metadata, achievementId, progress) => {
   }
 };
 
-const createAchievementCard = (achievement, index, progress) => {
+const achievementPageHref = (game, achievement) => {
+  const params = new URLSearchParams({ page: 'achievements', game });
+  if (achievement) params.set('achievement', achievement);
+  return `?${params}`;
+};
+
+const createAchievementCard = (achievement, index, progress, game) => {
   const guideAvailable = hasGuide(achievement);
   const card = createElement('article', {
     className: `achievement-card${guideAvailable ? ' has-guide' : ''}`,
@@ -367,9 +361,22 @@ const createAchievementCard = (achievement, index, progress) => {
   const body = createElement('div', { className: 'achievement-body' });
   const heading = createElement('h3', {
     className: 'achievement-name',
-    text: achievement.name,
     attributes: { lang: 'en', dir: 'auto' },
   });
+  if (guideAvailable) {
+    heading.append(createElement('a', {
+      className: 'achievement-guide-link',
+      text: achievement.name,
+      attributes: {
+        href: achievementPageHref(game, achievement.id),
+        'data-route': '',
+        'data-achievement-id': achievement.id,
+        'aria-label': t('Open guide for {achievement}', { achievement: achievement.name }),
+      },
+    }));
+  } else {
+    heading.textContent = achievement.name;
+  }
   const description = createElement('p', {
     className: 'achievement-description',
     text: achievementText(achievement, 'description'),
@@ -383,17 +390,6 @@ const createAchievementCard = (achievement, index, progress) => {
 
   metadata.append(percentage);
   appendUnlockStatuses(metadata, achievement.id, progress);
-  if (guideAvailable) {
-    card.append(createElement('button', {
-      className: 'achievement-guide-button',
-      attributes: {
-        type: 'button',
-        'data-achievement-id': achievement.id,
-        'aria-label': t('Open guide for {achievement}', { achievement: achievement.name }),
-      },
-    }));
-  }
-
   body.append(heading, description, metadata);
   card.prepend(image, body);
   return card;
@@ -406,7 +402,7 @@ const normalizeSearch = (value) => value
   .replace(/[^\p{Letter}\p{Number}]+/gu, ' ')
   .trim();
 
-const renderAchievementCards = ({ achievements, activeFilters, searching, count, list, playerProgress }) => {
+const renderAchievementCards = ({ game, achievements, activeFilters, searching, count, list, playerProgress }) => {
   const filteredAchievements = achievements.filter(({ filters }) => (
     filters.some((filter) => activeFilters.has(filter))
   ));
@@ -414,7 +410,7 @@ const renderAchievementCards = ({ achievements, activeFilters, searching, count,
 
   const cards = new Map();
   filteredAchievements.forEach((achievement, index) => {
-    const card = createAchievementCard(achievement, index, playerProgress);
+    const card = createAchievementCard(achievement, index, playerProgress, game);
     cards.set(achievement, card);
     fragment.append(card);
   });
@@ -449,6 +445,7 @@ const createPlayer = (id) => ({
   id,
   accounts: new Map(),
   games: new Map(),
+  unlockFilters: new Map(),
   failedReports: null,
   controller: new AbortController(),
 });
@@ -631,6 +628,7 @@ const renderAchievements = (game) => {
 
   if (player) {
     playerStatus.textContent = t('Looking up achievements…');
+    unlockFilter.value = player.unlockFilters.get(game) ?? 'all';
     unlockFilter.hidden = true;
     playerInfo.append(playerStatus);
     const playerActions = createElement('div', { className: 'player-progress-actions' });
@@ -699,7 +697,7 @@ const renderAchievements = (game) => {
   const renderResults = () => {
     const query = normalizeSearch(searchValue);
     const terms = query ? query.split(' ') : [];
-    const status = unlockFilter.value;
+    const status = playerProgress.length ? unlockFilter.value : 'all';
     const matches = achievements.filter((achievement) => (
       terms.every((term) => searchableText.get(achievement).includes(term))
       && (status === 'all' || playerProgress.some(
@@ -707,6 +705,7 @@ const renderAchievements = (game) => {
       ))
     ));
     return renderAchievementCards({
+      game,
       achievements: sortAchievements(matches, state.achievementSort),
       activeFilters,
       searching: terms.length > 0,
@@ -717,6 +716,7 @@ const renderAchievements = (game) => {
   };
   let cards = renderResults();
   unlockFilter.addEventListener('change', () => {
+    player?.unlockFilters.set(game, unlockFilter.value);
     cards = renderResults();
   });
 
@@ -747,8 +747,18 @@ const renderAchievements = (game) => {
         playerStatus.append(result);
       }
       unlockFilter.hidden = false;
-      for (const [achievement, card] of cards) {
-        appendUnlockStatuses(card.querySelector('.achievement-metadata'), achievement.id, playerProgress);
+      if (unlockFilter.value === 'all') {
+        for (const [achievement, card] of cards) {
+          appendUnlockStatuses(card.querySelector('.achievement-metadata'), achievement.id, playerProgress);
+        }
+      } else {
+        const focusedGuide = list.contains(document.activeElement)
+          ? document.activeElement.dataset.achievementId
+          : null;
+        cards = renderResults();
+        if (focusedGuide) {
+          list.querySelector(`[data-achievement-id="${CSS.escape(focusedGuide)}"]`)?.focus({ preventScroll: true });
+        }
       }
     });
   }
@@ -796,21 +806,6 @@ const renderAchievements = (game) => {
   };
 
   options.addEventListener('change', syncFilters);
-  list.addEventListener('click', (event) => {
-    const guideTrigger = event.target.closest('[data-achievement-id]');
-    if (!guideTrigger) {
-      return;
-    }
-
-    const achievement = achievementById.get(guideTrigger.dataset.achievementId);
-    if (achievement) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('achievement', achievement.id);
-      window.history.pushState({ guideFromList: achievement.id }, '', url);
-      syncGuide(getRoute());
-    }
-  });
-
   listRegion.append(listTitle, sortStatus, list);
   const browser = createElement('div', { className: 'achievement-browser' });
   browser.append(filterPanel, listRegion);
@@ -832,8 +827,18 @@ const isAllowedVideoUrl = (value) => {
   }
 };
 
-const openGuide = (achievement) => {
-  const article = createElement('article', { className: 'guide-content' });
+const renderGuide = (game, achievement) => {
+  const article = createElement('article', {
+    className: 'guide-page',
+    attributes: { 'aria-labelledby': 'guide-title' },
+  });
+  const content = createElement('div', { className: 'guide-content' });
+  const config = GAME_CONFIG.get(game);
+  const gameLink = createElement('a', {
+    className: 'guide-game-link',
+    text: t('{game} Achievements', { game: t(config.shortTitle) }),
+    attributes: { href: achievementPageHref(game), 'data-route': '' },
+  });
   const header = createElement('header', { className: 'guide-header' });
   const image = createImage({
     source: achievement.image,
@@ -848,9 +853,9 @@ const openGuide = (achievement) => {
     className: 'eyebrow',
     text: t('{percent} of players have this achievement', { percent: formatPercent(achievement.percentAchieved) }),
   });
-  const title = createElement('h2', {
+  const title = createElement('h1', {
     text: achievement.name,
-    attributes: { id: 'guide-title', lang: 'en', dir: 'auto' },
+    attributes: { id: 'guide-title', tabindex: '-1', lang: 'en', dir: 'auto' },
   });
   const description = createElement('p', {
     className: 'guide-summary',
@@ -859,14 +864,14 @@ const openGuide = (achievement) => {
   });
   headingGroup.append(eyebrow, title, description);
   header.append(image, headingGroup);
-  article.append(header);
+  content.append(gameLink, header);
 
   if (achievement.guideDescription.trim()) {
     const guideSection = createElement('section', {
       className: 'guide-section',
       attributes: { 'aria-labelledby': 'guide-steps-title' },
     });
-    const guideTitle = createElement('h3', {
+    const guideTitle = createElement('h2', {
       text: t('Guide'),
       attributes: { id: 'guide-steps-title' },
     });
@@ -876,7 +881,7 @@ const openGuide = (achievement) => {
       attributes: { lang: achievementTextLocale(achievement, 'guideDescription'), dir: 'auto' },
     });
     guideSection.append(guideTitle, guideText);
-    article.append(guideSection);
+    content.append(guideSection);
   }
 
   const validVideos = achievement.guideVideos.filter(isAllowedVideoUrl);
@@ -885,7 +890,7 @@ const openGuide = (achievement) => {
       className: 'guide-section',
       attributes: { 'aria-labelledby': 'guide-videos-title' },
     });
-    const videoTitle = createElement('h3', {
+    const videoTitle = createElement('h2', {
       text: t(validVideos.length === 1 ? 'Video guide' : 'Video guides'),
       attributes: { id: 'guide-videos-title' },
     });
@@ -911,65 +916,16 @@ const openGuide = (achievement) => {
     });
 
     videoSection.append(videoTitle, videoGrid);
-    article.append(videoSection);
+    content.append(videoSection);
   }
 
-  elements.guideContent.replaceChildren(article);
-  elements.guideDialog.dataset.achievementId = achievement.id;
-  elements.guideDialog.showModal();
-  elements.guideScroll.scrollTop = 0;
-};
-
-const hideGuide = () => {
-  if (elements.guideDialog.open) {
-    elements.guideDialog.close();
-    elements.guideContent.replaceChildren();
-  }
+  article.append(content);
+  elements.routeView.replaceChildren(article);
+  document.title = guidePageTitle(achievement);
 };
 
 const setGamePageTitle = (config) => {
   document.title = `${t('{game} Achievements', { game: t(config.shortTitle) })} | ${APP_NAME}`;
-};
-
-const syncGuide = (route) => {
-  const requestedGuide = route.page === 'achievements' && route.achievement
-    ? getAchievementsForGame(route.game).find(({ id }) => id === route.achievement)
-    : null;
-
-  if (requestedGuide && hasGuide(requestedGuide)) {
-    document.title = guidePageTitle(requestedGuide);
-    if (elements.guideDialog.open && elements.guideDialog.dataset.achievementId === requestedGuide.id) {
-      return;
-    }
-    hideGuide();
-    openGuide(requestedGuide);
-    return;
-  }
-
-  hideGuide();
-  const config = route.page === 'achievements' ? GAME_CONFIG.get(route.game) : null;
-  if (config) setGamePageTitle(config);
-  if (route.achievement !== null) {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('achievement');
-    window.history.replaceState(null, '', url);
-  }
-};
-
-const dismissGuide = () => {
-  const url = new URL(window.location.href);
-  if (!elements.guideDialog.open) {
-    return;
-  }
-  hideGuide();
-
-  if (window.history.state?.guideFromList === url.searchParams.get('achievement')) {
-    window.history.back();
-  } else {
-    url.searchParams.delete('achievement');
-    window.history.replaceState(null, '', url);
-    syncGuide(getRoute());
-  }
 };
 
 const renderSettings = () => {
@@ -1313,20 +1269,25 @@ const renderPlayerProfile = async () => {
 };
 
 const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
-  const route = getRoute();
+  let route = getRoute();
   const previous = state.renderedRoute;
-  if (fromHistory && route.page === previous?.page && route.game === previous.game) {
-    syncGuide(route);
-    return;
+  const guide = route.page === 'achievements' && route.achievement
+    ? getAchievementsForGame(route.game).find((entry) => entry.id === route.achievement && hasGuide(entry))
+    : null;
+  if (route.achievement !== null && !guide) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('achievement');
+    window.history.replaceState(null, '', url);
+    route = getRoute();
   }
-
-  hideGuide();
   state.renderedRoute = route;
   updateActiveNavigation(route);
   setSidebarOpen(false);
 
   if (route.page === 'search') {
     renderHome();
+  } else if (guide) {
+    renderGuide(route.game, guide);
   } else if (route.page === 'achievements') {
     renderAchievements(route.game);
   } else if (route.page === 'profile') {
@@ -1339,12 +1300,17 @@ const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
     renderNotFound();
   }
 
+  const listPosition = fromHistory && route.page === 'achievements' && !guide && previous?.game === route.game
+    ? window.history.state?.achievementListPosition
+    : null;
+  const returnLink = listPosition && elements.routeView.querySelector(
+    `[data-achievement-id="${CSS.escape(listPosition.id)}"]`,
+  );
   if (focus) {
-    elements.mainContent.focus({ preventScroll: true });
+    (returnLink || document.querySelector('#guide-title') || elements.mainContent).focus({ preventScroll: true });
   }
-  elements.mainContent.scrollTop = 0;
-  window.scrollTo({ top: 0, behavior: 'auto' });
-  syncGuide(route);
+  elements.mainContent.scrollTop = listPosition?.main ?? 0;
+  window.scrollTo({ top: listPosition?.window ?? 0, behavior: 'auto' });
 };
 
 document.addEventListener('click', (event) => {
@@ -1368,6 +1334,16 @@ document.addEventListener('click', (event) => {
 
   event.preventDefault();
   if (elements.playerProfileMenu.contains(routeLink)) elements.playerProfileMenu.hidePopover();
+  if (routeLink.dataset.achievementId) {
+    window.history.replaceState({
+      ...window.history.state,
+      achievementListPosition: {
+        id: routeLink.dataset.achievementId,
+        main: elements.mainContent.scrollTop,
+        window: window.scrollY,
+      },
+    }, '');
+  }
   window.history.pushState(null, '', getNavigationUrl(destination));
   renderRoute({ focus: true });
 });
@@ -1389,22 +1365,6 @@ elements.drawerBackdrop.addEventListener('click', closeSidebar);
 elements.achievementsToggle.addEventListener('click', () => {
   setGamesExpanded(elements.achievementsToggle.getAttribute('aria-expanded') !== 'true');
 });
-elements.guideClose.addEventListener('click', dismissGuide);
-elements.guideDialog.addEventListener('cancel', (event) => {
-  event.preventDefault();
-  dismissGuide();
-});
-elements.guideDialog.addEventListener('click', (event) => {
-  if (event.target !== elements.guideDialog) {
-    return;
-  }
-
-  const { left, right, top, bottom } = elements.guideDialog.getBoundingClientRect();
-  if (event.clientX < left || event.clientX >= right || event.clientY < top || event.clientY >= bottom) {
-    dismissGuide();
-  }
-});
-
 window.addEventListener('popstate', () => renderRoute({ focus: true, fromHistory: true }));
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && state.sidebarOpen) {
@@ -1440,7 +1400,7 @@ elements.playerLookup.addEventListener('submit', (event) => {
     return;
   }
   const game = route.page === 'achievements' ? GAME_CONFIG.get(route.game) : undefined;
-  if (game) renderAchievements(route.game);
+  if (game && !route.achievement) renderAchievements(route.game);
   void progressForGame(player, game?.collection ?? 'halomcc').then((reports) => {
     if (state.player !== player || player.accounts.size || state.renderedRoute !== route) return;
     player.failedReports = reports;

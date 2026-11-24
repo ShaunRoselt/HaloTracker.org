@@ -231,9 +231,7 @@
   .icon-button,
   .nav-item,
   .button,
-  .text-button,
-  .achievement-guide-button,
-  .dialog-close {
+  .text-button {
     cursor: pointer;
   }
 
@@ -426,6 +424,7 @@
   }
 
   .achievements-page,
+  .guide-page,
   .profile-page {
     min-height: calc(100dvh - 111px);
     padding: 10px;
@@ -977,7 +976,6 @@
   }
 
   .achievement-body {
-    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1009,14 +1007,17 @@
     line-height: normal;
   }
 
-  .achievement-guide-button {
-    position: absolute;
-    inset: 0;
-    background: transparent;
-    color: transparent;
+  .achievement-guide-link {
+    text-decoration: none;
   }
 
-  .achievement-card:has(.achievement-guide-button:focus-visible) {
+  .achievement-guide-link::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .achievement-card:has(.achievement-guide-link:focus-visible) {
     outline: 3px solid var(--color-focus);
     outline-offset: 2px;
   }
@@ -1419,62 +1420,24 @@
     margin-top: 1rem;
   }
 
-  .guide-dialog {
-    --scrollbar-thumb: #66839c;
-    --scrollbar-track: #0b1116;
-
-    width: min(56rem, calc(100% - 2rem));
-    max-height: calc(100dvh - 2rem);
-    padding: calc(var(--radius-large) / 2);
-    overflow: clip;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-large);
-    background: var(--scrollbar-track);
-    color: var(--color-text);
-    box-shadow: 0 2rem 6rem rgb(0 0 0 / 75%);
-  }
-
-  .guide-dialog[open] {
-    display: grid;
-    grid-template-rows: minmax(0, 1fr);
-  }
-
-  .guide-scroll {
-    overflow: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-  }
-
-  .guide-dialog::backdrop {
-    background: rgb(0 0 0 / 76%);
-    backdrop-filter: blur(0.45rem);
-  }
-
-  .dialog-close {
-    position: sticky;
-    z-index: 2;
-    top: 0.8rem;
-    float: inline-end;
-    display: grid;
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-block: 0.8rem -3.3rem;
-    margin-inline-end: 0.8rem;
-    border: 1px solid var(--color-border);
-    border-radius: 50%;
-    background: rgb(5 8 10 / 88%);
-    font-size: 1.7rem;
-    line-height: 1;
-    place-items: center;
-    backdrop-filter: blur(0.5rem);
-  }
-
-  .dialog-close:hover {
-    background: var(--color-accent);
-  }
-
   .guide-content {
-    padding: clamp(1.2rem, 4vw, 2.5rem);
+    max-inline-size: 64rem;
+    margin-inline: auto;
+    padding: clamp(0.625rem, 2vw, 1.75rem);
+    overflow-wrap: anywhere;
+  }
+
+  .guide-game-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    margin-block-end: 1rem;
+    color: var(--color-text-muted);
+    text-underline-offset: 0.2em;
+  }
+
+  .guide-game-link:hover {
+    color: var(--color-focus);
   }
 
   .guide-header {
@@ -1482,7 +1445,6 @@
     grid-template-columns: 6rem minmax(0, 1fr);
     gap: 1.25rem;
     align-items: center;
-    padding-inline-end: 2.5rem;
   }
 
   .guide-image {
@@ -1493,7 +1455,7 @@
     object-fit: cover;
   }
 
-  .guide-header h2 {
+  .guide-header h1 {
     margin-bottom: 0.3rem;
     font-size: clamp(1.5rem, 4vw, 2.25rem);
     line-height: 1.1;
@@ -1511,12 +1473,14 @@
     border-top: 1px solid var(--color-border);
   }
 
-  .guide-section h3 {
+  .guide-section h2 {
+    font-size: 1.25rem;
     margin-bottom: 0.75rem;
   }
 
   .guide-description {
     margin: 0;
+    max-inline-size: 75ch;
     color: #dce3e7;
     white-space: pre-line;
   }
