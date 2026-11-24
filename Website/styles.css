@@ -1123,6 +1123,7 @@
   }
 
   .release-screenshot-icon {
+    display: inline-block;
     margin-inline-start: 0.75rem;
     vertical-align: middle;
   }
