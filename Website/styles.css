@@ -1451,8 +1451,6 @@
   }
 
   .guide-content {
-    max-inline-size: 64rem;
-    margin-inline: auto;
     padding: clamp(0.625rem, 2vw, 1.75rem);
     overflow-wrap: anywhere;
   }
@@ -1485,7 +1483,6 @@
 
   .guide-description {
     margin: 0;
-    max-inline-size: 75ch;
     color: #dce3e7;
     white-space: pre-line;
   }
