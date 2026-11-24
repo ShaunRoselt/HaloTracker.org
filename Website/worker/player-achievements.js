@@ -1,3 +1,5 @@
+import { clearPrivateRanking, saveAchievementRanking, saveSteamActivity } from './player-rankings.js';
+
 // Steam Community app IDs and Xbox title IDs identify the versions represented by the tracker.
 const steamGames = new Map([
   ['halomcc', '976730'],
@@ -151,6 +153,7 @@ export function parseSteamAchievements(xml, appId, requestedPath) {
   }
   if (achievements.length === 0) throw missingData();
   return {
+    accountId: id,
     player: xmlText(player, 'customURL') || id,
     profileUrl: `https://steamcommunity.com/profiles/${id}/`,
     firstUnlockAt,
@@ -276,11 +279,22 @@ async function steamOwnedGames(id, key) {
 
 export async function lookupSteamProfile(request, env) {
   if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
-  const id = new URL(request.url).searchParams.get('id') ?? '';
+  const params = new URL(request.url).searchParams;
+  const id = params.get('id') ?? '';
+  const activityOnly = params.get('view') === 'activity';
+  const fetchedAt = Date.now();
   if (!steamId64.test(id)) return json({ error: 'invalid-player' }, 400);
   const profileUrl = `https://steamcommunity.com/profiles/${id}/`;
   const xml = await readSteamPage(profileUrl + '?xml=1', 128_000);
-  if (xmlText(xml, 'steamID64') !== id || xmlText(xml, 'privacyState') !== 'public') {
+  if (xmlText(xml, 'steamID64') !== id) return json({});
+  if (xmlText(xml, 'privacyState') !== 'public') {
+    if (xmlText(xml, 'privacyState') === 'private') {
+      try {
+        await clearPrivateRanking(env.DB, 'steam', id, fetchedAt);
+      } catch (error) {
+        console.error('Private Steam ranking removal failed', error.message);
+      }
+    }
     return json({});
   }
 
@@ -289,9 +303,9 @@ export async function lookupSteamProfile(request, env) {
     ? `https://steamcommunity.com/id/${vanity}/`
     : profileUrl;
   const [html, ownedGames, galleries] = await Promise.all([
-    readSteamPage(communityUrl, 900_000),
+    activityOnly ? '' : readSteamPage(communityUrl, 900_000),
     steamOwnedGames(id, env.STEAM_WEB_API_KEY),
-    Promise.all([...steamGames].map(([game, appId]) => steamScreenshots(communityUrl, game, appId))),
+    activityOnly ? [] : Promise.all([...steamGames].map(([game, appId]) => steamScreenshots(communityUrl, game, appId))),
   ]);
   const publicHours = publicSteamHours(xml);
   const games = {};
@@ -306,6 +320,13 @@ export async function lookupSteamProfile(request, env) {
       };
     }
   }
+  const player = vanity || id;
+  try {
+    await saveSteamActivity(env.DB, { id, player, displayName: xmlText(xml, 'steamID') || player }, games, fetchedAt);
+  } catch (error) {
+    console.error('Steam activity save failed', error.message);
+  }
+  if (activityOnly) return json({ games });
   return json({
     location: xmlText(xml, 'location'),
     ...steamAvatarFrame(html),
@@ -390,6 +411,7 @@ async function xboxAchievements(player, titleId, apiKey, signal) {
     data = await xboxRequest(`/v2/achievements/player/${xuid}/${titleId}`, apiKey, signal);
   } catch (error) {
     if (error.message === 'player-not-found') throw missingData();
+    if (error.message === 'private-achievements') error.accountId = xuid;
     throw error;
   }
   if (!Array.isArray(data.achievements)) throw unavailable();
@@ -399,7 +421,9 @@ async function xboxAchievements(player, titleId, apiKey, signal) {
   });
   if (achievements.length === 0) throw missingData();
   return {
-    player: name,
+    accountId: xuid,
+    player: uniqueModernGamertag || name,
+    displayName: name,
     profileUrl: `https://www.xbox.com/en-US/play/user/${encodeURIComponent(uniqueModernGamertag || name)}`,
     avatarUrl: avatarFrom(displayPicRaw, ['images-eds-ssl.xboxlive.com', 'images-eds.xboxlive.com']),
     achievements,
@@ -415,9 +439,31 @@ function json(value, status = 200, retryAfter = null) {
 async function lookupPlatform(platform, game, player, env, signal) {
   const gameId = (platform === 'steam' ? steamGames : xboxGames).get(game);
   if (!gameId) throw new LookupError('unsupported-game', 404);
-  return platform === 'steam'
-    ? steamAchievements(player, gameId, signal)
-    : xboxAchievements(player, gameId, env.OPENXBL_API_KEY, signal);
+  const fetchedAt = Date.now();
+  let profile;
+  try {
+    profile = await (platform === 'steam'
+      ? steamAchievements(player, gameId, signal)
+      : xboxAchievements(player, gameId, env.OPENXBL_API_KEY, signal));
+  } catch (error) {
+    if (error.message === 'private-achievements') {
+      const accountId = platform === 'steam'
+        ? /^\/profiles\/(\d+)$/.exec(steamProfilePath(player))?.[1]
+        : error.accountId;
+      try {
+        await clearPrivateRanking(env.DB, platform, accountId, fetchedAt, game);
+      } catch (databaseError) {
+        console.error('Private ranking removal failed', databaseError.message);
+      }
+    }
+    throw error;
+  }
+  try {
+    await saveAchievementRanking(env.DB, platform, game, profile, fetchedAt);
+  } catch (error) {
+    console.error('Achievement ranking save failed', error.message);
+  }
+  return profile;
 }
 
 export async function lookupPlayerAchievements(request, env) {

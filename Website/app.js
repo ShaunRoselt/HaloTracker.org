@@ -1,14 +1,14 @@
 'use strict';
 
-import { APP_NAME, GAME_CONFIG, getAchievementsForGame, guidePageTitle, hasGuide } from './game-catalog.js';
+import { APP_NAME, GAME_CONFIG, getAchievementsForGame, guidePageTitle, hasGuide, matchUnlocks } from './game-catalog.js';
 import {
   achievementText, achievementTextLocale, compareNames, currentLanguage,
   formatAchievementCount, formatPercent,
   LANGUAGES, savedLanguage, setLanguage, t, translateReleaseNotes,
 } from './i18n.js';
 
-const APP_VERSION = '1.5.0';
-const RELEASE_DATE = '2026/11/25';
+const APP_VERSION = '1.6.0';
+const RELEASE_DATE = '2026/11/26';
 const appVersionLabel = () => t('Version {version} | WEB | RELEASE | {date}', {
   version: APP_VERSION,
   date: RELEASE_DATE,
@@ -149,8 +149,9 @@ const getRoute = () => {
   const game = url.searchParams.get('game')?.trim().toLowerCase() || 'halomcc';
 
   const achievement = url.searchParams.get('achievement');
+  const profile = page === 'profile' ? url.searchParams.get('player') : null;
 
-  return Object.freeze({ page, game, achievement });
+  return Object.freeze({ page, game, achievement, profile });
 };
 
 const canonicalizeUrl = () => {
@@ -215,7 +216,7 @@ const updateActiveNavigation = ({ page, game }) => {
     }
   }
 
-  if (page === 'achievements') {
+  if (page === 'achievements' || page === 'leaderboard') {
     setGamesExpanded(true);
   }
 };
@@ -236,6 +237,11 @@ const menuItemIcon = (icon) => createElement('img', {
   className: 'menu-item-icon',
   attributes: { src: `assets/${icon}.svg`, alt: '', width: 18, height: 18 },
 });
+
+const profileHref = (account) => {
+  const id = account.platform === 'steam' ? account.accountId : account.player;
+  return id ? `?page=profile&${new URLSearchParams({ player: `${account.platform}:${id}` })}` : '?page=profile';
+};
 
 const updatePlayerHeader = () => {
   const account = state.player?.accounts.values().next().value;
@@ -258,7 +264,9 @@ const updatePlayerHeader = () => {
   elements.playerInitial.textContent = Array.from(displayName)[0].toLocaleUpperCase();
   document.querySelector('#player-sign-out span').textContent = t('Sign Out');
 
-  document.querySelector('#player-profile-link span').textContent = t('Profile');
+  const profileLink = document.querySelector('#player-profile-link');
+  profileLink.href = profileHref(account);
+  profileLink.querySelector('span').textContent = t('Profile');
   if (lookupHadFocus) trigger.focus({ preventScroll: true });
 };
 
@@ -274,6 +282,7 @@ const localizeShell = () => {
   document.querySelector('[data-page="settings"] span').textContent = t('Settings');
   document.querySelector('[data-game="halomcc"] span').textContent = t('Halo MCC (All)');
   elements.achievementsToggle.querySelector('span').textContent = t('Achievements');
+  document.querySelector('[data-page="leaderboard"] span').textContent = t('Leaderboard');
   elements.drawerBackdrop.setAttribute('aria-label', t('Close navigation'));
   pageDescription.content = t(englishPageDescription);
 };
@@ -439,17 +448,19 @@ async function fetchPlayerProgress(player, collection) {
     const response = await fetch('/api/player-achievements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ player: player.id, game: collection }),
+      body: JSON.stringify({ player: player.id, game: collection, platform: player.platform }),
       signal: player.controller.signal,
     });
-    return await response.json();
+    const result = await response.json();
+    return player.platform ? { ...result, platform: player.platform } : result;
   } catch {
-    return { error: 'provider-unavailable' };
+    return { error: 'provider-unavailable', platform: player.platform };
   }
 }
 
-const createPlayer = (id) => ({
+const createPlayer = (id, platform) => ({
   id,
+  platform,
   accounts: new Map(),
   games: new Map(),
   unlockFilters: new Map(),
@@ -476,24 +487,22 @@ const restorePlayer = () => {
   if (typeof session?.id !== 'string' || !GAME_CONFIG.has(session.collection)) return;
   state.player = createPlayer(session.id);
   elements.playerId.value = session.id;
-  void progressForGame(state.player, session.collection);
+  void refreshSelectedPlayer(state.player, session.collection);
 };
 
 const progressForGame = (player, collection) => {
   if (!player.games.has(collection)) {
     const request = fetchPlayerProgress(player, collection).then((result) => {
       const reports = Array.isArray(result?.results) ? result.results : [result];
-      if (state.player === player) {
-        const accountCount = player.accounts.size;
-        for (const report of reports) {
-          if (report?.player && report.profileUrl && !player.accounts.has(report.platform)) {
-            player.accounts.set(report.platform, report);
-          }
+      const accountCount = player.accounts.size;
+      for (const report of reports) {
+        if (report?.player && report.profileUrl && !player.accounts.has(report.platform)) {
+          player.accounts.set(report.platform, report);
         }
-        if (accountCount !== player.accounts.size) {
-          if (!accountCount) savePlayerSession({ id: player.id, collection });
-          updatePlayerHeader();
-        }
+      }
+      if (state.player === player && accountCount !== player.accounts.size) {
+        if (!accountCount) savePlayerSession({ id: player.id, collection });
+        updatePlayerHeader();
       }
       if (reports.some((report) => ['provider-unavailable', 'rate-limited'].includes(report?.error))) {
         player.games.delete(collection);
@@ -505,6 +514,21 @@ const progressForGame = (player, collection) => {
   return player.games.get(collection);
 };
 
+const playerCollections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
+
+const refreshSelectedPlayer = async (player, firstGame) => {
+  const firstReports = await progressForGame(player, firstGame);
+  const remaining = playerCollections.filter((game) => game !== firstGame);
+  for (let offset = 0; offset < remaining.length; offset += 3) {
+    if (state.player !== player) return firstReports;
+    await Promise.all(remaining.slice(offset, offset + 3).map((game) => progressForGame(player, game)));
+  }
+  const steam = player.accounts.get('steam');
+  if (steam && state.player === player) await loadSteamProfile(steam, true);
+  if (state.player === player && state.renderedRoute?.page === 'leaderboard') void refreshLeaderboard?.();
+  return firstReports;
+};
+
 const playerLookupErrors = (reports) => reports.map((report) => {
   const message = PLAYER_ERRORS.get(report?.error) ?? (report?.achievements
     ? 'No public achievement data is available for this player in this game.'
@@ -512,23 +536,6 @@ const playerLookupErrors = (reports) => reports.map((report) => {
   const platform = PLATFORM_NAMES[report?.platform];
   return reports.length > 1 && platform ? `${platform} · ${t(message)}` : t(message);
 });
-
-const achievementNameKey = (name) => name.normalize('NFC').trim().replaceAll('’', "'").toLowerCase();
-
-const matchUnlocks = (achievements, reported) => {
-  const byName = new Map();
-  for (const { name, unlocked } of reported) {
-    const key = achievementNameKey(name);
-    byName.set(key, byName.has(key) && byName.get(key) !== unlocked ? null : unlocked);
-  }
-
-  const matches = new Map();
-  for (const achievement of achievements) {
-    const unlocked = byName.get(achievementNameKey(achievement.name));
-    if (typeof unlocked === 'boolean') matches.set(achievement.id, unlocked);
-  }
-  return matches;
-};
 
 const matchedPlayerProgress = (achievements, reports) => reports.flatMap((report) => {
   if (!Array.isArray(report?.achievements)) return [];
@@ -1296,10 +1303,12 @@ const createSteamGalleries = (galleries) => {
   return section;
 };
 
-const loadSteamProfile = async (account) => {
+const loadSteamProfile = async (account, activityOnly = false) => {
   try {
     const id = new URL(account.profileUrl).pathname.split('/')[2];
-    const response = await fetch(`/api/steam-profile?id=${encodeURIComponent(id)}`, {
+    const params = new URLSearchParams({ id });
+    if (activityOnly) params.set('view', 'activity');
+    const response = await fetch(`/api/steam-profile?${params}`, {
       signal: AbortSignal.timeout(12_000),
     });
     if (response.ok) return await response.json();
@@ -1309,7 +1318,7 @@ const loadSteamProfile = async (account) => {
   return {};
 };
 
-const renderPlayerProfile = async () => {
+const renderPlayerProfile = async (route) => {
   const page = createElement('section', { className: 'profile-page', attributes: { 'aria-labelledby': 'profile-title' } });
   const hero = createElement('header', { className: 'profile-hero surface' });
   const title = createElement('h1', { text: t('Profile'), attributes: { id: 'profile-title' } });
@@ -1322,18 +1331,25 @@ const renderPlayerProfile = async () => {
   elements.routeView.replaceChildren(page);
   document.title = `${t('Profile')} | ${APP_NAME}`;
 
-  const player = state.player;
+  const selectedPlayer = state.player;
+  const shared = route.profile?.match(/^(steam|xbox):(.+)$/u);
+  if (route.profile !== null && !shared) {
+    status.textContent = t('This player profile link is invalid.');
+    return;
+  }
+  const player = shared ? createPlayer(shared[2], shared[1]) : selectedPlayer;
   if (!player) {
     status.textContent = t('Search for a player to view their profile.');
     return;
   }
+  const stale = () => !page.isConnected || (!shared && player !== state.player);
   if (player.failedReports && !player.accounts.size) {
     status.textContent = playerLookupErrors(player.failedReports).join(' ');
     return;
   }
   status.textContent = t('Looking up achievements…');
   // Each collection includes its subgames. Query it once and count its achievements once.
-  const collections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
+  const collections = playerCollections;
   const progress = new Map();
   const errors = new Set();
   const steamAccount = player.accounts.get('steam');
@@ -1341,7 +1357,7 @@ const renderPlayerProfile = async () => {
   for (let offset = 0; offset < collections.length; offset += 3) {
     const batch = collections.slice(offset, offset + 3);
     const results = await Promise.all(batch.map((game) => progressForGame(player, game)));
-    if (player !== state.player || !page.isConnected) return;
+    if (stale()) return;
     for (const [index, reports] of results.entries()) {
       const game = batch[index];
       const achievements = getAchievementsForGame(game);
@@ -1366,6 +1382,7 @@ const renderPlayerProfile = async () => {
     portrait = createProfileAvatar({ player: displayName, avatarUrl: account.avatarUrl });
     hero.prepend(portrait);
     document.title = `${displayName} | ${APP_NAME}`;
+    if (!shared) window.history.replaceState(window.history.state, '', profileHref(account));
   }
   if (!progress.size) {
     const error = [...errors].find((code) => code !== 'unsupported-game' && code !== 'no-game-data');
@@ -1392,7 +1409,7 @@ const renderPlayerProfile = async () => {
   const steam = player.accounts.get('steam');
   if (!steam) return;
   const details = await (pendingSteamDetails || loadSteamProfile(steam));
-  if (player !== state.player || !page.isConnected) return;
+  if (stale()) return;
   if (details.location && account === steam) {
     identity.append(createElement('p', { className: 'profile-location', text: details.location }));
   }
@@ -1418,6 +1435,108 @@ const renderPlayerProfile = async () => {
   if (details.galleries?.length) page.append(createSteamGalleries(details.galleries));
 };
 
+let refreshLeaderboard;
+
+const renderLeaderboard = () => {
+  const section = createElement('section', { className: 'leaderboard-page' });
+  const heading = createElement('h1', { text: t('Leaderboard'), attributes: { id: 'leaderboard-title' } });
+  section.setAttribute('aria-labelledby', heading.id);
+  const intro = createElement('p', {
+    text: t('Rankings use public data from players looked up on Halo Achievement Tracker.'),
+  });
+  const filters = createElement('div', { className: 'leaderboard-filters' });
+  const controls = [
+    ['game', 'Game', [['all', t('All games')], ...playerCollections.map(game => [game, GAME_CONFIG.get(game).title])]],
+    ['platform', 'Platform', [['all', t('All platforms')], ...Object.entries(PLATFORM_NAMES)]],
+    ['sort', 'Rank by', [['unlocked', t('Achievements unlocked')], ['minutes', t('Time played')]]],
+  ].map(([key, label, options]) => {
+    const select = createElement('select', { attributes: { id: `leaderboard-${key}` } });
+    for (const [value, text] of options) select.add(new Option(text, value));
+    const labelElement = createElement('label', { text: t(label), attributes: { for: select.id } });
+    const group = createElement('div');
+    group.append(labelElement, select);
+    filters.append(group);
+    return [key, select];
+  });
+  const status = createElement('p', { className: 'leaderboard-status', attributes: { role: 'status' } });
+  const results = createElement('div', {
+    className: 'leaderboard-results surface',
+    attributes: { role: 'region', 'aria-labelledby': heading.id, tabindex: '0', hidden: '' },
+  });
+  section.append(heading, intro, filters, status, results);
+  elements.routeView.replaceChildren(section);
+  document.title = `${t('Leaderboard')} | ${APP_NAME}`;
+
+  const number = new Intl.NumberFormat(currentLanguage());
+  const hours = new Intl.NumberFormat(currentLanguage(), {
+    style: 'unit', unit: 'hour', maximumFractionDigits: 1,
+  });
+  let controller;
+  const update = async () => {
+    if (!section.isConnected) return;
+    controller?.abort();
+    const request = new AbortController();
+    controller = request;
+    const query = new URLSearchParams(controls.map(([key, select]) => [key, select.value]));
+    results.hidden = true;
+    status.textContent = t('Loading leaderboard…');
+
+    try {
+      const response = await fetch(`/api/leaderboard?${query}`, {
+        signal: AbortSignal.any([request.signal, AbortSignal.timeout(12_000)]),
+      });
+      if (!response.ok) throw new Error('Leaderboard unavailable');
+      const { players } = await response.json();
+      if (!section.isConnected || request.signal.aborted) return;
+      if (!players.length) {
+        status.textContent = t('No players have recorded progress for this ranking yet.');
+        return;
+      }
+
+      const table = createElement('table');
+      const header = table.createTHead().insertRow();
+      const byTime = query.get('sort') === 'minutes';
+      const metrics = byTime
+        ? [['minutes', 'Time played'], ['unlocked', 'Unlocked']]
+        : [['unlocked', 'Unlocked'], ['minutes', 'Time played']];
+      for (const title of ['Rank', 'Player', 'Platform', ...metrics.map(([, label]) => label)]) {
+        header.append(createElement('th', { text: t(title), attributes: { scope: 'col' } }));
+      }
+      const body = table.createTBody();
+      let rank = 0;
+      let previous;
+      for (const [index, player] of players.entries()) {
+        const score = player[query.get('sort')];
+        if (score !== previous) rank = index + 1;
+        previous = score;
+        const row = body.insertRow();
+        row.insertCell().textContent = number.format(rank);
+        const name = createElement('th', { attributes: { scope: 'row' } });
+        const link = createElement('a', { attributes: { href: profileHref(player), 'data-route': '' } });
+        link.append(createElement('bdi', { text: player.displayName }));
+        name.append(link);
+        row.append(name);
+        row.insertCell().textContent = PLATFORM_NAMES[player.platform];
+        for (const [metric] of metrics) {
+          const value = player[metric];
+          row.insertCell().textContent = value == null ? '—'
+            : metric === 'minutes' ? hours.format(value / 60) : number.format(value);
+        }
+      }
+      results.replaceChildren(table);
+      results.hidden = false;
+      status.textContent = '';
+    } catch {
+      if (!request.signal.aborted && section.isConnected) {
+        status.textContent = t('Could not load the leaderboard. Try again.');
+      }
+    }
+  };
+  filters.addEventListener('change', update);
+  refreshLeaderboard = update;
+  void update();
+};
+
 const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
   let route = getRoute();
   const previous = state.renderedRoute;
@@ -1441,7 +1560,9 @@ const renderRoute = ({ focus = false, fromHistory = false } = {}) => {
   } else if (route.page === 'achievements') {
     renderAchievements(route.game);
   } else if (route.page === 'profile') {
-    void renderPlayerProfile();
+    void renderPlayerProfile(route);
+  } else if (route.page === 'leaderboard') {
+    renderLeaderboard();
   } else if (route.page === 'settings') {
     renderSettings();
   } else if (route.page === 'release-notes') {
@@ -1546,7 +1667,9 @@ elements.playerLookup.addEventListener('submit', (event) => {
 
   const route = state.renderedRoute;
   if (route.page === 'profile') {
-    void renderPlayerProfile();
+    window.history.pushState(null, '', '?page=profile');
+    void refreshSelectedPlayer(player, 'halomcc');
+    renderRoute();
     return;
   }
   const game = route.page === 'achievements' ? GAME_CONFIG.get(route.game) : undefined;
@@ -1559,7 +1682,7 @@ elements.playerLookup.addEventListener('submit', (event) => {
       renderAchievements(route.game);
     }
   }
-  void progressForGame(player, game?.collection ?? 'halomcc').then((reports) => {
+  void refreshSelectedPlayer(player, game?.collection ?? 'halomcc').then((reports) => {
     if (state.player !== player || player.accounts.size || state.renderedRoute !== route) return;
     player.failedReports = reports;
     window.history.pushState(null, '', getNavigationUrl('?page=profile'));

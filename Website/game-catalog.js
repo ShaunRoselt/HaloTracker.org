@@ -114,3 +114,20 @@ export const hasGuide = ({ guideDescription, guideVideos }) => (
 
 export const guidePageTitle = ({ name, collection }) =>
   `${name} Achievement Guide | ${GAME_CONFIG.get(collection).title} | ${APP_NAME}`;
+
+const achievementNameKey = (name) => name.normalize('NFC').trim().replaceAll('’', "'").toLowerCase();
+
+export const matchUnlocks = (achievements, reported) => {
+  const byName = new Map();
+  for (const { name, unlocked } of reported) {
+    const key = achievementNameKey(name);
+    byName.set(key, byName.has(key) && byName.get(key) !== unlocked ? null : unlocked);
+  }
+
+  const matches = new Map();
+  for (const achievement of achievements) {
+    const unlocked = byName.get(achievementNameKey(achievement.name));
+    if (typeof unlocked === 'boolean') matches.set(achievement.id, unlocked);
+  }
+  return matches;
+};

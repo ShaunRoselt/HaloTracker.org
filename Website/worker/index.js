@@ -1,3 +1,4 @@
+import { readLeaderboard } from './player-rankings.js';
 import { lookupPlayerAchievements, lookupSteamProfile } from "./player-achievements.js";
 import { getAchievementsForGame, guidePageTitle, hasGuide } from "./game-catalog.js";
 
@@ -52,6 +53,7 @@ export default {
     if (pathname === "/api/player-achievements") {
       return lookupPlayerAchievements(request, env);
     }
+    if (pathname === "/api/leaderboard") return readLeaderboard(request, env.DB);
     if (pathname === "/api/steam-profile") {
       return lookupSteamProfile(request, env);
     }
