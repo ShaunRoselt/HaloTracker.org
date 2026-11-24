@@ -1254,22 +1254,24 @@ const createProfileActivity = (game, { minutes, lastPlayed } = {}) => {
   const hours = Number.isFinite(minutes) ? new Intl.NumberFormat(currentLanguage(), {
     style: 'unit', unit: 'hour', maximumFractionDigits: 1,
   }).format(minutes / 60) : null;
+  const missingDate = game.unlocked === 0 && game.reported === game.total ? t('None yet') : t('Unavailable');
   const stats = createElement('dl', { className: 'profile-game-activity' });
   for (const [label, value] of [
-    ['Time played', hours],
+    ['Time played', hours ?? t('Unavailable')],
     ['Last played', lastPlayed && profileDate(lastPlayed)],
-    ['First achievement', game.firstUnlockAt && profileDate(game.firstUnlockAt)],
-    ['Latest achievement', game.lastUnlockAt && profileDate(game.lastUnlockAt)],
+    ['First achievement', game.firstUnlockAt ? profileDate(game.firstUnlockAt) : missingDate],
+    ['Latest achievement', game.lastUnlockAt ? profileDate(game.lastUnlockAt) : missingDate],
   ]) {
     if (value == null) continue;
     const stat = createElement('div');
     stat.append(createElement('dt', { text: t(label) }), createElement('dd', { text: value }));
     stats.append(stat);
   }
-  return stats.childElementCount ? stats : null;
+  return stats;
 };
 
-const createProfileGame = ({ game, unlocked, reported, total }, platform) => {
+const createProfileGame = (data, platform) => {
+  const { game, unlocked, reported, total } = data;
   const config = GAME_CONFIG.get(game);
   const headingId = `profile-${platform}-${game}`;
   const link = createElement('a', {
@@ -1282,16 +1284,22 @@ const createProfileGame = ({ game, unlocked, reported, total }, platform) => {
   const heading = createElement('h3', { className: 'profile-game-heading' });
   heading.append(icon, link);
 
-  const progress = createElement('progress', {
-    className: 'profile-game-progress',
-    attributes: { value: unlocked, max: total, 'aria-labelledby': headingId },
+  const count = createElement('p', {
+    className: 'profile-game-count',
+    text: unlocked == null ? t('Xbox progress unavailable') : formatPlayerUnlocks({ unlocked, reported, total }),
   });
-  const count = createElement('p', { className: 'profile-game-count', text: formatPlayerUnlocks({ unlocked, reported, total }) });
   const item = createElement('li', {
     className: 'profile-game surface',
     attributes: { 'data-profile-game': game },
   });
-  item.append(heading, progress, count);
+  item.append(heading);
+  if (unlocked != null) {
+    item.append(createElement('progress', {
+      className: 'profile-game-progress',
+      attributes: { value: unlocked, max: total, 'aria-labelledby': headingId },
+    }));
+  }
+  item.append(count, createProfileActivity(data));
   return item;
 };
 
@@ -1381,7 +1389,9 @@ const attachProfileTabs = (page) => {
     className: 'profile-tabs',
     attributes: { role: 'tablist', 'aria-label': t('Profile sections') },
   });
-  const entries = ['Achievements', 'Screenshots', 'Friends'].map((label, index) => {
+  const entries = [];
+  const addTab = (label) => {
+    const index = entries.length;
     const id = `profile-tab-${label.toLowerCase()}`;
     const panelId = `${id}-panel`;
     const tab = createElement('button', {
@@ -1397,10 +1407,8 @@ const attachProfileTabs = (page) => {
     });
     panel.hidden = index !== 0;
     tabList.append(tab);
-    return { tab, panel };
-  });
-
-  for (const [index, { tab, panel }] of entries.entries()) {
+    entries.push({ tab, panel });
+    page.append(panel);
     tab.addEventListener('click', () => {
       for (const entry of entries) {
         const active = entry.tab === tab;
@@ -1420,11 +1428,10 @@ const attachProfileTabs = (page) => {
       target.tabIndex = 0;
       target.focus();
     });
-  }
-
-  const panels = entries.map(({ panel }) => panel);
-  page.append(tabList, ...panels);
-  return panels;
+    return panel;
+  };
+  page.append(tabList);
+  return { panels: ['Achievements', 'Screenshots', 'Friends'].map(addTab), addTab };
 };
 
 const setupProfileFriends = (panel, steam) => {
@@ -1449,12 +1456,22 @@ const setupProfileFriends = (panel, steam) => {
         return;
       }
 
-      const grid = createElement('ul', { className: 'profile-friends' });
+      const wrapper = createElement('div', {
+        className: 'leaderboard-results surface',
+        attributes: { role: 'region', 'aria-label': t('Steam friends'), tabindex: '0' },
+      });
+      const table = createElement('table');
+      const header = table.createTHead().insertRow();
+      for (const label of ['#', 'Friend']) {
+        header.append(createElement('th', { text: t(label), attributes: { scope: 'col' } }));
+      }
+      const rows = table.createTBody();
+      wrapper.append(table);
       const navigation = createElement('div', { className: 'profile-friends-pagination' });
       const previous = createElement('button', { className: 'button secondary-button', text: t('Previous'), attributes: { type: 'button' } });
       const next = createElement('button', { className: 'button secondary-button', text: t('Next'), attributes: { type: 'button' } });
       navigation.append(previous, next);
-      panel.append(navigation, grid);
+      panel.append(navigation, wrapper);
       const pageSize = 48;
       let start = 0;
       const showPage = () => {
@@ -1463,15 +1480,19 @@ const setupProfileFriends = (panel, steam) => {
         status.textContent = t('Friends {first}–{last} of {total}', {
           first: format.format(start + 1), last: format.format(end), total: format.format(friends.length),
         });
-        grid.replaceChildren(...friends.slice(start, end).map(({ accountId, displayName, avatarUrl }) => {
-          const item = createElement('li', { className: 'surface' });
+        rows.replaceChildren(...friends.slice(start, end).map(({ accountId, displayName, avatarUrl }, index) => {
+          const row = createElement('tr');
+          row.insertCell().textContent = format.format(start + index + 1);
+          const name = createElement('th', { attributes: { scope: 'row' } });
           const link = steamLink(`https://steamcommunity.com/profiles/${accountId}/`);
+          link.classList.add('leaderboard-identity');
           if (avatarUrl) link.append(createElement('img', {
             attributes: { src: avatarUrl, alt: '', width: 32, height: 32, loading: 'lazy', referrerpolicy: 'no-referrer' },
           }));
           link.append(createElement('bdi', { text: displayName }));
-          item.append(link);
-          return item;
+          name.append(link);
+          row.append(name);
+          return row;
         }));
         previous.disabled = start === 0;
         next.disabled = end === friends.length;
@@ -1491,7 +1512,9 @@ const renderPlayerProfile = async (route) => {
   const hero = createElement('header', { className: 'profile-hero surface' });
   const title = createElement('h1', { text: t('Profile'), attributes: { id: 'profile-title' } });
   const identity = createElement('div');
-  identity.append(title);
+  const nameRow = createElement('div', { className: 'profile-name-row' });
+  nameRow.append(title);
+  identity.append(nameRow);
   hero.append(identity);
   const status = createElement('p', { className: 'profile-status', attributes: { role: 'status' } });
   identity.append(status);
@@ -1559,30 +1582,36 @@ const renderPlayerProfile = async (route) => {
   }
   const platforms = createElement('div', { className: 'profile-platforms' });
   for (const [platform, profile] of player.accounts) {
-    const link = steamLink(profile.profileUrl, platform === 'steam' ? '' : PLATFORM_NAMES[platform]);
+    const link = steamLink(profile.profileUrl, PLATFORM_NAMES[platform]);
     if (platform === 'steam') {
       link.classList.add('profile-steam-link');
       link.setAttribute('aria-label', t('View Steam profile'));
       link.title = t('View Steam profile');
-      link.append(menuItemIcon('steam'));
+      link.prepend(menuItemIcon('steam'));
     }
     platforms.append(link);
   }
-  status.replaceWith(platforms);
+  status.remove();
+  nameRow.append(platforms);
 
-  const [achievementPanel, screenshotPanel, friendPanel] = attachProfileTabs(page);
+  const { panels: [achievementPanel, screenshotPanel, friendPanel], addTab } = attachProfileTabs(page);
   const screenshotStatus = createElement('p', {
     attributes: { role: 'status' }, text: t('Loading screenshots…'),
   });
   screenshotPanel.append(screenshotStatus);
 
   let steamSection;
+  let firstSection;
   for (const platform of Object.keys(PLATFORM_NAMES)) {
     const platformProgress = progress.get(platform);
     if (!platformProgress) continue;
     const section = createProfileProgress(platformProgress, progress.size > 1);
+    firstSection ??= section;
     if (platform === 'steam') steamSection = section;
     achievementPanel.append(section);
+  }
+  if (!progress.get('xbox')?.games.some(({ game }) => game === 'halo5')) {
+    firstSection.querySelector('.profile-games').append(createProfileGame({ game: 'halo5' }, 'xbox'));
   }
 
   const steam = player.accounts.get('steam');
@@ -1604,11 +1633,55 @@ const renderPlayerProfile = async (route) => {
     location.append(details.location);
     identity.append(location);
   }
-  if (account === steam && portrait) setAvatarFrame(portrait, details);
+  if (account === steam && portrait) {
+    setAvatarFrame(portrait, details);
+    if (details.backgroundUrl) {
+      page.classList.add('has-steam-background');
+      page.style.setProperty('--steam-profile-background', `url(${JSON.stringify(details.backgroundUrl)})`);
+    }
+    if (details.backgroundVideoUrl && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const video = createElement('video', {
+        className: 'profile-background-video',
+        attributes: { src: details.backgroundVideoUrl, autoplay: '', loop: '', muted: '', playsinline: '', 'aria-hidden': 'true' },
+      });
+      video.muted = true;
+      page.prepend(video);
+    }
+    if (details.presence) {
+      const currentGame = GAME_CONFIG.get(details.currentGame);
+      const presence = createElement('p', {
+        className: `profile-presence is-${details.presence}`,
+        text: currentGame ? t('Playing {game}', { game: currentGame.title })
+          : t(details.presence === 'online' ? 'Online' : 'Offline'),
+      });
+      identity.append(presence);
+    }
+    if (details.joinedAt) {
+      const date = new Intl.DateTimeFormat(currentLanguage(), { dateStyle: 'medium', timeZone: 'UTC' });
+      identity.append(createElement('p', {
+        className: 'profile-joined',
+        text: t('Steam member since {date}', { date: date.format(details.joinedAt * 1000) }),
+      }));
+    }
+  }
+  if (details.reviews?.length) {
+    const panel = addTab('Reviews');
+    for (const { game, url, text, recommended } of details.reviews) {
+      const review = createElement('article', { className: 'profile-review surface' });
+      const heading = createElement('h2');
+      heading.append(steamLink(url, GAME_CONFIG.get(game).title));
+      review.append(
+        heading,
+        createElement('p', { text: t(recommended ? 'Recommended' : 'Not recommended') }),
+        createElement('p', { className: 'profile-review-text', text }),
+      );
+      panel.append(review);
+    }
+  }
   if (steamSection) {
     for (const game of progress.get('steam').games) {
       const activity = createProfileActivity(game, details.games?.[game.game]);
-      if (activity) steamSection.querySelector(`[data-profile-game="${game.game}"]`).append(activity);
+      steamSection.querySelector(`[data-profile-game="${game.game}"] .profile-game-activity`).replaceWith(activity);
     }
   }
   if (details.galleries?.length) screenshotPanel.replaceChildren(createSteamGalleries(details.galleries));

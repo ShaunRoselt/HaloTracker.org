@@ -322,6 +322,48 @@ export async function lookupSteamFriends(request) {
   return json({ friends: [...friends.values()] });
 }
 
+async function steamGameReview(profileUrl, game, appId) {
+  const url = `${profileUrl}recommended/${appId}/`;
+  const html = await readSteamPage(url + '?l=english', 700_000);
+  const body = /<div id="ReviewText"[^>]*>([\s\S]*?)<\/div>\s*<div id="ReviewEdit"/i.exec(html)?.[1];
+  const rating = /<div class="ratingSummary">\s*(Recommended|Not Recommended)\s*<\/div>/i.exec(html)?.[1];
+  if (!body || !rating) return null;
+  const text = decodeSteamHtml(body.replace(/<br\s*\/?\s*>/gi, '\n').replace(/<\/p>/gi, '\n\n').replace(/<[^>]*>/g, '').trim());
+  if (!text) return null;
+  const playtime = /<div class="playTime">([\s\S]*?)<\/div>/i.exec(html)?.[1] ?? '';
+  const hours = /([\d,.]+) hrs? on record/i.exec(playtime)?.[1];
+  return {
+    game, url, text, recommended: rating.toLowerCase() === 'recommended',
+    minutes: hours ? Math.round(Number(hours.replaceAll(',', '')) * 60) : null,
+  };
+}
+
+function steamPageMetadata(xml, html) {
+  const hosts = ['shared.fastly.steamstatic.com', 'shared.akamai.steamstatic.com', 'shared.cloudflare.steamstatic.com'];
+  const video = /<video\b[^>]*class="[^"]*\bprofile_animated_background\b[^"]*"[^>]*>[\s\S]*?<\/video>/i.exec(html)?.[0] ?? '';
+  const background = /<div class="[^"]*\bhas_profile_background\b[^"]*"[^>]*background-image:\s*url\(\s*['"]([^'"]+)/i.exec(html)?.[1]
+    ?? /\bposter="([^"]+)"/i.exec(video)?.[1];
+  const videoUrl = /\bsrc="([^"]+\.(?:webm|mp4)(?:\?[^"]*)?)"/i.exec(video)?.[1];
+  const presence = xmlText(xml, 'onlineState');
+  const status = xmlText(xml, 'stateMessage');
+  const inGame = /<inGameInfo>([\s\S]*?)<\/inGameInfo>/i.exec(xml)?.[1] ?? '';
+  const link = xmlText(inGame, 'gameLink') || xmlText(xml, 'gameLink');
+  const appId = /\/app\/(\d+)/.exec(link)?.[1];
+  const playing = ['in-game', 'ingame'].includes(presence);
+  const currentGame = playing
+    ? [...steamGames].find(([, id]) => id === appId
+      || status.includes(`/app/${id}/`) || status.includes(`/app/${id}"`))?.[0]
+    : null;
+  const joined = Date.parse(xmlText(xml, 'memberSince') + ' UTC');
+  return {
+    backgroundUrl: avatarFrom(background, hosts),
+    backgroundVideoUrl: avatarFrom(videoUrl, hosts),
+    presence: playing || presence === 'online' ? 'online' : presence === 'offline' ? 'offline' : null,
+    currentGame: currentGame ?? null,
+    joinedAt: Number.isFinite(joined) ? joined / 1000 : null,
+  };
+}
+
 export async function lookupSteamProfile(request, env) {
   if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
   const params = new URL(request.url).searchParams;
@@ -347,16 +389,17 @@ export async function lookupSteamProfile(request, env) {
   const vanity = xmlText(xml, 'customURL');
   const communityUrl = steamPublicUrl(xml, profileUrl);
   if (appearanceOnly) return json(steamAvatarFrame(await readSteamPage(communityUrl, 900_000)));
-  const [html, ownedGames, galleries] = await Promise.all([
+  const [html, ownedGames, galleries, reviews] = await Promise.all([
     activityOnly ? '' : readSteamPage(communityUrl, 900_000),
     steamOwnedGames(id, env.STEAM_WEB_API_KEY),
     activityOnly ? [] : Promise.all([...steamGames].map(([game, appId]) => steamScreenshots(communityUrl, game, appId))),
+    activityOnly ? [] : Promise.all([...steamGames].map(([game, appId]) => steamGameReview(communityUrl, game, appId))),
   ]);
   const publicHours = publicSteamHours(xml);
   const games = {};
   for (const [game, appId] of steamGames) {
     const owned = ownedGames.find(({ appid }) => String(appid) === appId);
-    const minutes = owned?.playtime_forever ?? publicHours.get(appId);
+    const minutes = owned?.playtime_forever ?? reviews.find(review => review?.game === game)?.minutes ?? publicHours.get(appId);
     const lastPlayed = owned?.rtime_last_played;
     if (Number.isFinite(minutes) && minutes >= 0 || Number.isFinite(lastPlayed) && lastPlayed > 0) {
       games[game] = {
@@ -374,6 +417,8 @@ export async function lookupSteamProfile(request, env) {
   if (activityOnly) return json({ games });
   return json({
     location: xmlText(xml, 'location'),
+    ...steamPageMetadata(xml, html),
+    reviews: reviews.filter(Boolean).map(({ game, url, text, recommended }) => ({ game, url, text, recommended })),
     ...steamAvatarFrame(html),
     games,
     galleries: galleries.filter(({ screenshots }) => screenshots.length),

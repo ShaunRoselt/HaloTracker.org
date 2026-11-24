@@ -738,6 +738,8 @@
   }
 
   .profile-page {
+    position: relative;
+    isolation: isolate;
     display: grid;
     align-content: start;
     gap: 1.25rem;
@@ -748,16 +750,47 @@
     display: flex;
     align-items: center;
     gap: clamp(0.875rem, 3vw, 1.5rem);
-    min-block-size: 8rem;
-    padding: clamp(1rem, 3.5vw, 2rem);
+    padding: clamp(0.875rem, 1.5vw, 1.125rem);
     border-radius: var(--radius-medium);
     background: linear-gradient(120deg, rgb(0 109 191 / 24%), transparent 65%), var(--color-surface);
     backdrop-filter: blur(8px);
     overflow-wrap: anywhere;
   }
 
+  .profile-page.has-steam-background {
+    background-image: linear-gradient(rgb(0 0 0 / 68%), rgb(0 0 0 / 82%)), var(--steam-profile-background);
+    background-position: center top;
+    background-size: cover;
+  }
+
+  .profile-background-video {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center top;
+    opacity: 0.3;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .profile-background-video {
+      display: none;
+    }
+  }
+
+  .profile-name-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+  }
+
   .profile-hero h1 {
-    margin-block-end: 0.25rem;
+    margin-block-end: 0;
     font-size: clamp(1.5rem, 4vw, 2.375rem);
     line-height: 1.15;
   }
@@ -862,31 +895,38 @@
     margin-block-start: 1.25rem;
   }
 
-  .profile-friends {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+  .profile-presence,
+  .profile-joined {
+    margin: 0.25rem 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
   }
 
-  .profile-friends li {
-    min-inline-size: 0;
+  .profile-presence.is-online {
+    color: #8fdfb2;
+  }
+
+  .profile-review {
+    padding: 1rem;
     background: var(--color-surface-strong);
     border-radius: var(--radius-small);
-  }
-
-  .profile-friends a {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    min-block-size: 3rem;
-    padding: 0.5rem;
     overflow-wrap: anywhere;
   }
 
-  .profile-friends img,
+  .profile-review + .profile-review {
+    margin-block-start: 0.75rem;
+  }
+
+  .profile-review h2 {
+    margin: 0;
+    font-size: 1.125rem;
+  }
+
+  .profile-review-text {
+    margin-block-end: 0;
+    white-space: pre-wrap;
+  }
+
   .profile-location img {
     flex: none;
   }
