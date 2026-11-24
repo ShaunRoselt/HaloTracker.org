@@ -748,17 +748,29 @@ const renderAchievements = (game) => {
         return;
       }
 
+      const percentFormat = new Intl.NumberFormat(currentLanguage(), {
+        style: 'percent',
+        maximumFractionDigits: 1,
+      });
       for (const { player: name, platform, unlocks } of playerProgress) {
-        const result = createElement('p');
+        const unlocked = unlockCount(unlocks);
+        const total = achievements.length;
+        const countText = formatPlayerUnlocks({ unlocked, reported: unlocks.size, total });
+        const result = createElement('div', { className: 'player-progress-result' });
         const playerName = createElement('bdi', { className: 'player-progress-name', text: name });
-        const total = createElement('span', {
-          text: formatPlayerUnlocks({
-            unlocked: unlockCount(unlocks),
-            reported: unlocks.size,
-            total: achievements.length,
-          }),
+        const labels = createElement('div', { className: 'player-progress-labels' });
+        const percent = createElement('span', { text: percentFormat.format(unlocked / total) });
+        const progress = createElement('progress', {
+          className: 'player-achievement-progress',
+          attributes: {
+            value: unlocked,
+            max: total,
+            'aria-label': `${PLATFORM_NAMES[platform]} · ${name}`,
+            'aria-valuetext': countText,
+          },
         });
-        result.append(PLATFORM_NAMES[platform] + ' · ', playerName, ' · ', total);
+        labels.append(createElement('span', { text: countText }), percent);
+        result.append(PLATFORM_NAMES[platform] + ' · ', playerName, labels, progress);
         playerStatus.append(result);
       }
       unlockFilter.hidden = false;

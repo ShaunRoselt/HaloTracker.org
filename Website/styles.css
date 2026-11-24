@@ -769,13 +769,13 @@
     object-fit: contain;
   }
 
-  .profile-game-progress {
+  :is(.profile-game-progress, .player-achievement-progress) {
     inline-size: 100%;
     block-size: 0.5rem;
   }
 
   @media (forced-colors: none) {
-    .profile-game-progress {
+    :is(.profile-game-progress, .player-achievement-progress) {
       appearance: none;
       overflow: clip;
       border: 0;
@@ -783,16 +783,16 @@
       background: #35414c;
     }
 
-    .profile-game-progress::-webkit-progress-bar {
+    :is(.profile-game-progress, .player-achievement-progress)::-webkit-progress-bar {
       background: transparent;
     }
 
-    .profile-game-progress::-webkit-progress-value {
+    :is(.profile-game-progress, .player-achievement-progress)::-webkit-progress-value {
       border-radius: 1rem;
       background: var(--color-focus);
     }
 
-    .profile-game-progress::-moz-progress-bar {
+    :is(.profile-game-progress, .player-achievement-progress)::-moz-progress-bar {
       border-radius: 1rem;
       background: var(--color-focus);
     }
@@ -813,7 +813,25 @@
   }
 
   .player-progress-info {
+    flex: 1 1 20rem;
+    min-inline-size: 0;
     overflow-wrap: anywhere;
+  }
+
+  .player-progress-result + .player-progress-result {
+    margin-block-start: 0.75rem;
+  }
+
+  .player-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-block-start: 0.375rem;
+  }
+
+  .player-achievement-progress {
+    display: block;
+    margin-block-start: 0.375rem;
   }
 
   .player-progress-name {
