@@ -424,6 +424,11 @@
   }
 
   .achievements-page,
+  .guide-page {
+    --game-header-inset: 6px;
+  }
+
+  .achievements-page,
   .guide-page,
   .profile-page {
     min-height: calc(100dvh - 111px);
@@ -447,7 +452,7 @@
     align-items: center;
     min-height: 78px;
     margin: 0;
-    padding-inline: 6px;
+    padding-inline: var(--game-header-inset);
   }
 
   .game-hero-icon {
@@ -836,7 +841,7 @@
     display: flex;
     align-items: center;
     min-height: 80px;
-    margin: 10px 0 0;
+    margin: 10px var(--game-header-inset) 0;
     padding: 14px 15px 12px 14px;
     border-radius: 5px;
     background: rgb(25 29 36);
