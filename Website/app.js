@@ -1,13 +1,13 @@
 'use strict';
 
 import { ACHIEVEMENTS } from './achievements.js';
+import { APP_NAME, GAME_CONFIG, getAchievementsForGame, guidePageTitle, hasGuide } from './game-catalog.js';
 import {
   achievementText, achievementTextLocale, compareNames, currentLanguage,
   formatAchievementCount, formatPercent,
   LANGUAGES, savedLanguage, setLanguage, t, translateReleaseNotes,
 } from './i18n.js';
 
-const APP_NAME = 'Halo Achievement Tracker';
 const APP_VERSION = '1.4.0';
 const RELEASE_DATE = '2026/11/24';
 const appVersionLabel = () => t('Version {version} | WEB | RELEASE | {date}', {
@@ -48,98 +48,6 @@ const ACHIEVEMENT_SORTS = new Map([
 const sortAchievements = (achievements, sort) => {
   return achievements.toSorted(ACHIEVEMENT_SORTS.get(sort).compare);
 };
-
-const GAME_CONFIG = new Map([
-  ['halomcc', Object.freeze({
-    collection: 'halomcc',
-    title: 'Halo: The Master Chief Collection',
-    shortTitle: 'Halo MCC (All)',
-    icon: 'assets/halo-mcc.png',
-    hero: 'assets/background-mcc.jpg',
-  })],
-  ['haloreach', Object.freeze({
-    collection: 'halomcc',
-    title: 'Halo: Reach',
-    shortTitle: 'Halo Reach',
-    icon: 'assets/halo-reach.png',
-    hero: 'assets/background-mcc.jpg',
-  })],
-  ['haloce', Object.freeze({
-    collection: 'halomcc',
-    title: 'Halo: Combat Evolved',
-    shortTitle: 'Halo CE',
-    icon: 'assets/halo-ce.png',
-    hero: 'assets/background-mcc.jpg',
-  })],
-  ['halo2', Object.freeze({
-    collection: 'halomcc',
-    title: 'Halo 2',
-    shortTitle: 'Halo 2',
-    icon: 'assets/halo-2.png',
-    hero: 'assets/background-mcc.jpg',
-  })],
-  ['halo3', Object.freeze({
-    collection: 'halomcc',
-    title: 'Halo 3',
-    shortTitle: 'Halo 3',
-    icon: 'assets/halo-3.png',
-    hero: 'assets/background-mcc.jpg',
-  })],
-  ['halo3odst', Object.freeze({
-    collection: 'halomcc',
-    title: 'Halo 3: ODST',
-    shortTitle: 'Halo 3 ODST',
-    icon: 'assets/halo-3-odst.png',
-    hero: 'assets/background-mcc.jpg',
-  })],
-  ['halo4', Object.freeze({
-    collection: 'halomcc',
-    title: 'Halo 4',
-    shortTitle: 'Halo 4',
-    pveFilterLabel: 'Spartan Ops',
-    icon: 'assets/halo-4.png',
-    hero: 'assets/background-mcc.jpg',
-  })],
-  ['halo5', Object.freeze({
-    collection: 'halo5',
-    title: 'Halo 5: Guardians',
-    shortTitle: 'Halo 5',
-    icon: 'assets/halo-5.png',
-    hero: 'assets/halo5.jpg',
-  })],
-  ['haloinfinite', Object.freeze({
-    collection: 'haloinfinite',
-    title: 'Halo Infinite',
-    shortTitle: 'Halo Infinite',
-    icon: 'assets/halo-infinite.png',
-    hero: 'assets/background-infinite.jpg',
-  })],
-  ['halowarsde', Object.freeze({
-    collection: 'halowarsde',
-    title: 'Halo Wars: Definitive Edition',
-    shortTitle: 'Halo Wars: DE',
-    pveFilterLabel: 'Skirmish',
-    icon: 'assets/halowarsde.png',
-  })],
-  ['halospartanstrike', Object.freeze({
-    collection: 'halospartanstrike',
-    title: 'Halo: Spartan Strike',
-    shortTitle: 'Halo: Spartan Strike',
-    icon: 'assets/halospartanstrike.png',
-  })],
-  ['halospartanassault', Object.freeze({
-    collection: 'halospartanassault',
-    title: 'Halo: Spartan Assault',
-    shortTitle: 'Halo: Spartan Assault',
-    icon: 'assets/halospartanassault.png',
-  })],
-  ['halocampaignevolved', Object.freeze({
-    collection: 'halocampaignevolved',
-    title: 'Halo: Campaign Evolved',
-    shortTitle: 'Halo: Campaign Evolved',
-    icon: 'assets/halocampaignevolved.png',
-  })],
-]);
 
 const EXTERNAL_LINKS = Object.freeze([
   Object.freeze({
@@ -411,24 +319,6 @@ const renderHome = () => {
   elements.routeView.replaceChildren(section);
   document.title = APP_NAME;
 };
-
-const getAchievementsForGame = (game) => {
-  const config = GAME_CONFIG.get(game);
-  if (!config) {
-    return [];
-  }
-
-  const collection = ACHIEVEMENTS[config.collection];
-  if (game === 'halomcc' || config.collection !== 'halomcc') {
-    return collection;
-  }
-
-  return collection.filter(({ games }) => games.includes(game));
-};
-
-const hasGuide = ({ guideDescription, guideVideos }) => (
-  guideDescription.trim().length > 0 || guideVideos.length > 0
-);
 
 const createFilterControl = ({ value, label }, checked) => {
   const wrapper = createElement('label', { className: 'filter-option' });
@@ -926,7 +816,7 @@ const renderAchievements = (game) => {
   browser.append(filterPanel, listRegion);
   page.append(hero, summary, browser);
   elements.routeView.replaceChildren(page);
-  document.title = `${t('{game} Achievements', { game: t(config.shortTitle) })} | ${APP_NAME}`;
+  setGamePageTitle(config);
 };
 
 const isAllowedVideoUrl = (value) => {
@@ -1037,12 +927,17 @@ const hideGuide = () => {
   }
 };
 
+const setGamePageTitle = (config) => {
+  document.title = `${t('{game} Achievements', { game: t(config.shortTitle) })} | ${APP_NAME}`;
+};
+
 const syncGuide = (route) => {
   const requestedGuide = route.page === 'achievements' && route.achievement
     ? getAchievementsForGame(route.game).find(({ id }) => id === route.achievement)
     : null;
 
   if (requestedGuide && hasGuide(requestedGuide)) {
+    document.title = guidePageTitle(requestedGuide);
     if (elements.guideDialog.open && elements.guideDialog.dataset.achievementId === requestedGuide.id) {
       return;
     }
@@ -1052,6 +947,8 @@ const syncGuide = (route) => {
   }
 
   hideGuide();
+  const config = route.page === 'achievements' ? GAME_CONFIG.get(route.game) : null;
+  if (config) setGamePageTitle(config);
   if (route.achievement !== null) {
     const url = new URL(window.location.href);
     url.searchParams.delete('achievement');
@@ -1071,6 +968,7 @@ const dismissGuide = () => {
   } else {
     url.searchParams.delete('achievement');
     window.history.replaceState(null, '', url);
+    syncGuide(getRoute());
   }
 };
 
