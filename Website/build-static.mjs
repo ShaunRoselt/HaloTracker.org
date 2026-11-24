@@ -10,9 +10,10 @@ await rm(distRoot, { recursive: true, force: true });
 await mkdir(path.join(distRoot, "server"), { recursive: true });
 await mkdir(clientRoot, { recursive: true });
 
-for (const entry of ["index.html", "styles.css", "app.js", "achievements.js", "game-catalog.js", "i18n.js", "locales", "assets"]) {
+for (const entry of ["styles.css", "app.js", "achievements.js", "game-catalog.js", "i18n.js", "locales", "assets"]) {
   await cp(path.join(projectRoot, entry), path.join(clientRoot, entry), { recursive: true });
 }
+await cp(path.join(projectRoot, "index.html"), path.join(clientRoot, "app-shell.txt"));
 
 await cp(path.join(projectRoot, "worker"), path.join(distRoot, "server"), { recursive: true });
 for (const entry of ["achievements.js", "game-catalog.js"]) {

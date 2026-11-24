@@ -13,7 +13,7 @@ const titleForGuide = ({ searchParams }) => {
 const serveGuideDocument = async (request, env, title) => {
   const requestHeaders = new Headers(request.headers);
   for (const name of ["If-None-Match", "If-Modified-Since", "Range", "If-Range"]) requestHeaders.delete(name);
-  const response = await serveAsset(new Request(request, { headers: requestHeaders }), env, "/index.html");
+  const response = await serveDocument(new Request(request, { headers: requestHeaders }), env);
   if (response.status !== 200) return response;
 
   const headers = new Headers(response.headers);
@@ -29,6 +29,14 @@ const serveAsset = (request, env, pathname) => {
   const url = new URL(request.url);
   url.pathname = pathname;
   return env.ASSETS.fetch(new Request(url, request));
+};
+
+// Serve the shell through the Worker so query-string routes can have distinct HTML titles.
+const serveDocument = async (request, env) => {
+  const response = await serveAsset(request, env, "/app-shell.txt");
+  const headers = new Headers(response.headers);
+  headers.set("Content-Type", "text/html; charset=utf-8");
+  return new Response(response.body, { status: response.status, headers });
 };
 
 const isDocumentRequest = (pathname) => (
@@ -48,10 +56,11 @@ export default {
       const title = titleForGuide(url);
       if (title) return serveGuideDocument(request, env, title);
     }
-    const response = await serveAsset(request, env, pathname === "/" ? "/index.html" : pathname);
+    if (pathname === "/" || pathname === "/index.html") return serveDocument(request, env);
+    const response = await serveAsset(request, env, pathname);
 
     if (response.status === 404 && isDocumentRequest(pathname)) {
-      return serveAsset(request, env, "/index.html");
+      return serveDocument(request, env);
     }
 
     return response;
