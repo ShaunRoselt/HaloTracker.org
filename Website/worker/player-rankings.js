@@ -49,6 +49,35 @@ export async function saveSteamActivity(db, account, games, fetchedAt) {
 
 const collections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
 
+export async function readSavedProfile(request, db) {
+  if (request.method !== 'GET') return Response.json({}, { status: 405 });
+  const params = new URL(request.url).searchParams;
+  const platform = params.get('platform');
+  const id = params.get('id') ?? '';
+  if (!['steam', 'xbox'].includes(platform) || !id || id.length > 64) {
+    return Response.json({}, { status: 400 });
+  }
+  try {
+    const { results } = await db.prepare(`
+      SELECT account_id AS accountId, player, display_name AS displayName, avatar_url AS avatarUrl,
+        game, unlocked, reported, total, minutes, last_played AS lastPlayed,
+        first_unlock_at AS firstUnlockAt, last_unlock_at AS lastUnlockAt
+      FROM player_rankings
+      WHERE platform = ? AND account_id = (
+        SELECT account_id FROM player_rankings
+        WHERE platform = ? AND (account_id = ? OR player = ? COLLATE NOCASE)
+        ORDER BY (account_id = ?) DESC, achievements_updated DESC LIMIT 1
+      ) AND game IN (${collections.map(() => '?').join(', ')})
+      AND (unlocked IS NOT NULL OR minutes IS NOT NULL)
+      ORDER BY achievements_updated DESC, activity_updated DESC
+    `).bind(platform, platform, id, id, id, ...collections).all();
+    return Response.json({ games: results }, { headers: { 'Cache-Control': 'no-store' } });
+  } catch (error) {
+    console.error('Saved player profile lookup failed', error.message);
+    return Response.json({}, { status: 503 });
+  }
+}
+
 export async function readSteamFriendScores(db, accountIds) {
   if (!db || !accountIds.length) return [];
   const { results } = await db.prepare(`

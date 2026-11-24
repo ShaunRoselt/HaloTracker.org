@@ -401,14 +401,15 @@ export async function lookupSteamProfile(request, env) {
     }
   }
   if (xmlText(xml, 'privacyState') !== 'public') {
-    if (xmlText(xml, 'privacyState') === 'private') {
+    const privacy = xmlText(xml, 'privacyState');
+    if (['private', 'friendsonly'].includes(privacy)) {
       try {
         await clearPrivateRanking(env.DB, 'steam', id, fetchedAt);
       } catch (error) {
         console.error('Private Steam ranking removal failed', error.message);
       }
     }
-    return json({});
+    return json({ private: ['private', 'friendsonly'].includes(privacy) });
   }
 
   const identity = steamIdentity(xml, id);
@@ -467,6 +468,7 @@ async function steamAchievements(player, appId, signal, identity) {
     redirect: 'manual',
     signal,
   });
+  if (!response.ok) console.warn('Steam achievements HTTP response', response.status, appId);
   if (response.status === 429) {
     throw new LookupError('rate-limited', 429, response.headers.get('Retry-After'));
   }

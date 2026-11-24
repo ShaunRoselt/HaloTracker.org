@@ -1528,6 +1528,17 @@ const syncProfileFriends = async () => {
   }
 };
 
+const loadSavedProfile = async (platform, id) => {
+  try {
+    const params = new URLSearchParams({ platform, id });
+    const response = await fetch(`/api/saved-profile?${params}`, { signal: AbortSignal.timeout(5_000) });
+    if (response.ok) return (await response.json()).games;
+  } catch {
+    // The live profile can still load if saved data is unavailable.
+  }
+  return [];
+};
+
 const renderPlayerProfile = async (route) => {
   const page = createElement('section', { className: 'profile-page', attributes: { 'aria-labelledby': 'profile-title' } });
   const hero = createElement('header', { className: 'profile-hero surface' });
@@ -1563,12 +1574,32 @@ const renderPlayerProfile = async (route) => {
   // Each collection includes its subgames. Query it once and count its achievements once.
   const collections = playerCollections;
   const progress = new Map();
-  const unlockedAchievements = new Set();
+  const unlockedByGame = new Map();
+  const failedGames = new Map();
+  let usingSavedProgress = false;
   const errors = new Set();
   const steamAccount = player.accounts.get('steam')
     ?? (shared?.[1] === 'steam' && /^7656\d{13}$/.test(player.id)
       ? { profileUrl: steamProfileUrl(player.id) } : null);
   const pendingSteamDetails = steamAccount && loadSteamProfile(steamAccount);
+  const knownAccount = shared
+    ? [...(selectedPlayer?.accounts.values() ?? [])].find((entry) =>
+      entry.platform === shared[1] && [entry.accountId, entry.player].includes(player.id))
+    : player.accounts.values().next().value;
+  const savedProfile = shared ? loadSavedProfile(shared[1], player.id) : Promise.resolve([]);
+  let portrait;
+  const showIdentity = (account) => {
+    const displayName = account.displayName || account.player;
+    title.replaceChildren(createElement('bdi', { text: displayName }));
+    portrait?.remove();
+    portrait = createProfileAvatar({ player: displayName, avatarUrl: account.avatarUrl });
+    hero.prepend(portrait);
+    document.title = `${displayName} | ${APP_NAME}`;
+  };
+  if (knownAccount) showIdentity(knownAccount);
+  void savedProfile.then(([saved]) => {
+    if (!stale() && saved && !portrait) showIdentity(saved);
+  });
   for (let offset = 0; offset < collections.length; offset += 3) {
     const batch = collections.slice(offset, offset + 3);
     const results = await Promise.all(batch.map((game) => progressForGame(player, game)));
@@ -1577,11 +1608,17 @@ const renderPlayerProfile = async (route) => {
       const game = batch[index];
       const achievements = getAchievementsForGame(game);
       for (const report of reports) {
-        if (report?.error) errors.add(report.error);
+        if (!report?.error) continue;
+        errors.add(report.error);
+        if (['provider-unavailable', 'rate-limited', 'xbox-not-configured'].includes(report.error)) {
+          if (!failedGames.has(report.platform)) failedGames.set(report.platform, new Set());
+          failedGames.get(report.platform).add(game);
+        }
       }
       for (const { platform, player: name, unlocks, firstUnlockAt, lastUnlockAt } of matchedPlayerProgress(achievements, reports)) {
+        if (!unlockedByGame.has(game)) unlockedByGame.set(game, new Set());
         for (const [id, unlocked] of unlocks) {
-          if (unlocked) unlockedAchievements.add(id);
+          if (unlocked) unlockedByGame.get(game).add(id);
         }
         if (!progress.has(platform)) progress.set(platform, { platform, player: name, games: [] });
         progress.get(platform).games.push({
@@ -1592,19 +1629,48 @@ const renderPlayerProfile = async (route) => {
     }
   }
 
-  if (!player.accounts.has('steam') && pendingSteamDetails) {
-    const { account } = await pendingSteamDetails;
+  const steamDetails = pendingSteamDetails ? await pendingSteamDetails : null;
+  if (!player.accounts.has('steam') && steamDetails) {
+    const { account } = steamDetails;
     if (stale()) return;
     if (account) player.accounts.set('steam', account);
   }
+  const savedGames = shared ? await savedProfile : (
+    await Promise.all([...player.accounts.values()].map(async (entry) =>
+      (await loadSavedProfile(entry.platform, entry.accountId ?? entry.player))
+        .map((game) => ({ ...game, platform: entry.platform }))))
+  ).flat();
+  if (stale()) return;
+  const savedActivity = {};
+  const savedUnlocks = new Map();
+  for (const saved of savedGames) {
+    const { game, player: name, accountId, unlocked, minutes, lastPlayed } = saved;
+    const platform = saved.platform ?? shared?.[1];
+    if (platform === 'steam' && steamDetails?.private) continue;
+    if (platform === 'steam') savedActivity[game] = { minutes, lastPlayed };
+    if (!failedGames.get(platform)?.has(game) || unlocked == null) continue;
+    if (!progress.has(platform)) progress.set(platform, { platform, player: name, games: [] });
+    progress.get(platform).games.push(saved);
+    savedUnlocks.set(game, Math.max(savedUnlocks.get(game) ?? 0, unlocked));
+    if (!player.accounts.has(platform)) {
+      const profileUrl = platform === 'steam' ? steamProfileUrl(accountId)
+        : `https://www.xbox.com/en-US/play/user/${encodeURIComponent(name)}`;
+      player.accounts.set(platform, { ...saved, platform, profileUrl });
+    }
+    usingSavedProgress = true;
+  }
   const account = player.accounts.values().next().value;
-  let portrait;
   if (account) {
-    const displayName = account.displayName || account.player;
-    title.replaceChildren(createElement('bdi', { text: displayName }));
-    portrait = createProfileAvatar({ player: displayName, avatarUrl: account.avatarUrl });
-    hero.prepend(portrait);
-    document.title = `${displayName} | ${APP_NAME}`;
+    const savedIdentity = savedGames.find(({ accountId, platform }) =>
+      accountId === account.accountId && (platform ?? shared?.[1]) === account.platform);
+    const previousIdentity = knownAccount?.accountId === account.accountId && knownAccount?.platform === account.platform
+      ? knownAccount : null;
+    showIdentity({
+      ...account,
+      displayName: (account.displayName && account.displayName !== account.player)
+        ? account.displayName : savedIdentity?.displayName ?? previousIdentity?.displayName ?? account.displayName,
+      avatarUrl: account.avatarUrl ?? savedIdentity?.avatarUrl ?? previousIdentity?.avatarUrl,
+    });
     if (!shared) window.history.replaceState(window.history.state, '', profileHref(account));
   }
   if (!progress.size && player.accounts.has('steam')) {
@@ -1626,7 +1692,8 @@ const renderPlayerProfile = async (route) => {
     }
     platforms.append(link);
   }
-  status.remove();
+  if (usingSavedProgress) status.textContent = t('Showing saved achievement progress where the live lookup failed.');
+  else status.remove();
   nameRow.append(platforms);
 
   const { panels: [achievementPanel, screenshotPanel, friendPanel], addTab } = attachProfileTabs(page);
@@ -1637,7 +1704,8 @@ const renderPlayerProfile = async (route) => {
 
   const overall = createElement('div', { className: 'profile-overall-progress surface' });
   const total = collections.reduce((sum, game) => sum + getAchievementsForGame(game).length, 0);
-  const unlocked = unlockedAchievements.size;
+  const unlocked = collections.reduce((sum, game) =>
+    sum + Math.max(unlockedByGame.get(game)?.size ?? 0, savedUnlocks.get(game) ?? 0), 0);
   const label = createElement('p', {
     text: formatPlayerUnlocks({ unlocked, reported: total, total }),
     attributes: { id: 'profile-overall-label' },
@@ -1666,7 +1734,7 @@ const renderPlayerProfile = async (route) => {
   screenshotStatus.textContent = t(steam ? 'Loading screenshots…' : 'No public Halo screenshots are available.');
   void setupProfileFriends(friendPanel, steam);
   if (!steam) return;
-  const details = await (pendingSteamDetails || loadSteamProfile(steam));
+  const details = steamDetails ?? await loadSteamProfile(steam);
   if (stale()) return;
   if (details.location && account === steam) {
     const location = createElement('p', { className: 'profile-location' });
@@ -1725,7 +1793,7 @@ const renderPlayerProfile = async (route) => {
   }
   if (steamSection) {
     for (const game of progress.get('steam').games) {
-      const activity = createProfileActivity(game, details.games?.[game.game]);
+      const activity = createProfileActivity(game, details.games?.[game.game] ?? savedActivity[game.game]);
       steamSection.querySelector(`[data-profile-game="${game.game}"] .profile-game-activity`).replaceWith(activity);
     }
   }
