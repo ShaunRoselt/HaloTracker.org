@@ -343,8 +343,8 @@ const achievementPageHref = (game, achievement) => {
   return `?${params}`;
 };
 
-const createAchievementCard = (achievement, index, progress, game) => {
-  const guideAvailable = hasGuide(achievement);
+const createAchievementCard = (achievement, { game, progress = [], eager = false, isGuide = false }) => {
+  const guideAvailable = !isGuide && hasGuide(achievement);
   const card = createElement('article', {
     className: `achievement-card${guideAvailable ? ' has-guide' : ''}`,
   });
@@ -353,15 +353,19 @@ const createAchievementCard = (achievement, index, progress, game) => {
     source: achievement.image,
     alt: '',
     className: 'achievement-image',
-    eager: index < 8,
+    eager,
   });
   image.width = 78;
   image.height = 78;
 
   const body = createElement('div', { className: 'achievement-body' });
-  const heading = createElement('h3', {
+  const heading = createElement(isGuide ? 'h1' : 'h3', {
     className: 'achievement-name',
-    attributes: { lang: 'en', dir: 'auto' },
+    attributes: {
+      lang: 'en',
+      dir: 'auto',
+      ...(isGuide ? { id: 'guide-title', tabindex: '-1' } : {}),
+    },
   });
   if (guideAvailable) {
     heading.append(createElement('a', {
@@ -410,7 +414,7 @@ const renderAchievementCards = ({ game, achievements, activeFilters, searching, 
 
   const cards = new Map();
   filteredAchievements.forEach((achievement, index) => {
-    const card = createAchievementCard(achievement, index, playerProgress, game);
+    const card = createAchievementCard(achievement, { game, progress: playerProgress, eager: index < 8 });
     cards.set(achievement, card);
     fragment.append(card);
   });
@@ -833,6 +837,14 @@ const isAllowedVideoUrl = (value) => {
   }
 };
 
+const updateGuideCard = (card, achievement, player, collection) => {
+  void progressForGame(player, collection).then((reports) => {
+    if (state.player !== player || !card.isConnected) return;
+    const progress = matchedPlayerProgress([achievement], reports);
+    appendUnlockStatuses(card.querySelector('.achievement-metadata'), achievement.id, progress);
+  });
+};
+
 const renderGuide = (game, achievement) => {
   const article = createElement('article', {
     className: 'guide-page',
@@ -849,32 +861,7 @@ const renderGuide = (game, achievement) => {
       'aria-label': t('{game} Achievements', { game: config.title }),
     },
   });
-  const header = createElement('header', { className: 'guide-header' });
-  const image = createImage({
-    source: achievement.image,
-    alt: '',
-    className: 'guide-image',
-    eager: true,
-  });
-  image.width = 96;
-  image.height = 96;
-  const headingGroup = createElement('div');
-  const eyebrow = createElement('p', {
-    className: 'eyebrow',
-    text: t('{percent} of players have this achievement', { percent: formatPercent(achievement.percentAchieved) }),
-  });
-  const title = createElement('h1', {
-    text: achievement.name,
-    attributes: { id: 'guide-title', tabindex: '-1', lang: 'en', dir: 'auto' },
-  });
-  const description = createElement('p', {
-    className: 'guide-summary',
-    text: achievementText(achievement, 'description'),
-    attributes: { lang: achievementTextLocale(achievement, 'description'), dir: 'auto' },
-  });
-  headingGroup.append(eyebrow, title, description);
-  header.append(image, headingGroup);
-  content.append(header);
+  const card = createAchievementCard(achievement, { eager: true, isGuide: true });
 
   if (achievement.guideDescription.trim()) {
     const guideSection = createElement('section', {
@@ -929,9 +916,10 @@ const renderGuide = (game, achievement) => {
     content.append(videoSection);
   }
 
-  article.append(createGameHeader(config, gameLink), content);
+  article.append(createGameHeader(config, gameLink), card, content);
   elements.routeView.replaceChildren(article);
   document.title = guidePageTitle(achievement);
+  if (state.player) updateGuideCard(card, achievement, state.player, config.collection);
 };
 
 const setGamePageTitle = (config) => {
@@ -1410,7 +1398,15 @@ elements.playerLookup.addEventListener('submit', (event) => {
     return;
   }
   const game = route.page === 'achievements' ? GAME_CONFIG.get(route.game) : undefined;
-  if (game && !route.achievement) renderAchievements(route.game);
+  if (game) {
+    if (route.achievement) {
+      const card = elements.routeView.querySelector('.guide-page > .achievement-card');
+      const achievement = getAchievementsForGame(route.game).find(({ id }) => id === route.achievement);
+      if (card && achievement) updateGuideCard(card, achievement, player, game.collection);
+    } else {
+      renderAchievements(route.game);
+    }
+  }
   void progressForGame(player, game?.collection ?? 'halomcc').then((reports) => {
     if (state.player !== player || player.accounts.size || state.renderedRoute !== route) return;
     player.failedReports = reports;

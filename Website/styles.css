@@ -1439,33 +1439,6 @@
     text-decoration: underline;
   }
 
-  .guide-header {
-    display: grid;
-    grid-template-columns: 6rem minmax(0, 1fr);
-    gap: 1.25rem;
-    align-items: center;
-  }
-
-  .guide-image {
-    width: 6rem;
-    height: 6rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-small);
-    object-fit: cover;
-  }
-
-  .guide-header h1 {
-    margin-bottom: 0.3rem;
-    font-size: clamp(1.5rem, 4vw, 2.25rem);
-    line-height: 1.1;
-    text-wrap: balance;
-  }
-
-  .guide-summary {
-    margin: 0;
-    color: var(--color-text-muted);
-  }
-
   .guide-section {
     margin-top: 1.75rem;
     padding-top: 1.5rem;
@@ -1680,14 +1653,6 @@
       max-width: 100%;
     }
 
-    .guide-header {
-      grid-template-columns: 1fr;
-    }
-
-    .guide-image {
-      width: 5rem;
-      height: 5rem;
-    }
 
   }
 
