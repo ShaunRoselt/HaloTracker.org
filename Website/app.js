@@ -757,7 +757,6 @@ const renderAchievements = (game) => {
         const total = achievements.length;
         const countText = formatPlayerUnlocks({ unlocked, reported: unlocks.size, total });
         const result = createElement('div', { className: 'player-progress-result' });
-        const playerName = createElement('bdi', { className: 'player-progress-name', text: name });
         const labels = createElement('div', { className: 'player-progress-labels' });
         const percent = createElement('span', { text: percentFormat.format(unlocked / total) });
         const progress = createElement('progress', {
@@ -770,7 +769,7 @@ const renderAchievements = (game) => {
           },
         });
         labels.append(createElement('span', { text: countText }), percent);
-        result.append(PLATFORM_NAMES[platform] + ' · ', playerName, labels, progress);
+        result.append(labels, progress);
         playerStatus.append(result);
       }
       unlockFilter.hidden = false;
