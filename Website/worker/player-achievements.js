@@ -160,7 +160,7 @@ function avatarFrom(value, allowedHosts) {
   return null;
 }
 
-async function steamAvatar(profileUrl) {
+async function steamProfileDetails(profileUrl) {
   try {
     const response = await fetch(profileUrl + '?xml=1', {
       headers: { Accept: 'application/xml' },
@@ -174,12 +174,15 @@ async function steamAvatar(profileUrl) {
           'avatars.fastly.steamstatic.com', 'avatars.akamai.steamstatic.com',
           'avatars.cloudflare.steamstatic.com', 'steamcdn-a.akamaihd.net',
         ];
-        return avatarFrom(xmlText(xml, 'avatarFull'), allowedHosts)
-          ?? avatarFrom(xmlText(xml, 'avatarIcon'), allowedHosts);
+        return {
+          displayName: xmlText(xml, 'steamID'),
+          avatarUrl: avatarFrom(xmlText(xml, 'avatarFull'), allowedHosts)
+            ?? avatarFrom(xmlText(xml, 'avatarIcon'), allowedHosts),
+        };
       }
     }
   } catch {
-    // Achievement results remain usable if Steam's separate avatar request fails.
+    // Achievement results remain usable if Steam's separate profile request fails.
   }
   return null;
 }
@@ -198,8 +201,8 @@ async function steamAchievements(player, appId, signal) {
   }
   if (!response.ok) throw unavailable();
   const progress = parseSteamAchievements(await readLimited(response, 2_000_000), appId, profile);
-  const avatarUrl = await steamAvatar(progress.profileUrl);
-  return { ...progress, avatarUrl };
+  const details = await steamProfileDetails(progress.profileUrl);
+  return { ...progress, displayName: details?.displayName || progress.player, avatarUrl: details?.avatarUrl ?? null };
 }
 
 async function xboxRequest(path, apiKey, signal) {

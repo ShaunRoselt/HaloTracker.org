@@ -251,10 +251,11 @@ const updatePlayerHeader = () => {
   }
   if (!account) return;
 
+  const displayName = account.displayName || account.player;
   const trigger = document.querySelector('#player-profile-trigger');
-  trigger.setAttribute('aria-label', t('Profile for {player}', { player: account.player }));
-  document.querySelector('#player-profile-name').textContent = account.player;
-  elements.playerInitial.textContent = Array.from(account.player)[0].toLocaleUpperCase();
+  trigger.setAttribute('aria-label', t('Profile for {player}', { player: displayName }));
+  document.querySelector('#player-profile-name').textContent = displayName;
+  elements.playerInitial.textContent = Array.from(displayName)[0].toLocaleUpperCase();
   document.querySelector('#player-sign-out span').textContent = t('Sign Out');
 
   document.querySelector('#player-profile-link span').textContent = t('Profile');
@@ -1282,9 +1283,10 @@ const renderPlayerProfile = async () => {
 
   const account = player.accounts.values().next().value;
   if (account) {
-    title.replaceChildren(createElement('bdi', { text: account.player }));
-    hero.prepend(createProfileAvatar(account));
-    document.title = `${account.player} | ${APP_NAME}`;
+    const displayName = account.displayName || account.player;
+    title.replaceChildren(createElement('bdi', { text: displayName }));
+    hero.prepend(createProfileAvatar({ player: displayName, avatarUrl: account.avatarUrl }));
+    document.title = `${displayName} | ${APP_NAME}`;
   }
   if (!progress.size) {
     const error = [...errors].find((code) => code !== 'unsupported-game' && code !== 'no-game-data');
