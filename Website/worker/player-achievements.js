@@ -394,7 +394,7 @@ export async function lookupSteamProfile(request, env) {
     try {
       await env.DB.prepare(`
         INSERT INTO steam_friend_sync (account_id, sync_after) VALUES (?, ?)
-        ON CONFLICT (account_id) DO UPDATE SET sync_after = MAX(sync_after, excluded.sync_after)
+        ON CONFLICT (account_id) DO UPDATE SET sync_after = excluded.sync_after
       `).bind(id, Date.now() + friendRefreshInterval).run();
     } catch (error) {
       console.error('Steam profile refresh timestamp save failed', error.message);
