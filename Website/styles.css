@@ -420,9 +420,16 @@
   }
 
   .achievements-page {
-    --achievement-inline-inset: 11px;
-
     display: block;
+  }
+
+  .achievements-page,
+  .guide-page {
+    --achievement-inline-inset: 11px;
+  }
+
+  .guide-page > .achievement-card {
+    margin-inline: var(--achievement-inline-inset);
   }
 
   .achievements-page,
@@ -454,7 +461,11 @@
     align-items: center;
     min-height: 78px;
     margin: 0;
-    padding-inline: var(--game-header-inset) var(--achievement-inline-inset, var(--game-header-inset));
+    padding-inline: var(--game-header-inset);
+  }
+
+  .achievements-page .game-hero-overlay {
+    padding-inline-end: var(--achievement-inline-inset);
   }
 
   .game-hero-icon {
