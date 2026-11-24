@@ -426,7 +426,9 @@ const renderAchievementCards = ({ game, achievements, activeFilters, searching, 
     }));
   }
 
-  count.textContent = formatAchievementCount(filteredAchievements.length).toLocaleUpperCase(currentLanguage());
+  if (!playerProgress.length) {
+    count.textContent = formatAchievementCount(filteredAchievements.length).toLocaleUpperCase(currentLanguage());
+  }
   list.replaceChildren(fragment);
   return cards;
 };
@@ -748,17 +750,19 @@ const renderAchievements = (game) => {
         return;
       }
 
-      const percentFormat = new Intl.NumberFormat(currentLanguage(), {
-        style: 'percent',
-        maximumFractionDigits: 1,
-      });
+      const numberFormat = new Intl.NumberFormat(currentLanguage());
       for (const { player: name, platform, unlocks } of playerProgress) {
         const unlocked = unlockCount(unlocks);
         const total = achievements.length;
         const countText = formatPlayerUnlocks({ unlocked, reported: unlocks.size, total });
         const result = createElement('div', { className: 'player-progress-result' });
-        const labels = createElement('div', { className: 'player-progress-labels' });
-        const percent = createElement('span', { text: percentFormat.format(unlocked / total) });
+        const heading = playerStatus.childElementCount
+          ? createElement('p', { className: 'achievement-count' })
+          : count;
+        heading.textContent = t('{unlocked} of {achievements}', {
+          unlocked: numberFormat.format(unlocked),
+          achievements: formatAchievementCount(total),
+        }).toLocaleUpperCase(currentLanguage());
         const progress = createElement('progress', {
           className: 'player-achievement-progress',
           attributes: {
@@ -768,8 +772,10 @@ const renderAchievements = (game) => {
             'aria-valuetext': countText,
           },
         });
-        labels.append(createElement('span', { text: countText }), percent);
-        result.append(labels, progress);
+        result.append(heading, progress);
+        if (unlocks.size !== total) {
+          result.append(createElement('p', { text: countText }));
+        }
         playerStatus.append(result);
       }
       unlockFilter.hidden = false;

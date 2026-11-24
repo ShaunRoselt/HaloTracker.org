@@ -808,8 +808,6 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.625rem 1rem;
-    padding-block-start: 0.625rem;
-    border-block-start: 1px solid rgb(255 255 255 / 24%);
   }
 
   .player-progress-info {
@@ -820,12 +818,6 @@
 
   .player-progress-result + .player-progress-result {
     margin-block-start: 0.75rem;
-  }
-
-  .player-progress-labels {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.75rem;
   }
 
   .player-achievement-progress {
@@ -874,6 +866,8 @@
   }
 
   .achievement-browser {
+    --achievement-heading-gap: 10px;
+
     display: grid;
     grid-template-columns: minmax(12rem, 28%) minmax(0, 1fr);
     gap: 20px;
@@ -900,7 +894,7 @@
   }
 
   .filter-panel legend {
-    margin-bottom: 10px;
+    margin-bottom: var(--achievement-heading-gap);
     padding: 0;
   }
 
@@ -953,7 +947,7 @@
   }
 
   .achievement-results > h2 {
-    margin: 0 0 30px;
+    margin: 0 0 var(--achievement-heading-gap);
     font-size: 18.6667px;
     font-weight: 400;
     line-height: 25px;
