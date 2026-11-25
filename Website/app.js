@@ -1679,6 +1679,7 @@ const showExternalProfileLinks = async (container, platform, id) => {
       const [name, icon] = entry;
       const label = t(name);
       const link = steamLink(url);
+      if (target.protocol === 'https:') link.target = '_blank';
       link.classList.add('profile-icon-link');
       link.setAttribute('aria-label', label);
       link.title = label;
@@ -1886,6 +1887,7 @@ const renderPlayerProfile = async (route) => {
   const platforms = createElement('div', { className: 'profile-platforms' });
   for (const [platform, profile] of player.accounts) {
     const link = steamLink(profile.profileUrl, platform === 'steam' ? '' : PLATFORM_NAMES[platform]);
+    link.target = '_blank';
     if (platform === 'steam') {
       link.classList.add('profile-steam-link');
       link.setAttribute('aria-label', t('View Steam profile'));
