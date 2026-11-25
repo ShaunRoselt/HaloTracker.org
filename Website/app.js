@@ -1681,15 +1681,33 @@ const showExternalProfileLinks = async (container, platform, id) => {
   }
 };
 
+const profileJobIcon = (jobTitle) => {
+  const softwareRole = /\b(software|developer|programmer|engineer)\b/iu.test(jobTitle);
+  const path = softwareRole
+    ? 'M5.25 3.5 1.5 7.5l3.75 4m5.5-8 3.75 4-3.75 4M9.25 2l-2.5 12'
+    : 'M5.5 4V2.75A1.25 1.25 0 0 1 6.75 1.5h2.5a1.25 1.25 0 0 1 1.25 1.25V4m-9 1.5h11A1.5 1.5 0 0 1 14 7v5.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 12.5V7a1.5 1.5 0 0 1 1.5-1.5Zm-1 3h11m-7-1v2h3v-2';
+  const icon = createElement('svg', {
+    className: 'profile-job-icon',
+    attributes: { viewBox: '0 0 16 16', fill: 'none', 'aria-hidden': 'true', focusable: 'false' },
+  });
+  icon.append(createElement('path', {
+    attributes: { d: path, stroke: 'currentColor', 'stroke-width': '1.35', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' },
+  }));
+  return icon;
+};
+
 const showProfileFacts = (nameRow, facts, steamDetails) => {
   if (!facts || steamDetails?.private || !nameRow.isConnected) return;
-  const values = [];
-  if (facts.jobTitle) values.push(facts.jobTitle);
-  if (Number.isInteger(facts.age)) {
-    values.push(t('Age {age}', { age: new Intl.NumberFormat(currentLanguage()).format(facts.age) }));
-  }
-  if (values.length) {
-    nameRow.after(createElement('p', { className: 'profile-joined', text: values.join(' · ') }));
+  const age = Number.isInteger(facts.age)
+    ? t('Age {age}', { age: new Intl.NumberFormat(currentLanguage()).format(facts.age) })
+    : null;
+  if (facts.jobTitle) {
+    const details = [facts.jobTitle, age].filter(Boolean);
+    const line = createElement('p', { className: 'profile-joined profile-job-title' });
+    line.append(profileJobIcon(facts.jobTitle), createElement('span', { text: details.join(' · ') }));
+    nameRow.after(line);
+  } else if (age) {
+    nameRow.after(createElement('p', { className: 'profile-joined', text: age }));
   }
   if (!/^[a-z]{2}$/.test(facts.countryCode)) return;
   const identity = nameRow.parentElement;

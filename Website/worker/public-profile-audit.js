@@ -57,7 +57,8 @@ export default {
   "steam:76561198138897618": {"countryCode": "za"},
   "steam:76561198140104380": {"countryCode": "za"},
   "steam:76561198143168323": {"countryCode": "za"},
-  "steam:76561198215789693": {"countryCode": "za", "jobTitle": "Senior Software Engineer"},
+  // The first-party age counter sets bornYear from new Date(1998, 2, 19).
+  "steam:76561198215789693": {"countryCode": "za", "jobTitle": "Senior Software Engineer", "birthDate": "1998-03-19"},
   "steam:76561198319636666": {"countryCode": "za"},
   "steam:76561198320562687": {"countryCode": "za"},
   "steam:76561198327043112": {"countryCode": "za"},

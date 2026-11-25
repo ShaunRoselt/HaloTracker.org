@@ -57,10 +57,14 @@ export async function readProfileLinks(request, db) {
       await db.batch(missing.map(([service, url]) => insert.bind(platform, id, service, url)));
       ({ results } = await select.all());
     }
-    if (!facts && (audited?.countryCode || audited?.jobTitle || audited?.birthDate)) {
+    if (audited?.countryCode || audited?.jobTitle || audited?.birthDate) {
       await db.prepare(`
         INSERT INTO player_profile_facts (platform, account_id, country_code, job_title, birth_date)
-        VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(platform, account_id) DO UPDATE SET
+          country_code = COALESCE(NULLIF(player_profile_facts.country_code, ''), excluded.country_code),
+          job_title = COALESCE(NULLIF(player_profile_facts.job_title, ''), excluded.job_title),
+          birth_date = COALESCE(NULLIF(player_profile_facts.birth_date, ''), excluded.birth_date)
       `).bind(platform, id, audited.countryCode ?? null, audited.jobTitle ?? null, audited.birthDate ?? null).run();
       facts = await factsQuery.first();
     }

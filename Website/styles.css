@@ -907,6 +907,18 @@
     font-size: 0.875rem;
   }
 
+  .profile-job-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .profile-job-icon {
+    flex: none;
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
   .profile-presence {
     display: flex;
     align-items: center;
