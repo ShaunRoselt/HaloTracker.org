@@ -368,16 +368,25 @@ async function steamGameReview(profileUrl, game, appId) {
   const playtime = /<div class="playTime">([\s\S]*?)<\/div>/i.exec(html)?.[1] ?? '';
   const hours = /([\d,.]+) hrs? on record/i.exec(playtime)?.[1];
   const hoursAtReview = /([\d,.]+) hrs? at review time/i.exec(playtime)?.[1];
-  const dates = [...html.matchAll(/<(?:div|span)\b[^>]*class="[^"]*\b(?:date_posted|reviewDate)\b[^"]*"[^>]*>([\s\S]*?)<\/(?:div|span)>/gi)]
-    .map(([, value]) => decodeSteamHtml(value.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim());
-  const posted = dates.map((value) => /^Posted[:\s]+(.+?)(?:\s*Updated[:\s].*)?$/i.exec(value)?.[1]).find(Boolean);
-  const updated = dates.map((value) => /(?:^|\s)Updated[:\s]+(.+)$/i.exec(value)?.[1]).find(Boolean);
+  const reviewDates = /<div class="recommendation_date">([\s\S]*?)<\/div>/i.exec(html)?.[1];
+  const header = html.slice(html.indexOf('class="ratingSummary"'), html.indexOf('id="ReviewText"'));
+  const dateText = decodeSteamHtml((reviewDates ?? header).replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ');
+  // Steam varies the date order by locale and may omit the current year.
+  const month = '(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
+  const date = `(?:${month}\\s+\\d{1,2}|\\d{1,2}\\s+${month})(?:,?\\s+\\d{4})?`;
+  const posted = new RegExp(`\\bPosted[:\\s]+(${date})`, 'i').exec(dateText)?.[1];
+  const updated = new RegExp(`\\bUpdated[:\\s]+(${date})`, 'i').exec(dateText)?.[1];
+  const feedback = /<div class="ratingBar">([\s\S]*?)<\/div>/i.exec(html)?.[1] ?? '';
+  const helpful = /([\d,]+) (?:people|person) found this review helpful/i.exec(feedback)?.[1];
+  const funny = /([\d,]+) (?:people|person) found this review funny/i.exec(feedback)?.[1];
   return {
     game, url, text, recommended: rating.toLowerCase() === 'recommended',
     minutes: hours ? Math.round(Number(hours.replaceAll(',', '')) * 60) : null,
     minutesAtReview: hoursAtReview ? Math.round(Number(hoursAtReview.replaceAll(',', '')) * 60) : null,
     posted: posted ?? null,
     updated: updated ?? null,
+    helpful: helpful ? Number(helpful.replaceAll(',', '')) : null,
+    funny: funny ? Number(funny.replaceAll(',', '')) : null,
   };
 }
 

@@ -1972,7 +1972,8 @@ const renderPlayerProfile = async (route) => {
   if (details.reviews?.length) {
     const panel = addTab('Reviews');
     const hours = new Intl.NumberFormat(currentLanguage(), { style: 'unit', unit: 'hour', unitDisplay: 'long', maximumFractionDigits: 1 });
-    for (const { game, url, text, recommended, minutesAtReview, minutes, posted, updated } of details.reviews) {
+    const number = new Intl.NumberFormat(currentLanguage());
+    for (const { game, url, text, recommended, minutesAtReview, minutes, posted, updated, helpful, funny } of details.reviews) {
       const review = createElement('article', { className: 'profile-review surface' });
       const config = GAME_CONFIG.get(game);
       const heading = createElement('h2');
@@ -1990,6 +1991,10 @@ const renderPlayerProfile = async (route) => {
       review.append(heading, rating);
       if (metadata.length) review.append(createElement('p', { className: 'profile-review-meta', text: metadata.join(' · ') }));
       review.append(createElement('p', { className: 'profile-review-text', text }));
+      const votes = [];
+      if (helpful > 0) votes.push(t('{count} found this helpful', { count: number.format(helpful) }));
+      if (funny > 0) votes.push(t('{count} found this funny', { count: number.format(funny) }));
+      if (votes.length) review.append(createElement('p', { className: 'profile-review-meta', text: votes.join(' · ') }));
       panel.append(review);
     }
   }
