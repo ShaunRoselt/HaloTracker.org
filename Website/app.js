@@ -252,10 +252,10 @@ const menuItemIcon = (icon) => createElement('img', {
   attributes: { src: `assets/${icon}.svg`, alt: '', width: 18, height: 18 },
 });
 
-const profileHref = (account) => {
-  const id = account.platform === 'steam' ? account.accountId : account.player;
-  return id ? `?page=profile&${new URLSearchParams({ player: `${account.platform}:${id}` })}` : '?page=profile';
-};
+const isPlayerProfileId = (id) => /^[a-f\d]{32}$/.test(id ?? '');
+const profileHref = (id) => isPlayerProfileId(id)
+  ? `?page=profile&${new URLSearchParams({ player: id })}`
+  : '?page=profile';
 
 const setAvatarFrame = (container, { avatarFrameUrl, avatarFrameStillUrl } = {}) => {
   container.querySelector('.profile-avatar-frame')?.remove();
@@ -307,7 +307,7 @@ const updatePlayerHeader = () => {
   document.querySelector('#player-sign-out span').textContent = t('Sign Out');
 
   const profileLink = document.querySelector('#player-profile-link');
-  profileLink.href = profileHref(account);
+  profileLink.href = profileHref(state.player.profileId);
   profileLink.querySelector('span').textContent = t('Profile');
   if (lookupHadFocus) trigger.focus({ preventScroll: true });
 };
@@ -510,29 +510,41 @@ const renderAchievementCards = ({ game, achievements, activeFilters, searching, 
 };
 
 async function fetchPlayerProgress(player, collection) {
-  try {
-    const response = await fetch('/api/player-achievements', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ player: player.id, game: collection, platform: player.platform }),
-      signal: player.controller.signal,
-    });
-    const result = await response.json();
-    return player.platform ? { ...result, platform: player.platform } : result;
-  } catch {
-    return { error: 'provider-unavailable', platform: player.platform };
-  }
+  const lookup = async (id, platform, accountId) => {
+    try {
+      const response = await fetch('/api/player-achievements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player: id, game: collection, platform, accountId }),
+        signal: player.controller.signal,
+      });
+      const result = await response.json();
+      return platform ? { ...result, platform } : result;
+    } catch {
+      return { error: 'provider-unavailable', platform };
+    }
+  };
+  if (player.profileIdentity) await player.profileIdentity;
+  if (!player.profileAccounts?.length) return lookup(player.id, player.platform);
+  const results = await Promise.all(player.profileAccounts.map((account) => account.platform === 'steam'
+    ? lookup(account.accountId, 'steam')
+    : lookup(account.player, 'xbox', account.accountId)));
+  return { results };
 }
 
-const createPlayer = (id, platform) => ({
-  id,
-  platform,
-  accounts: new Map(),
-  games: new Map(),
-  unlockFilters: new Map(),
-  failedReports: null,
-  controller: new AbortController(),
-});
+const createPlayer = (id) => {
+  const explicit = /^(steam|xbox):(.+)$/i.exec(id);
+  return {
+    id: explicit ? explicit[2].trim() : id,
+    platform: explicit?.[1].toLowerCase(),
+    searchInput: id,
+    accounts: new Map(),
+    games: new Map(),
+    unlockFilters: new Map(),
+    failedReports: null,
+    controller: new AbortController(),
+  };
+};
 
 const savePlayerSession = (session) => {
   try {
@@ -558,22 +570,35 @@ const restorePlayer = () => {
 
 const progressForGame = (player, collection) => {
   if (!player.games.has(collection)) {
-    const request = fetchPlayerProgress(player, collection).then((result) => {
+    const request = fetchPlayerProgress(player, collection).then(async (result) => {
       const reports = Array.isArray(result?.results) ? result.results : [result];
+      if (!player.profileAccounts && !player.profileIdentity) {
+        const first = reports.find((report) => report?.accountId && report.profileUrl);
+        if (first) {
+          player.profileIdentity = loadSavedProfile({ platform: first.platform, id: first.accountId }).then((saved) => {
+            player.profileId = saved.profileId ?? first.profileId;
+            player.profileAccounts = saved.accounts.length ? saved.accounts : [first];
+          });
+        }
+      }
+      if (player.profileIdentity) await player.profileIdentity;
+      const accepted = reports.filter((report) => !report?.accountId || !player.profileAccounts || player.profileAccounts.some(
+        ({ platform, accountId }) => platform === report.platform && accountId === report.accountId,
+      ));
       const accountCount = player.accounts.size;
-      for (const report of reports) {
-        if (report?.player && report.profileUrl && !player.accounts.has(report.platform)) {
-          player.accounts.set(report.platform, report);
+      for (const report of accepted) {
+        if (report?.player && report.profileUrl && !player.accounts.get(report.platform)?.live) {
+          player.accounts.set(report.platform, { ...report, live: true });
         }
       }
       if (state.player === player && accountCount !== player.accounts.size) {
-        if (!accountCount) savePlayerSession({ id: player.id, collection });
+        if (!accountCount) savePlayerSession({ id: player.searchInput, collection });
         updatePlayerHeader();
       }
-      if (reports.some((report) => ['provider-unavailable', 'rate-limited'].includes(report?.error))) {
+      if (accepted.some((report) => ['provider-unavailable', 'rate-limited'].includes(report?.error))) {
         player.games.delete(collection);
       }
-      return reports;
+      return accepted;
     });
     player.games.set(collection, request);
   }
@@ -1648,15 +1673,20 @@ const syncProfileFriends = async () => {
   }
 };
 
-const loadSavedProfile = async (platform, id) => {
+const loadSavedProfile = async (query) => {
   try {
-    const params = new URLSearchParams({ platform, id });
+    const params = new URLSearchParams(query);
     const response = await fetch(`/api/saved-profile?${params}`, { signal: AbortSignal.timeout(5_000) });
-    if (response.ok) return (await response.json()).games;
+    if (response.ok) return await response.json();
   } catch {
     // The live profile can still load if saved data is unavailable.
   }
-  return [];
+  return { accounts: [], games: [] };
+};
+
+const platformProfileUrl = ({ platform, accountId, player }) => {
+  if (platform === 'steam') return steamProfileUrl(accountId);
+  return player === accountId ? null : `https://www.xbox.com/en-US/play/user/${encodeURIComponent(player)}`;
 };
 
 const profileLinkServices = new Map([
@@ -1760,13 +1790,12 @@ const renderPlayerProfile = async (route) => {
   elements.routeView.replaceChildren(page);
   document.title = `${t('Profile')} | ${APP_NAME}`;
 
-  const selectedPlayer = state.player;
-  const shared = route.profile?.match(/^(steam|xbox):(.+)$/u);
-  if (route.profile !== null && !shared) {
+  const shared = route.profile !== null;
+  if (shared && !isPlayerProfileId(route.profile)) {
     status.textContent = t('This player profile link is invalid.');
     return;
   }
-  const player = shared ? createPlayer(shared[2], shared[1]) : selectedPlayer;
+  const player = shared ? createPlayer(route.profile) : state.player;
   if (!player) {
     status.textContent = t('Search for a player to view their profile.');
     return;
@@ -1777,21 +1806,28 @@ const renderPlayerProfile = async (route) => {
     return;
   }
   status.textContent = t('Looking up achievements…');
+  const saved = shared ? await loadSavedProfile({ profile: route.profile }) : null;
+  if (stale()) return;
+  if (shared && !saved.profileId) {
+    status.textContent = t('Could not load this player profile.');
+    return;
+  }
+  if (saved) {
+    player.profileId = saved.profileId;
+    player.profileAccounts = saved.accounts;
+    for (const account of saved.accounts) {
+      player.accounts.set(account.platform, { ...account, profileUrl: platformProfileUrl(account) });
+    }
+  }
   // Each collection includes its subgames. Query it once and count its achievements once.
   const collections = playerCollections;
   const progress = new Map();
   const unlockedByGame = new Map();
   const failedGames = new Map();
   const errors = new Set();
-  const steamAccount = player.accounts.get('steam')
-    ?? (shared?.[1] === 'steam' && /^7656\d{13}$/.test(player.id)
-      ? { profileUrl: steamProfileUrl(player.id) } : null);
+  const steamAccount = player.accounts.get('steam');
   const pendingSteamDetails = steamAccount && loadSteamProfile(steamAccount);
-  const knownAccount = shared
-    ? [...(selectedPlayer?.accounts.values() ?? [])].find((entry) =>
-      entry.platform === shared[1] && [entry.accountId, entry.player].includes(player.id))
-    : player.accounts.values().next().value;
-  const savedProfile = shared ? loadSavedProfile(shared[1], player.id) : Promise.resolve([]);
+  const knownAccount = player.accounts.values().next().value;
   let portrait;
   const showIdentity = (account) => {
     const displayName = account.displayName || account.player;
@@ -1802,9 +1838,6 @@ const renderPlayerProfile = async (route) => {
     document.title = `${displayName} | ${APP_NAME}`;
   };
   if (knownAccount) showIdentity(knownAccount);
-  void savedProfile.then(([saved]) => {
-    if (!stale() && saved && !portrait) showIdentity(saved);
-  });
   for (let offset = 0; offset < collections.length; offset += 3) {
     const batch = collections.slice(offset, offset + 3);
     const results = await Promise.all(batch.map((game) => progressForGame(player, game)));
@@ -1835,22 +1868,16 @@ const renderPlayerProfile = async (route) => {
   }
 
   const steamDetails = pendingSteamDetails ? await pendingSteamDetails : null;
-  if (!player.accounts.has('steam') && steamDetails) {
-    const { account } = steamDetails;
-    if (stale()) return;
-    if (account) player.accounts.set('steam', account);
+  if (steamDetails?.account && !player.accounts.get('steam')?.live) {
+    player.accounts.set('steam', steamDetails.account);
   }
-  const savedGames = shared ? await savedProfile : (
-    await Promise.all([...player.accounts.values()].map(async (entry) =>
-      (await loadSavedProfile(entry.platform, entry.accountId ?? entry.player))
-        .map((game) => ({ ...game, platform: entry.platform }))))
-  ).flat();
+  const savedGames = (saved ?? (player.profileId ? await loadSavedProfile({ profile: player.profileId }) : null))?.games ?? [];
   if (stale()) return;
   const savedActivity = {};
   const savedUnlocks = new Map();
   for (const saved of savedGames) {
-    const { game, player: name, accountId, unlocked, minutes, lastPlayed } = saved;
-    const platform = saved.platform ?? shared?.[1];
+    const { game, player: name, unlocked, minutes, lastPlayed } = saved;
+    const platform = saved.platform;
     if (platform === 'steam' && steamDetails?.private) continue;
     if (platform === 'steam') savedActivity[game] = { minutes, lastPlayed };
     if (!failedGames.get(platform)?.has(game) || unlocked == null) continue;
@@ -1858,15 +1885,13 @@ const renderPlayerProfile = async (route) => {
     progress.get(platform).games.push(saved);
     savedUnlocks.set(game, Math.max(savedUnlocks.get(game) ?? 0, unlocked));
     if (!player.accounts.has(platform)) {
-      const profileUrl = platform === 'steam' ? steamProfileUrl(accountId)
-        : `https://www.xbox.com/en-US/play/user/${encodeURIComponent(name)}`;
-      player.accounts.set(platform, { ...saved, platform, profileUrl });
+      player.accounts.set(platform, { ...saved, profileUrl: platformProfileUrl(saved) });
     }
   }
   const account = player.accounts.values().next().value;
   if (account) {
     const savedIdentity = savedGames.find(({ accountId, platform }) =>
-      accountId === account.accountId && (platform ?? shared?.[1]) === account.platform);
+      accountId === account.accountId && platform === account.platform);
     const previousIdentity = knownAccount?.accountId === account.accountId && knownAccount?.platform === account.platform
       ? knownAccount : null;
     showIdentity({
@@ -1875,9 +1900,9 @@ const renderPlayerProfile = async (route) => {
         ? account.displayName : savedIdentity?.displayName ?? previousIdentity?.displayName ?? account.displayName,
       avatarUrl: account.avatarUrl ?? savedIdentity?.avatarUrl ?? previousIdentity?.avatarUrl,
     });
-    if (!shared) {
-      const url = new URL(profileHref(account), window.location.href);
-      if (route.profileTab) url.searchParams.set('tab', route.profileTab);
+    if (player.profileId && route.profile !== player.profileId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('player', player.profileId);
       window.history.replaceState(window.history.state, '', url);
     }
   }
@@ -1887,7 +1912,7 @@ const renderPlayerProfile = async (route) => {
   if (!progress.size) {
     const links = createElement('div', { className: 'profile-platforms' });
     nameRow.append(links);
-    void showExternalProfileLinks(links, account?.platform ?? shared?.[1], account?.accountId ?? player.id)
+    void showExternalProfileLinks(links, account?.platform, account?.accountId)
       .then((facts) => showProfileFacts(nameRow, facts, steamDetails));
     const error = [...errors].find((code) => code !== 'unsupported-game' && code !== 'no-game-data');
     status.textContent = t(PLAYER_ERRORS.get(error) ?? 'Could not load the player’s achievements. Try again.');
@@ -1895,6 +1920,7 @@ const renderPlayerProfile = async (route) => {
   }
   const platforms = createElement('div', { className: 'profile-platforms' });
   for (const [platform, profile] of player.accounts) {
+    if (!profile.profileUrl) continue;
     const link = steamLink(profile.profileUrl, platform === 'steam' ? '' : PLATFORM_NAMES[platform]);
     link.target = '_blank';
     if (platform === 'steam') {
@@ -1907,7 +1933,7 @@ const renderPlayerProfile = async (route) => {
   }
   status.remove();
   nameRow.append(platforms);
-  const profileFacts = showExternalProfileLinks(platforms, account?.platform ?? shared?.[1], account?.accountId ?? player.id);
+  const profileFacts = showExternalProfileLinks(platforms, account?.platform, account?.accountId);
 
   const { panels: [achievementPanel, screenshotPanel, friendPanel], addTab } = attachProfileTabs(page, route.profileTab);
   const screenshotStatus = createElement('p', {
@@ -2157,10 +2183,12 @@ const createRankingTable = (game, label, onSort) => {
       row.insertCell().textContent = player.rank == null ? '—' : number.format(player.rank);
       const name = createElement('th', { attributes: { scope: 'row' } });
       const identity = createElement('span', { className: 'leaderboard-identity' });
-      const link = createElement('a', {
-        className: 'leaderboard-identity',
-        attributes: { href: profileHref(player), 'data-route': '' },
-      });
+      const link = isPlayerProfileId(player.profileId)
+        ? createElement('a', {
+          className: 'leaderboard-identity',
+          attributes: { href: profileHref(player.profileId), 'data-route': '' },
+        })
+        : createElement('span', { className: 'leaderboard-identity' });
       const avatar = createProfileAvatar({ player: player.displayName, avatarUrl: player.avatarUrl });
       avatar.classList.add('leaderboard-avatar');
       link.append(avatar, createElement('bdi', { text: player.displayName }));
@@ -2172,11 +2200,14 @@ const createRankingTable = (game, label, onSort) => {
         accounts.set(identity, { accountId: player.accountId, avatar });
         observer.observe(identity);
       }
-      const platform = steamLink(isSteam ? steamProfileUrl(player.accountId)
-        : `https://www.xbox.com/en-US/play/user/${encodeURIComponent(player.player)}`);
-      platform.classList.add('leaderboard-identity');
-      platform.append(menuItemIcon(player.platform), PLATFORM_NAMES[player.platform]);
-      row.insertCell().append(platform);
+      const platformCell = row.insertCell();
+      for (const account of player.platformAccounts ?? [player]) {
+        const url = platformProfileUrl(account);
+        const platform = url ? steamLink(url) : createElement('span');
+        platform.classList.add('leaderboard-identity');
+        platform.append(menuItemIcon(account.platform), PLATFORM_NAMES[account.platform]);
+        platformCell.append(platform, ' ');
+      }
       row.insertCell().textContent = t('{unlocked} of {total}', {
         unlocked: number.format(player.unlocked ?? 0), total: number.format(total),
       });

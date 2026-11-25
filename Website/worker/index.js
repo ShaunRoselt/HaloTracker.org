@@ -54,9 +54,9 @@ export default {
     if (pathname === "/api/player-achievements") {
       return lookupPlayerAchievements(request, env);
     }
-    if (pathname === "/api/leaderboard") return readLeaderboard(request, env.DB);
+    if (pathname === "/api/leaderboard") return readLeaderboard(request, env.DB, env.VERIFIED_PLAYER_ACCOUNTS);
     if (pathname === "/api/profile-links") return readProfileLinks(request, env.DB);
-    if (pathname === "/api/saved-profile") return readSavedProfile(request, env.DB);
+    if (pathname === "/api/saved-profile") return readSavedProfile(request, env.DB, env.VERIFIED_PLAYER_ACCOUNTS);
     if (pathname === "/api/steam-friends") return lookupSteamFriends(request, env.DB);
     if (pathname === "/api/steam-screenshots") return lookupSteamScreenshots(request);
     if (pathname === "/api/steam-friend-sync") return syncSteamFriend(request, env);

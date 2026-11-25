@@ -1,4 +1,5 @@
 import { clearPrivateRanking, readSteamFriendScores, saveAchievementRanking, saveSteamActivity } from './player-rankings.js';
+import { registerProfileAccount } from './player-profiles.js';
 
 // Steam Community app IDs and Xbox title IDs identify the versions represented by the tracker.
 const steamGames = new Map([
@@ -350,6 +351,12 @@ export async function lookupSteamFriends(request, db) {
     });
   }
   try {
+    if (db && friends.size) {
+      await db.prepare(`
+        INSERT OR IGNORE INTO player_profile_accounts (platform, account_id)
+        SELECT 'steam', value FROM json_each(?)
+      `).bind(JSON.stringify([...friends.keys()])).run();
+    }
     const scores = await readSteamFriendScores(db, [...friends.keys()]);
     for (const { accountId, ...score } of scores) Object.assign(friends.get(accountId), score);
   } catch (error) {
@@ -526,7 +533,8 @@ export async function lookupSteamProfile(request, env) {
     galleries: publicGalleries,
   };
   await saveSteamDetails(env.DB, id, details, fetchedAt);
-  return json({ ...details, games, presence, currentGame });
+  const profileId = await registerProfileAccount(env.DB, 'steam', id);
+  return json({ ...details, account: { ...details.account, profileId }, games, presence, currentGame });
 }
 
 async function steamActivity(xml, id, communityUrl, env) {
@@ -643,16 +651,15 @@ async function xboxRequest(path, apiKey, signal) {
   return body.content ?? body;
 }
 
-async function xboxAchievements(player, titleId, apiKey, signal) {
-  if (!gamertag.test(player) || player.length > 48) throw invalidPlayer();
+async function xboxAchievements(player, titleId, apiKey, signal, expectedId) {
+  if (!expectedId && (!gamertag.test(player) || player.length > 48)) throw invalidPlayer();
   if (typeof apiKey !== 'string' || !apiKey.trim()) throw new LookupError('xbox-not-configured', 503);
 
   // Xbox applies privacy settings relative to the credential's account. Only use a
   // lookup account without friends, and never expose that account's own results.
-  const [account, friends, search] = await Promise.all([
+  const [account, friends] = await Promise.all([
     xboxRequest('/v2/account', apiKey, signal),
     xboxRequest('/v2/friends', apiKey, signal),
-    xboxRequest(`/v2/search/${encodeURIComponent(player)}`, apiKey, signal),
   ]);
   const serviceId = account.profileUsers?.[0]?.id;
   if (
@@ -662,15 +669,26 @@ async function xboxAchievements(player, titleId, apiKey, signal) {
   ) {
     throw new LookupError('xbox-not-configured', 503);
   }
-  if (!Array.isArray(search.people)) throw unavailable();
-
-  const identity = player.normalize('NFC').toLowerCase();
-  const matches = search.people.filter(({ gamertag, uniqueModernGamertag, modernGamertag, modernGamertagSuffix }) => (
-    [gamertag, uniqueModernGamertag, modernGamertagSuffix && `${modernGamertag}#${modernGamertagSuffix}`]
-      .some((tag) => typeof tag === 'string' && tag.normalize('NFC').toLowerCase() === identity)
-  ));
-  if (matches.length !== 1) throw new LookupError('gamertag-not-found', 404);
-  const { xuid, gamertag: name, uniqueModernGamertag, displayPicRaw } = matches[0];
+  let matchedAccount;
+  if (expectedId) {
+    if (expectedId === serviceId) throw new LookupError('private-achievements', 403);
+    const profile = await xboxRequest(`/v2/account/${expectedId}`, apiKey, signal);
+    const user = profile.profileUsers?.find(({ id }) => id === expectedId);
+    const tag = user?.settings?.find(({ id }) => id === 'Gamertag')?.value;
+    const picture = user?.settings?.find(({ id }) => id === 'GameDisplayPicRaw')?.value;
+    matchedAccount = { xuid: user?.id, gamertag: tag, displayPicRaw: picture };
+  } else {
+    const search = await xboxRequest(`/v2/search/${encodeURIComponent(player)}`, apiKey, signal);
+    if (!Array.isArray(search.people)) throw unavailable();
+    const identity = player.normalize('NFC').toLowerCase();
+    const matches = search.people.filter(({ gamertag, uniqueModernGamertag, modernGamertag, modernGamertagSuffix }) => (
+      [gamertag, uniqueModernGamertag, modernGamertagSuffix && `${modernGamertag}#${modernGamertagSuffix}`]
+        .some((tag) => typeof tag === 'string' && tag.normalize('NFC').toLowerCase() === identity)
+    ));
+    if (matches.length !== 1) throw new LookupError('gamertag-not-found', 404);
+    [matchedAccount] = matches;
+  }
+  const { xuid, gamertag: name, uniqueModernGamertag, displayPicRaw } = matchedAccount;
   if (typeof xuid !== 'string' || !xboxUserId.test(xuid) || typeof name !== 'string') throw unavailable();
   if (xuid === serviceId) throw new LookupError('private-achievements', 403);
 
@@ -704,7 +722,7 @@ function json(value, status = 200, retryAfter = null) {
   return Response.json(value, { status, headers });
 }
 
-async function lookupPlatform(platform, game, player, env, signal) {
+async function lookupPlatform(platform, game, player, env, signal, accountId) {
   const gameId = (platform === 'steam' ? steamGames : xboxGames).get(game);
   if (!gameId) throw new LookupError('unsupported-game', 404);
   const fetchedAt = Date.now();
@@ -712,14 +730,14 @@ async function lookupPlatform(platform, game, player, env, signal) {
   try {
     profile = await (platform === 'steam'
       ? steamAchievements(player, gameId, signal)
-      : xboxAchievements(player, gameId, env.OPENXBL_API_KEY, signal));
+      : xboxAchievements(player, gameId, env.OPENXBL_API_KEY, signal, accountId));
   } catch (error) {
     if (error.message === 'private-achievements') {
-      const accountId = platform === 'steam'
+      const privateAccountId = platform === 'steam'
         ? /^\/profiles\/(\d+)$/.exec(steamProfilePath(player))?.[1]
-        : error.accountId;
+        : error.accountId ?? accountId;
       try {
-        await clearPrivateRanking(env.DB, platform, accountId, fetchedAt, game);
+        await clearPrivateRanking(env.DB, platform, privateAccountId, fetchedAt, game);
       } catch (databaseError) {
         console.error('Private ranking removal failed', databaseError.message);
       }
@@ -731,7 +749,8 @@ async function lookupPlatform(platform, game, player, env, signal) {
   } catch (error) {
     console.error('Achievement ranking save failed', error.message);
   }
-  return profile;
+  const profileId = await registerProfileAccount(env.DB, platform, profile.accountId);
+  return { ...profile, profileId };
 }
 
 export async function lookupPlayerAchievements(request, env) {
@@ -748,7 +767,7 @@ export async function lookupPlayerAchievements(request, env) {
   } catch {
     return json({ error: 'invalid-request' }, 400);
   }
-  const { platform, game, player } = input ?? {};
+  const { platform, game, player, accountId } = input ?? {};
   if (typeof player !== 'string' || !player.trim() || player.length > 160) {
     return json({ error: 'invalid-player' }, 400);
   }
@@ -758,14 +777,18 @@ export async function lookupPlayerAchievements(request, env) {
   // Keep existing callers that already specify a platform working.
   if (platform !== undefined) {
     if (platform !== 'steam' && platform !== 'xbox') return json({ error: 'invalid-request' }, 400);
+    if (accountId !== undefined && (platform !== 'xbox' || typeof accountId !== 'string' || !xboxUserId.test(accountId))) {
+      return json({ error: 'invalid-request' }, 400);
+    }
     try {
-      return json(await lookupPlatform(platform, game, name, env, signal));
+      return json(await lookupPlatform(platform, game, name, env, signal, accountId));
     } catch (error) {
       if (error instanceof LookupError) return json({ error: error.message }, error.status, error.retryAfter);
       return json({ error: 'provider-unavailable' }, 502);
     }
   }
 
+  if (accountId !== undefined) return json({ error: 'invalid-request' }, 400);
   const candidates = detectPlayerPlatforms(name);
   if (!candidates.length) return json({ error: 'invalid-player' }, 400);
   const results = await Promise.all(candidates.map(async (candidate) => {
