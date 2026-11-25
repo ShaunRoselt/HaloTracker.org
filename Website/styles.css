@@ -937,9 +937,30 @@
     margin-block-start: 0.75rem;
   }
 
+  .profile-review h2,
+  .profile-review-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   .profile-review h2 {
     margin: 0;
     font-size: 1.125rem;
+  }
+
+  .profile-review h2 img {
+    flex: none;
+    object-fit: contain;
+  }
+
+  .profile-review-rating,
+  .profile-review-meta {
+    margin: 0.5rem 0 0;
+  }
+
+  .profile-review-meta {
+    color: var(--color-text-muted);
   }
 
   .profile-review-text {
@@ -1005,6 +1026,56 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
     gap: 0.5rem;
+  }
+
+  .profile-gallery-status {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+
+  .profile-gallery-status:empty {
+    display: none;
+  }
+
+  .profile-screenshots button {
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-small);
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .profile-screenshot-viewer {
+    max-inline-size: min(92vw, 88rem);
+    max-block-size: 94dvh;
+    padding: 1rem;
+    border: 1px solid var(--color-text-muted);
+    border-radius: var(--radius-medium);
+    background: var(--color-surface-strong);
+    color: var(--color-text);
+    overscroll-behavior: contain;
+  }
+
+  .profile-screenshot-viewer::backdrop {
+    background: rgb(0 0 0 / 82%);
+  }
+
+  .profile-screenshot-viewer > img {
+    display: block;
+    max-inline-size: 100%;
+    max-block-size: 70dvh;
+    margin-inline: auto;
+    object-fit: contain;
+  }
+
+  .profile-screenshot-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-block-start: 0.75rem;
   }
 
   .profile-screenshots img {

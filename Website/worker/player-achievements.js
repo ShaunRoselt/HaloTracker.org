@@ -236,14 +236,17 @@ function steamAvatarFrame(html) {
   };
 }
 
-async function steamScreenshots(profileUrl, game, appId) {
+async function steamScreenshots(profileUrl, game, appId, page = 1) {
   const galleryUrl = `${profileUrl}screenshots?appid=${appId}`;
-  const html = await readSteamPage(galleryUrl, 450_000);
+  const pageUrl = new URL(galleryUrl);
+  if (page > 1) pageUrl.searchParams.set('p', String(page));
+  const html = await readSteamPage(pageUrl, 1_500_000);
+  if (!html) return null;
   const screenshots = [];
   const seen = new Set();
   const entries = html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi);
   for (const [, attributes, content] of entries) {
-    if (!attributes.includes(`data-appid="${appId}"`)) continue;
+    if (!new RegExp(`(?:^|\\s)data-appid="${appId}"`).test(attributes)) continue;
     const id = /\bdata-publishedfileid="(\d{1,20})"/.exec(attributes)?.[1];
     const src = /<img\b[^>]*\bsrc="([^"]+)"/i.exec(content)?.[1]
       ?? /background-image:\s*url\('([^']+)'\)/i.exec(content)?.[1];
@@ -251,12 +254,31 @@ async function steamScreenshots(profileUrl, game, appId) {
     if (!id || !thumbnail || seen.has(id)) continue;
     const image = new URL(thumbnail);
     if (!image.pathname.startsWith('/ugc/')) continue;
+    image.search = '';
+    const fullSize = image.href;
     image.search = 'imw=480&ima=fit&impolicy=Letterbox&letterbox=false';
     seen.add(id);
-    screenshots.push({ id, thumbnail: image.href });
-    if (screenshots.length === 3) break;
+    screenshots.push({ id, thumbnail: image.href, fullSize });
   }
   return { game, galleryUrl, screenshots };
+}
+
+export async function lookupSteamScreenshots(request) {
+  if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
+  const params = new URL(request.url).searchParams;
+  const id = params.get('id') ?? '';
+  const game = params.get('game');
+  const page = Number(params.get('page') ?? 1);
+  const appId = steamGames.get(game);
+  if (!steamId64.test(id) || !appId || !Number.isSafeInteger(page) || page < 1) {
+    return json({ error: 'invalid-request' }, 400);
+  }
+  const profileUrl = `https://steamcommunity.com/profiles/${id}/`;
+  const xml = await readSteamPage(profileUrl + '?xml=1', 128_000);
+  if (xmlText(xml, 'steamID64') !== id) return json({ error: 'provider-unavailable' }, 502);
+  if (xmlText(xml, 'privacyState') !== 'public') return json({ error: 'screenshots-unavailable' }, 404);
+  const gallery = await steamScreenshots(steamPublicUrl(xml, profileUrl), game, appId, page);
+  return gallery ? json(gallery) : json({ error: 'provider-unavailable' }, 502);
 }
 
 function publicSteamHours(xml) {
@@ -345,9 +367,17 @@ async function steamGameReview(profileUrl, game, appId) {
   if (!text) return null;
   const playtime = /<div class="playTime">([\s\S]*?)<\/div>/i.exec(html)?.[1] ?? '';
   const hours = /([\d,.]+) hrs? on record/i.exec(playtime)?.[1];
+  const hoursAtReview = /([\d,.]+) hrs? at review time/i.exec(playtime)?.[1];
+  const dates = [...html.matchAll(/<(?:div|span)\b[^>]*class="[^"]*\b(?:date_posted|reviewDate)\b[^"]*"[^>]*>([\s\S]*?)<\/(?:div|span)>/gi)]
+    .map(([, value]) => decodeSteamHtml(value.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim());
+  const posted = dates.map((value) => /^Posted[:\s]+(.+?)(?:\s*Updated[:\s].*)?$/i.exec(value)?.[1]).find(Boolean);
+  const updated = dates.map((value) => /(?:^|\s)Updated[:\s]+(.+)$/i.exec(value)?.[1]).find(Boolean);
   return {
     game, url, text, recommended: rating.toLowerCase() === 'recommended',
     minutes: hours ? Math.round(Number(hours.replaceAll(',', '')) * 60) : null,
+    minutesAtReview: hoursAtReview ? Math.round(Number(hoursAtReview.replaceAll(',', '')) * 60) : null,
+    posted: posted ?? null,
+    updated: updated ?? null,
   };
 }
 
@@ -462,11 +492,15 @@ export async function lookupSteamProfile(request, env) {
     console.error('Steam activity save failed', error.message);
   }
   if (activityOnly) return json({ games });
-  const saved = html ? {} : await readSavedSteamDetails(env.DB, id);
+  const saved = !html || !reviews.length || galleries.some((gallery) => !gallery)
+    ? await readSavedSteamDetails(env.DB, id) : {};
   const metadata = steamPageMetadata(xml, html);
   const { presence, currentGame, joinedAt, ...appearance } = metadata;
-  const publicReviews = reviews.map(({ game, url, text, recommended }) => ({ game, url, text, recommended }));
-  const publicGalleries = galleries.filter(({ screenshots }) => screenshots.length);
+  const publicReviews = reviews;
+  const publicGalleries = [...steamGames.keys()].flatMap((game, index) => {
+    const gallery = galleries[index] ?? saved.galleries?.find((entry) => entry.game === game);
+    return gallery?.screenshots.length ? [gallery] : [];
+  });
   const details = {
     account: { ...identity, accountId: id, profileUrl, platform: 'steam' },
     location: xmlText(xml, 'location'),
@@ -478,8 +512,8 @@ export async function lookupSteamProfile(request, env) {
       avatarFrameUrl: saved.avatarFrameUrl,
       avatarFrameStillUrl: saved.avatarFrameStillUrl,
     }),
-    reviews: publicReviews.length || html ? publicReviews : saved.reviews ?? [],
-    galleries: publicGalleries.length || html ? publicGalleries : saved.galleries ?? [],
+    reviews: publicReviews.length ? publicReviews : saved.reviews ?? [],
+    galleries: publicGalleries,
   };
   await saveSteamDetails(env.DB, id, details, fetchedAt);
   return json({ ...details, games, presence, currentGame });

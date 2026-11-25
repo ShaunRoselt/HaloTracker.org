@@ -1322,37 +1322,134 @@ const steamLink = (href, label) => createElement('a', {
   attributes: { href, rel: 'noreferrer' },
 });
 
-const createSteamGalleries = (galleries) => {
-  const section = createElement('section', {
-    className: 'profile-progress',
-    attributes: { 'aria-labelledby': 'profile-screenshots-title' },
-  });
-  section.append(createElement('h2', {
-    text: t('Halo screenshots'), attributes: { id: 'profile-screenshots-title' },
-  }));
+const createSteamGalleries = (galleries, accountId) => {
   const grid = createElement('div', { className: 'profile-gallery-grid' });
-  for (const { game, galleryUrl, screenshots } of galleries) {
-    const gameTitle = GAME_CONFIG.get(game).title;
-    const heading = createElement('h3');
-    const logo = createImage({ source: GAME_CONFIG.get(game).icon });
-    logo.width = 28;
-    logo.height = 28;
-    heading.append(logo, steamLink(galleryUrl, gameTitle));
-    const gallery = createElement('section', { className: 'profile-gallery surface' });
-    const images = createElement('div', { className: 'profile-screenshots' });
-    for (const [index, { id, thumbnail }] of screenshots.entries()) {
-      const link = steamLink(`https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`);
-      const alt = t('{game} screenshot {number}', { game: gameTitle, number: index + 1 });
-      link.append(createElement('img', {
+  const status = createElement('p', { className: 'profile-gallery-status', attributes: { role: 'status' } });
+  const dialog = createElement('dialog', {
+    className: 'profile-screenshot-viewer', attributes: { 'aria-label': t('Screenshot viewer') },
+  });
+  const heading = createElement('p', { attributes: { 'aria-live': 'polite' } });
+  const close = createElement('button', { className: 'button', text: t('Close'), attributes: { type: 'button', autofocus: '' } });
+  const previous = createElement('button', { className: 'button', text: t('Previous'), attributes: { type: 'button' } });
+  const next = createElement('button', { className: 'button', text: t('Next'), attributes: { type: 'button' } });
+  const image = createElement('img', { attributes: { referrerpolicy: 'no-referrer' } });
+  const controls = createElement('div', { className: 'profile-screenshot-controls' });
+  const original = steamLink('#', t('View on Steam'));
+  controls.append(previous, original, next);
+  dialog.append(close, heading, image, controls);
+  grid.append(dialog, status);
+  let active;
+  const groups = new Map();
+
+  const allScreenshots = () => [...groups.values()].flatMap(({ items }) => items);
+  const updateViewer = () => {
+    if (!active) return;
+    const items = allScreenshots();
+    const index = items.indexOf(active);
+    heading.textContent = t('{title} ({index} of {total})', {
+      title: active.alt, index: index + 1, total: items.length,
+    });
+    image.alt = active.alt;
+    if (image.src !== active.fullSize) image.src = active.fullSize;
+    original.href = active.url;
+    previous.disabled = index === 0;
+    next.disabled = index === items.length - 1;
+  };
+  const step = (direction) => {
+    const items = allScreenshots();
+    const item = items[items.indexOf(active) + direction];
+    if (item) {
+      active = item;
+      updateViewer();
+    }
+  };
+  close.addEventListener('click', () => dialog.close());
+  previous.addEventListener('click', () => step(-1));
+  next.addEventListener('click', () => step(1));
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const rtl = getComputedStyle(dialog).direction === 'rtl';
+    step((event.key === 'ArrowLeft' ? -1 : 1) * (rtl ? -1 : 1));
+  });
+
+  const addScreenshots = (group, screenshots) => {
+    let added = 0;
+    for (const { id, thumbnail, fullSize } of screenshots) {
+      if (group.seen.has(id)) continue;
+      group.seen.add(id);
+      const url = new URL(thumbnail);
+      url.search = '';
+      const alt = t('{game} screenshot {number}', { game: group.title, number: group.items.length + 1 });
+      const item = {
+        alt, fullSize: fullSize ?? url.href, url: `https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`,
+      };
+      group.items.push(item);
+      const button = createElement('button', { attributes: { type: 'button' } });
+      button.append(createElement('img', {
         attributes: { src: thumbnail, alt, loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' },
       }));
-      images.append(link);
+      button.addEventListener('click', () => {
+        active = item;
+        updateViewer();
+        dialog.showModal();
+      });
+      group.images.append(button);
+      added++;
     }
-    gallery.append(heading, images);
+    if (dialog.open && added) updateViewer();
+    return added;
+  };
+
+  for (const { game, galleryUrl, screenshots } of galleries) {
+    const config = GAME_CONFIG.get(game);
+    const gameHeading = createElement('h3');
+    const logo = createImage({ source: config.icon });
+    logo.width = 28;
+    logo.height = 28;
+    gameHeading.append(logo, steamLink(galleryUrl, config.title));
+    const gallery = createElement('section', { className: 'profile-gallery surface' });
+    const images = createElement('div', { className: 'profile-screenshots' });
+    const group = { title: config.title, images, items: [], seen: new Set(), page: 1 };
+    groups.set(game, group);
+    addScreenshots(group, screenshots);
+    gallery.append(gameHeading, images);
     grid.append(gallery);
   }
-  section.append(grid);
-  return section;
+
+  let loading = false;
+  const loadRemaining = async () => {
+    if (loading || !accountId || ![...groups.values()].some(({ page }) => page)) return;
+    loading = true;
+    status.textContent = t('Loading screenshots…');
+    let unavailable = false;
+    try {
+      for (const [game, group] of groups) {
+        while (group.page && grid.isConnected) {
+          const params = new URLSearchParams({ id: accountId, game, page: group.page });
+          try {
+            const response = await fetch(`/api/steam-screenshots?${params}`, { signal: AbortSignal.timeout(12_000) });
+            if (!grid.isConnected) return;
+            if (response.status === 404) {
+              group.page = 0;
+              break;
+            }
+            if (!response.ok) throw new Error('Screenshots unavailable');
+            const { screenshots } = await response.json();
+            const added = addScreenshots(group, screenshots);
+            group.page = screenshots.length && (group.page === 1 || added) ? group.page + 1 : 0;
+          } catch {
+            unavailable = true;
+            break;
+          }
+        }
+      }
+    } finally {
+      loading = false;
+      status.textContent = unavailable ? t('Some screenshots could not be loaded from Steam.') : '';
+    }
+  };
+  return { grid, loadRemaining };
 };
 
 const loadSteamProfile = async (account, view) => {
@@ -1856,15 +1953,25 @@ const renderPlayerProfile = async (route) => {
   }
   if (details.reviews?.length) {
     const panel = addTab('Reviews');
-    for (const { game, url, text, recommended } of details.reviews) {
+    const hours = new Intl.NumberFormat(currentLanguage(), { style: 'unit', unit: 'hour', unitDisplay: 'long', maximumFractionDigits: 1 });
+    for (const { game, url, text, recommended, minutesAtReview, minutes, posted, updated } of details.reviews) {
       const review = createElement('article', { className: 'profile-review surface' });
+      const config = GAME_CONFIG.get(game);
       const heading = createElement('h2');
-      heading.append(steamLink(url, GAME_CONFIG.get(game).title));
-      review.append(
-        heading,
-        createElement('p', { text: t(recommended ? 'Recommended' : 'Not recommended') }),
-        createElement('p', { className: 'profile-review-text', text }),
-      );
+      const logo = createImage({ source: config.icon });
+      logo.width = 36;
+      logo.height = 36;
+      heading.append(logo, steamLink(url, config.title));
+      const rating = createElement('p', { className: 'profile-review-rating' });
+      rating.append(menuItemIcon(recommended ? 'thumbs-up' : 'thumbs-down'), t(recommended ? 'Recommended' : 'Not recommended'));
+      const metadata = [];
+      if (Number.isFinite(minutesAtReview)) metadata.push(t('{hours} at review time', { hours: hours.format(minutesAtReview / 60) }));
+      if (Number.isFinite(minutes)) metadata.push(t('{hours} on record', { hours: hours.format(minutes / 60) }));
+      if (posted) metadata.push(t('Posted {date}', { date: posted }));
+      if (updated && updated !== posted) metadata.push(t('Updated {date}', { date: updated }));
+      review.append(heading, rating);
+      if (metadata.length) review.append(createElement('p', { className: 'profile-review-meta', text: metadata.join(' · ') }));
+      review.append(createElement('p', { className: 'profile-review-text', text }));
       panel.append(review);
     }
   }
@@ -1874,8 +1981,14 @@ const renderPlayerProfile = async (route) => {
       steamSection.querySelector(`[data-profile-game="${game.game}"] .profile-game-activity`).replaceWith(activity);
     }
   }
-  if (details.galleries?.length) screenshotPanel.replaceChildren(createSteamGalleries(details.galleries));
-  else screenshotStatus.textContent = t('No public Halo screenshots are available.');
+  if (details.galleries?.length) {
+    const { grid, loadRemaining } = createSteamGalleries(details.galleries, steam.accountId);
+    screenshotPanel.replaceChildren(grid);
+    screenshotPanel.addEventListener('profile-tab-open', loadRemaining);
+    if (!screenshotPanel.hidden) void loadRemaining();
+  } else {
+    screenshotStatus.textContent = t('No public Halo screenshots are available.');
+  }
 };
 
 const steamProfileUrl = (accountId) => `https://steamcommunity.com/profiles/${encodeURIComponent(accountId)}/`;

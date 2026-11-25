@@ -1,6 +1,6 @@
 import { readProfileLinks } from './profile-links.js';
 import { readLeaderboard, readSavedProfile } from './player-rankings.js';
-import { lookupPlayerAchievements, lookupSteamFriends, lookupSteamProfile, syncSteamFriend } from "./player-achievements.js";
+import { lookupPlayerAchievements, lookupSteamFriends, lookupSteamProfile, lookupSteamScreenshots, syncSteamFriend } from "./player-achievements.js";
 import { getAchievementsForGame, guidePageTitle, hasGuide } from "./game-catalog.js";
 
 const titleForGuide = ({ searchParams }) => {
@@ -58,6 +58,7 @@ export default {
     if (pathname === "/api/profile-links") return readProfileLinks(request, env.DB);
     if (pathname === "/api/saved-profile") return readSavedProfile(request, env.DB);
     if (pathname === "/api/steam-friends") return lookupSteamFriends(request, env.DB);
+    if (pathname === "/api/steam-screenshots") return lookupSteamScreenshots(request);
     if (pathname === "/api/steam-friend-sync") return syncSteamFriend(request, env);
     if (pathname === "/api/steam-profile") {
       return lookupSteamProfile(request, env);
