@@ -15,6 +15,7 @@ const xboxGames = new Map([
   ['halo5', '219630713'],
   ['haloinfinite', '2043073184'],
   ['halowarsde', '1030018025'],
+  ['halowars2', '1667928394'],
   ['halospartanstrike', '2122543949'],
   ['halospartanassault', '682562723'],
   ['halocampaignevolved', '2082978535'],

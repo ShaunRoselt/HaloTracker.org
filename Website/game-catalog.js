@@ -55,6 +55,7 @@ export const GAME_CONFIG = new Map([
   })],
   ['halo5', Object.freeze({
     collection: 'halo5',
+    xboxOnly: true,
     title: 'Halo 5: Guardians',
     shortTitle: 'Halo 5',
     icon: 'assets/halo-5.png',
@@ -73,6 +74,13 @@ export const GAME_CONFIG = new Map([
     shortTitle: 'Halo Wars: DE',
     pveFilterLabel: 'Skirmish',
     icon: 'assets/halowarsde.png',
+  })],
+  ['halowars2', Object.freeze({
+    collection: 'halowars2',
+    title: 'Halo Wars 2',
+    shortTitle: 'Halo Wars 2',
+    xboxOnly: true,
+    icon: 'assets/halowars2.webp',
   })],
   ['halospartanstrike', Object.freeze({
     collection: 'halospartanstrike',
@@ -126,7 +134,9 @@ export const matchUnlocks = (achievements, reported) => {
 
   const matches = new Map();
   for (const achievement of achievements) {
-    const unlocked = byName.get(achievementNameKey(achievement.name));
+    const name = achievementNameKey(achievement.name);
+    const alias = achievement.aliases?.map(achievementNameKey).find((key) => byName.has(key));
+    const unlocked = byName.get(byName.has(name) ? name : alias);
     if (typeof unlocked === 'boolean') matches.set(achievement.id, unlocked);
   }
   return matches;

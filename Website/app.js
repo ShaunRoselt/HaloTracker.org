@@ -456,10 +456,19 @@ const createAchievementCard = (achievement, { game, progress = [], eager = false
   const metadata = createElement('div', { className: 'achievement-metadata' });
   const percentage = createElement('span', {
     className: 'achievement-percentage',
-    text: t('{percent} of players have this achievement', { percent: formatPercent(achievement.percentAchieved) }),
+    text: t(achievement.collection === 'halowars2'
+      ? '{percent} of Exophase players have this achievement'
+      : '{percent} of players have this achievement', { percent: formatPercent(achievement.percentAchieved) }),
   });
 
   metadata.append(percentage);
+  if (achievement.pack) {
+    const points = new Intl.NumberFormat(currentLanguage()).format(achievement.gamerscore);
+    metadata.append(createElement('span', {
+      className: 'achievement-pack',
+      text: `${t(achievement.pack)} · ${t('{points} Gamerscore', { points })}`,
+    }));
+  }
   appendUnlockStatuses(metadata, achievement.id, progress);
   body.append(heading, description, metadata);
   card.prepend(image, body);
@@ -771,7 +780,7 @@ const renderAchievements = (game) => {
   });
   const searchableText = new Map(achievements.map((achievement) => [
     achievement,
-    normalizeSearch(`${achievement.name} ${achievement.description} ${achievementText(achievement, 'description')}`),
+    normalizeSearch(`${achievement.name} ${achievement.description} ${achievementText(achievement, 'description')} ${achievement.pack ?? ''}`),
   ]));
   let searchValue = searchInput.value;
   const renderResults = () => {
@@ -807,7 +816,7 @@ const renderAchievements = (game) => {
 
       playerStatus.replaceChildren();
       if (!playerProgress.length) {
-        const visibleReports = config.collection === 'halo5'
+        const visibleReports = config.xboxOnly
           ? reports.filter((report) => !['unsupported-game', 'xbox-not-configured'].includes(report?.error))
           : reports;
         if (!visibleReports.length) playerInfo.parentElement.remove();
@@ -1930,8 +1939,10 @@ const renderPlayerProfile = async (route) => {
     if (platform === 'steam') steamSection = section;
     achievementPanel.append(section);
   }
-  if (!progress.get('xbox')?.games.some(({ game }) => game === 'halo5')) {
-    firstSection.querySelector('.profile-games').append(createProfileGame({ game: 'halo5' }, 'xbox'));
+  for (const [game, config] of GAME_CONFIG) {
+    if (config.xboxOnly && !progress.get('xbox')?.games.some((entry) => entry.game === game)) {
+      firstSection.querySelector('.profile-games').append(createProfileGame({ game }, 'xbox'));
+    }
   }
 
   const steam = player.accounts.get('steam');

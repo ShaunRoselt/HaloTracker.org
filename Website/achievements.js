@@ -20605,5 +20605,2329 @@ export const ACHIEVEMENTS = Object.freeze({
         "Campaign"
       ]
     }
+  ],
+  "halowars2": [
+    {
+      "id": "halowars2-wake-up-05802f4e58",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Wake up",
+      "description": "Complete \"The Signal\".",
+      "image": "assets/halowars2-achievements/halowars2-wake-up-05802f4e58.webp",
+      "percentAchieved": "76.84%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-a-history-of-decimation-dd63a2aece",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "A history of decimation",
+      "description": "Complete \"A New Enemy\".",
+      "image": "assets/halowars2-achievements/halowars2-a-history-of-decimation-dd63a2aece.webp",
+      "percentAchieved": "65.55%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-dominated-73e21a695d",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Dominated",
+      "description": "Complete \"Ascension\".",
+      "image": "assets/halowars2-achievements/halowars2-dominated-73e21a695d.webp",
+      "percentAchieved": "55.22%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-guerilla-tactics-5fea4c657a",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Guerilla tactics",
+      "description": "Complete \"One Three Zero\".",
+      "image": "assets/halowars2-achievements/halowars2-guerilla-tactics-5fea4c657a.webp",
+      "percentAchieved": "50.75%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ],
+      "aliases": [
+        "Guerrilla tactics"
+      ]
+    },
+    {
+      "id": "halowars2-stirring-the-pot-9a9e5eed58",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Stirring the pot",
+      "description": "Complete \"The Cartographer\".",
+      "image": "assets/halowars2-achievements/halowars2-stirring-the-pot-9a9e5eed58.webp",
+      "percentAchieved": "47.07%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-all-travel-is-suspended-2a46f9f7dc",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "All travel is suspended",
+      "description": "Complete \"Lights Out\".",
+      "image": "assets/halowars2-achievements/halowars2-all-travel-is-suspended-2a46f9f7dc.webp",
+      "percentAchieved": "42.45%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-behind-enemy-lines-98461ead0d",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Behind enemy lines",
+      "description": "Complete \"From the Deep\".",
+      "image": "assets/halowars2-achievements/halowars2-behind-enemy-lines-98461ead0d.webp",
+      "percentAchieved": "38.49%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-the-setup-9deef9d3f1",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The setup …",
+      "description": "Complete \"Hold the Line\".",
+      "image": "assets/halowars2-achievements/halowars2-the-setup-9deef9d3f1.webp",
+      "percentAchieved": "35.59%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ],
+      "aliases": [
+        "The setup..."
+      ]
+    },
+    {
+      "id": "halowars2-and-the-knockout-punch-9bf4fff35f",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "And the knockout punch",
+      "description": "Complete \"Under the Dark\".",
+      "image": "assets/halowars2-achievements/halowars2-and-the-knockout-punch-9bf4fff35f.webp",
+      "percentAchieved": "33.88%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-fifth-floor-tools-guns-super-weapons-5d83eac079",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Fifth floor: Tools, Guns, Super Weapons",
+      "description": "Complete \"The Foundry\".",
+      "image": "assets/halowars2-achievements/halowars2-fifth-floor-tools-guns-super-weapons-5d83eac079.webp",
+      "percentAchieved": "32.17%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-sentinel-size-matters-9a60903e4f",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Sentinel size matters",
+      "description": "Complete \"The Halo\".",
+      "image": "assets/halowars2-achievements/halowars2-sentinel-size-matters-9a60903e4f.webp",
+      "percentAchieved": "30.87%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-last-stop-this-town-e8b5e76776",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Last stop, this town",
+      "description": "Complete \"Last Stand\".",
+      "image": "assets/halowars2-achievements/halowars2-last-stop-this-town-e8b5e76776.webp",
+      "percentAchieved": "30.30%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-learn-the-ropes-211528acda",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Learn the ropes",
+      "description": "Complete the Basic standalone tutorial.",
+      "image": "assets/halowars2-achievements/halowars2-learn-the-ropes-211528acda.webp",
+      "percentAchieved": "52.85%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-know-the-ropes-748fb401f0",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Know the ropes",
+      "description": "Complete the Advanced standalone tutorial.",
+      "image": "assets/halowars2-achievements/halowars2-know-the-ropes-748fb401f0.webp",
+      "percentAchieved": "37.24%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-two-heads-are-better-than-one-1ea2425820",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Two heads are better than one",
+      "description": "Complete a Campaign mission in Co-op.",
+      "image": "assets/halowars2-achievements/halowars2-two-heads-are-better-than-one-1ea2425820.webp",
+      "percentAchieved": "20.78%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Co-op Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-this-war-is-over-6e5272e0d5",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "This war is over",
+      "description": "Complete the Campaign.",
+      "image": "assets/halowars2-achievements/halowars2-this-war-is-over-6e5272e0d5.webp",
+      "percentAchieved": "30.00%",
+      "gamerscore": 30,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-the-hard-fight-36fc269c1a",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The hard fight",
+      "description": "Complete the Campaign on Heroic.",
+      "image": "assets/halowars2-achievements/halowars2-the-hard-fight-36fc269c1a.webp",
+      "percentAchieved": "6.38%",
+      "gamerscore": 40,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-surviving-the-long-war-396b9b7645",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Surviving the long war",
+      "description": "Complete the Campaign on Legendary.",
+      "image": "assets/halowars2-achievements/halowars2-surviving-the-long-war-396b9b7645.webp",
+      "percentAchieved": "4.99%",
+      "gamerscore": 60,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-gold-rush-1cb9a6a9c1",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Gold rush",
+      "description": "Earn a gold medal on any mission (except Prologue) on any difficulty.",
+      "image": "assets/halowars2-achievements/halowars2-gold-rush-1cb9a6a9c1.webp",
+      "percentAchieved": "45.51%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-palmer-s-pure-gold-e4e2463b34",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Palmer's Pure Gold",
+      "description": "Earn a gold medal on every mission (except Prologue) on any difficulty.",
+      "image": "assets/halowars2-achievements/halowars2-palmer-s-pure-gold-e4e2463b34.webp",
+      "percentAchieved": "2.72%",
+      "gamerscore": 30,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-lone-wolf-ffb4e008d9",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Lone Wolf",
+      "description": "Complete any mission (except The Signal) solo on Legendary with all skulls activated.",
+      "image": "assets/halowars2-achievements/halowars2-lone-wolf-ffb4e008d9.webp",
+      "percentAchieved": "2.71%",
+      "gamerscore": 40,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-comrades-in-arms-276a1e91a4",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Comrades in arms",
+      "description": "Earn a gold medal on any mission (except Prologue) in Co-op on Legendary.",
+      "image": "assets/halowars2-achievements/halowars2-comrades-in-arms-276a1e91a4.webp",
+      "percentAchieved": "4.37%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Co-op Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-a-little-bit-extra-3ac96f4656",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "A little bit extra",
+      "description": "Complete half of the Campaign bonus objectives.",
+      "image": "assets/halowars2-achievements/halowars2-a-little-bit-extra-3ac96f4656.webp",
+      "percentAchieved": "14.00%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-a-lot-extra-f2019d1e2b",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "A lot extra",
+      "description": "Complete all the Campaign bonus objectives.",
+      "image": "assets/halowars2-achievements/halowars2-a-lot-extra-f2019d1e2b.webp",
+      "percentAchieved": "2.57%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-alas-poor-yorick-5956ae7282",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Alas, poor Yorick!",
+      "description": "Collect a Skull.",
+      "image": "assets/halowars2-achievements/halowars2-alas-poor-yorick-5956ae7282.webp",
+      "percentAchieved": "60.80%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ],
+      "aliases": [
+        "Alas, Poor Yorick"
+      ]
+    },
+    {
+      "id": "halowars2-morbid-curiosities-1f02cb49a9",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Morbid curiosities",
+      "description": "Collect half of the Skulls.",
+      "image": "assets/halowars2-achievements/halowars2-morbid-curiosities-1f02cb49a9.webp",
+      "percentAchieved": "23.17%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-collecting-a-dream-6da93a94e7",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Collecting a dream",
+      "description": "Collect all the Skulls.",
+      "image": "assets/halowars2-achievements/halowars2-collecting-a-dream-6da93a94e7.webp",
+      "percentAchieved": "4.94%",
+      "gamerscore": 30,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-the-scrappy-six-30fe8f3cf6",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The Scrappy Six",
+      "description": "Complete a matchmade multiplayer match as each of the starting 6 leaders.",
+      "image": "assets/halowars2-achievements/halowars2-the-scrappy-six-30fe8f3cf6.webp",
+      "percentAchieved": "8.91%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-first-steps-ba8770cfc0",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "First steps",
+      "description": "Complete a matchmade multiplayer match.",
+      "image": "assets/halowars2-achievements/halowars2-first-steps-ba8770cfc0.webp",
+      "percentAchieved": "36.07%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-natural-intelligence-94d73041ba",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Natural intelligence",
+      "description": "Play a skirmish alone against at least one AI opponent.",
+      "image": "assets/halowars2-achievements/halowars2-natural-intelligence-94d73041ba.webp",
+      "percentAchieved": "35.09%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-two-heads-are-better-than-none-1008c2d392",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Two heads are better than none",
+      "description": "Win a Skirmish match with a friend against only AI opponents (2 or more).",
+      "image": "assets/halowars2-achievements/halowars2-two-heads-are-better-than-none-1008c2d392.webp",
+      "percentAchieved": "17.41%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-you-ve-got-a-case-of-the-birley-9005d62c69",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "You've got a case of the Birley",
+      "description": "Win a one-on-one skirmish against Legendary AI after recycling your base within the first five minutes.",
+      "image": "assets/halowars2-achievements/halowars2-you-ve-got-a-case-of-the-birley-9005d62c69.webp",
+      "percentAchieved": "3.45%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-the-rank-and-file-87ccef9973",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The rank and file",
+      "description": "Recruit or construct 1 of each UNSC unit in Multiplayer or Skirmish (Launch units only).",
+      "image": "assets/halowars2-achievements/halowars2-the-rank-and-file-87ccef9973.webp",
+      "percentAchieved": "13.86%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-the-tribe-0bf22fb671",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The tribe",
+      "description": "Recruit or construct 1 of each Banished unit in Multiplayer or Skirmish (Launch units only).",
+      "image": "assets/halowars2-achievements/halowars2-the-tribe-0bf22fb671.webp",
+      "percentAchieved": "11.16%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-trash-compactor-6d320da4be",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Trash compactor",
+      "description": "Destroy 100 Vehicles with Anti-Vehicle Units (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-trash-compactor-6d320da4be.webp",
+      "percentAchieved": "15.23%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-flyswatter-de926b59bb",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Flyswatter",
+      "description": "Destroy 100 Air units with Anti-Air Units (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-flyswatter-de926b59bb.webp",
+      "percentAchieved": "16.71%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-meat-grinder-7cc587f458",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Meat grinder",
+      "description": "Destroy 100 Infantry with Anti-Infantry (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-meat-grinder-7cc587f458.webp",
+      "percentAchieved": "13.75%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-spare-change-055ca0af02",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Spare change",
+      "description": "Spend 5 Leader Points in Multiplayer or Skirmish.",
+      "image": "assets/halowars2-achievements/halowars2-spare-change-055ca0af02.webp",
+      "percentAchieved": "50.22%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-big-spender-f86313e6cc",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Big Spender",
+      "description": "Spend 100 Leader Points in Multiplayer or Skirmish.",
+      "image": "assets/halowars2-achievements/halowars2-big-spender-f86313e6cc.webp",
+      "percentAchieved": "21.49%",
+      "gamerscore": 30,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-space-healer-ee03ba9b5a",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Space Healer",
+      "description": "Cast 100 healing Leader Powers (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-space-healer-ee03ba9b5a.webp",
+      "percentAchieved": "12.17%",
+      "gamerscore": 30,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-overkill-97cc78edaa",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Overkill",
+      "description": "Destroy 500 units with Leader Powers (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-overkill-97cc78edaa.webp",
+      "percentAchieved": "14.30%",
+      "gamerscore": 30,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-making-the-most-of-the-day-9302ca51c5",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Making the most of the day",
+      "description": "Complete 3 Daily Challenges in one day.",
+      "image": "assets/halowars2-achievements/halowars2-making-the-most-of-the-day-9302ca51c5.webp",
+      "percentAchieved": "13.47%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Other"
+      ]
+    },
+    {
+      "id": "halowars2-a-strong-showing-for-the-week-3053e97e2e",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "A strong showing for the week",
+      "description": "Complete a set of 3 Weekly Challenges.",
+      "image": "assets/halowars2-achievements/halowars2-a-strong-showing-for-the-week-3053e97e2e.webp",
+      "percentAchieved": "8.50%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Other"
+      ]
+    },
+    {
+      "id": "halowars2-short-term-commitment-cdbaa5cd5f",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Short-term commitment",
+      "description": "Complete at least 1 Daily Challenge each day for a week.",
+      "image": "assets/halowars2-achievements/halowars2-short-term-commitment-cdbaa5cd5f.webp",
+      "percentAchieved": "3.88%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Other"
+      ]
+    },
+    {
+      "id": "halowars2-long-term-commitment-1c08294c7f",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Long-term commitment",
+      "description": "Complete at least 1 Weekly Challenge each week for a month.",
+      "image": "assets/halowars2-achievements/halowars2-long-term-commitment-1c08294c7f.webp",
+      "percentAchieved": "5.17%",
+      "gamerscore": 30,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Other"
+      ]
+    },
+    {
+      "id": "halowars2-duellist-5b5578b95c",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Duellist",
+      "description": "Win your first Blitz match.",
+      "image": "assets/halowars2-achievements/halowars2-duellist-5b5578b95c.webp",
+      "percentAchieved": "13.17%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-ante-up-cda4f51cc0",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Ante-up",
+      "description": "Complete the Blitz tutorial.",
+      "image": "assets/halowars2-achievements/halowars2-ante-up-cda4f51cc0.webp",
+      "percentAchieved": "30.97%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-card-shark-e40b1b64a1",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Card shark",
+      "description": "Play 25 matches of Blitz.",
+      "image": "assets/halowars2-achievements/halowars2-card-shark-e40b1b64a1.webp",
+      "percentAchieved": "5.14%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-full-house-6fb81acfd1",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Full house",
+      "description": "Play Blitz as each of the 6 starting leaders.",
+      "image": "assets/halowars2-achievements/halowars2-full-house-6fb81acfd1.webp",
+      "percentAchieved": "4.78%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-all-or-nothing-1416c1e6fb",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "All or nothing",
+      "description": "Play all of the cards in your deck at least once in a single Blitz match.",
+      "image": "assets/halowars2-achievements/halowars2-all-or-nothing-1416c1e6fb.webp",
+      "percentAchieved": "19.00%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-stacked-the-chips-f2c487a19c",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Stacked the chips",
+      "description": "Gather 150 energy crates over any number of matches.",
+      "image": "assets/halowars2-achievements/halowars2-stacked-the-chips-f2c487a19c.webp",
+      "percentAchieved": "12.48%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-jackpot-44b6d5c308",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Jackpot",
+      "description": "Play 777 total cards over any number of matches.",
+      "image": "assets/halowars2-achievements/halowars2-jackpot-44b6d5c308.webp",
+      "percentAchieved": "5.43%",
+      "gamerscore": 40,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-firefighter-480ca3e854",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Firefighter",
+      "description": "Beat wave 10 in Blitz Firefight.",
+      "image": "assets/halowars2-achievements/halowars2-firefighter-480ca3e854.webp",
+      "percentAchieved": "15.69%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-it-just-keeps-going-3cf4f98037",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "It just keeps going",
+      "description": "Beat wave 25 in Blitz Firefight.",
+      "image": "assets/halowars2-achievements/halowars2-it-just-keeps-going-3cf4f98037.webp",
+      "percentAchieved": "8.66%",
+      "gamerscore": 30,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-on-fire-16b5672062",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "On fire",
+      "description": "Score 500,000 points in a single Blitz Firefight.",
+      "image": "assets/halowars2-achievements/halowars2-on-fire-16b5672062.webp",
+      "percentAchieved": "11.86%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-paint-it-red-1ab35c6cde",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Paint it red",
+      "description": "Achieve the highest possible kill-streak in any Blitz mode (Blitz or Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-paint-it-red-1ab35c6cde.webp",
+      "percentAchieved": "13.73%",
+      "gamerscore": 10,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-some-light-reading-35bda6b606",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Some light reading",
+      "description": "Find a Campaign log.",
+      "image": "assets/halowars2-achievements/halowars2-some-light-reading-35bda6b606.webp",
+      "percentAchieved": "80.04%",
+      "gamerscore": 10,
+      "pack": "Title Update",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-just-the-facts-81e74ed7dd",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Just the facts",
+      "description": "Collect half of the Campaign logs.",
+      "image": "assets/halowars2-achievements/halowars2-just-the-facts-81e74ed7dd.webp",
+      "percentAchieved": "41.76%",
+      "gamerscore": 20,
+      "pack": "Title Update",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-the-full-story-1fcb1b7cb0",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The full story",
+      "description": "Collect all the Campaign logs.",
+      "image": "assets/halowars2-achievements/halowars2-the-full-story-1fcb1b7cb0.webp",
+      "percentAchieved": "4.42%",
+      "gamerscore": 30,
+      "pack": "Title Update",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-the-hand-that-feeds-c201fad892",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The hand that feeds",
+      "description": "Kill a unit owned by a developer or someone who has this achievement.",
+      "image": "assets/halowars2-achievements/halowars2-the-hand-that-feeds-c201fad892.webp",
+      "percentAchieved": "30.74%",
+      "gamerscore": 20,
+      "pack": "Base game",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Other"
+      ]
+    },
+    {
+      "id": "halowars2-bear-necessities-2311686fd3",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Bear necessities",
+      "description": "Built 10 Grizzlies (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-bear-necessities-2311686fd3.webp",
+      "percentAchieved": "15.41%",
+      "gamerscore": 10,
+      "pack": "Forge",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-heroes-never-die-5534f18bf0",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Heroes never die",
+      "description": "Win 3 matches as Forge (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-heroes-never-die-5534f18bf0.webp",
+      "percentAchieved": "14.72%",
+      "gamerscore": 10,
+      "pack": "Forge",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-man-to-freak-communication-292bed882b",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Man-to-freak communication",
+      "description": "Kill 50 units with Forge's Warthog (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-man-to-freak-communication-292bed882b.webp",
+      "percentAchieved": "12.55%",
+      "gamerscore": 10,
+      "pack": "Forge",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-i-don-t-want-to-set-the-world-on-fire-2508cc0726",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "I don't want to set the world on fire",
+      "description": "Burn 50 infantry with Kinsano's Flamewall ability (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-i-don-t-want-to-set-the-world-on-fire-2508cc0726.webp",
+      "percentAchieved": "3.61%",
+      "gamerscore": 10,
+      "pack": "Kinsano",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-the-roof-is-on-fire-7f24e57548",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The roof is on fire",
+      "description": "Kill 100 units with Inferno (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-the-roof-is-on-fire-7f24e57548.webp",
+      "percentAchieved": "3.68%",
+      "gamerscore": 10,
+      "pack": "Kinsano",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-twisted-firestarter-b59334698b",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Twisted Firestarter",
+      "description": "Win 3 matches as Morgan Kinsano (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-twisted-firestarter-b59334698b.webp",
+      "percentAchieved": "7.86%",
+      "gamerscore": 10,
+      "pack": "Kinsano",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-hunter-hunted-a1cbe90c03",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Hunter/Hunted",
+      "description": "Taunt 50 vehicles with the Hunter Captain's ability (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-hunter-hunted-a1cbe90c03.webp",
+      "percentAchieved": "3.98%",
+      "gamerscore": 10,
+      "pack": "Colony",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-turrets-everywhere-2b83fbebaa",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Turrets everywhere",
+      "description": "Attach 50 Klavrig Workshop Skitterers to squads (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-turrets-everywhere-2b83fbebaa.webp",
+      "percentAchieved": "5.88%",
+      "gamerscore": 10,
+      "pack": "Colony",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-two-minds-are-better-than-one-558d81f2e6",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Two minds are better than one",
+      "description": "Win 3 matches as Colony (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-two-minds-are-better-than-one-558d81f2e6.webp",
+      "percentAchieved": "8.89%",
+      "gamerscore": 10,
+      "pack": "Colony",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-our-big-green-style-7a13f4c75f",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Our big green style",
+      "description": "Win 3 matches as Sgt. Johnson (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-our-big-green-style-7a13f4c75f.webp",
+      "percentAchieved": "8.73%",
+      "gamerscore": 10,
+      "pack": "Sgt. Johnson",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-for-a-brick-he-flew-pretty-good-80f78affeb",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "For a brick, he flew pretty good!",
+      "description": "Kill 50 infantry units with the Colossus' Stomp ability (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-for-a-brick-he-flew-pretty-good-80f78affeb.webp",
+      "percentAchieved": "2.19%",
+      "gamerscore": 10,
+      "pack": "Sgt. Johnson",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-and-i-don-t-do-bits-and-pieces-ba551ac587",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "…and I don't do bits and pieces",
+      "description": "Use Repair Beacon 15 times in Multiplayer, Skirmish, or Blitz.",
+      "image": "assets/halowars2-achievements/halowars2-and-i-don-t-do-bits-and-pieces-ba551ac587.webp",
+      "percentAchieved": "7.10%",
+      "gamerscore": 10,
+      "pack": "Sgt. Johnson",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ],
+      "aliases": [
+        "...and I don't do bits and pieces"
+      ]
+    },
+    {
+      "id": "halowars2-alpha-and-omega-e8243baf06",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Alpha and Omega",
+      "description": "Hijack 40 vehicles with Omega Team members. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-alpha-and-omega-e8243baf06.webp",
+      "percentAchieved": "2.81%",
+      "gamerscore": 10,
+      "pack": "Icons of War",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-and-my-shadow-568ad73515",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "And my shadow",
+      "description": "Kill 25 units with Jerome's Command Mantis unit. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-and-my-shadow-568ad73515.webp",
+      "percentAchieved": "10.54%",
+      "gamerscore": 10,
+      "pack": "Icons of War",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-none-shall-escape-b2fe91718f",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "None shall escape",
+      "description": "Kill 20 air units with the Arbiter while raging. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-none-shall-escape-b2fe91718f.webp",
+      "percentAchieved": "2.94%",
+      "gamerscore": 10,
+      "pack": "Icons of War",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-time-and-place-db780bf4f3",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Time and place",
+      "description": "Trap 100 squads with Stasis. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-time-and-place-db780bf4f3.webp",
+      "percentAchieved": "6.18%",
+      "gamerscore": 10,
+      "pack": "Icons of War",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-trials-of-the-arbiter-97038026ff",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Trials of the Arbiter",
+      "description": "Win 3 matches as The Arbiter. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-trials-of-the-arbiter-97038026ff.webp",
+      "percentAchieved": "6.63%",
+      "gamerscore": 10,
+      "pack": "Icons of War",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-you-ve-been-busy-00b23642e7",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "You've been busy",
+      "description": "Win 3 matches as Commander Jerome. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-you-ve-been-busy-00b23642e7.webp",
+      "percentAchieved": "9.17%",
+      "gamerscore": 10,
+      "pack": "Icons of War",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-spear-broken-8588ac8982",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Spear: Broken",
+      "description": "Complete Spearbreaker.",
+      "image": "assets/halowars2-achievements/halowars2-spear-broken-8588ac8982.webp",
+      "percentAchieved": "9.71%",
+      "gamerscore": 5,
+      "pack": "Operation: SPEARBREAKER",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-send-in-the-experts-a471307a4e",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Send in the experts",
+      "description": "Complete Spearbreaker on Heroic.",
+      "image": "assets/halowars2-achievements/halowars2-send-in-the-experts-a471307a4e.webp",
+      "percentAchieved": "3.61%",
+      "gamerscore": 10,
+      "pack": "Operation: SPEARBREAKER",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-we-go-feet-first-470efda5d4",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "We go feet first!",
+      "description": "Complete Spearbreaker on Legendary.",
+      "image": "assets/halowars2-achievements/halowars2-we-go-feet-first-470efda5d4.webp",
+      "percentAchieved": "2.84%",
+      "gamerscore": 15,
+      "pack": "Operation: SPEARBREAKER",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ],
+      "aliases": [
+        "We go Feet First"
+      ]
+    },
+    {
+      "id": "halowars2-vidmaster-challenge-100-drops-cf2fc9b5ac",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Vidmaster Challenge: 100 drops",
+      "description": "Gain Gold medal and complete all objectives in \"Gatecrashers\" on Legendary.",
+      "image": "assets/halowars2-achievements/halowars2-vidmaster-challenge-100-drops-cf2fc9b5ac.webp",
+      "percentAchieved": "1.24%",
+      "gamerscore": 5,
+      "pack": "Operation: SPEARBREAKER",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-vidmaster-challenge-no-fly-zone-cfbe0bbb65",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Vidmaster Challenge: No fly zone",
+      "description": "Gain Gold medal and complete all objectives in \"Not on My Watch\" on Legendary.",
+      "image": "assets/halowars2-achievements/halowars2-vidmaster-challenge-no-fly-zone-cfbe0bbb65.webp",
+      "percentAchieved": "1.31%",
+      "gamerscore": 5,
+      "pack": "Operation: SPEARBREAKER",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-freeze-a443529ba5",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Freeze!",
+      "description": "Freeze 50 squads with Cryo Abilities (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-freeze-a443529ba5.webp",
+      "percentAchieved": "9.30%",
+      "gamerscore": 10,
+      "pack": "Serina",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-insult-upon-injury-f88c60e83a",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Insult upon injury",
+      "description": "Shatter 20 squads that have been Frozen. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-insult-upon-injury-f88c60e83a.webp",
+      "percentAchieved": "5.88%",
+      "gamerscore": 10,
+      "pack": "Serina",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-nothing-too-difficult-then-bfa6b95562",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Nothing too difficult, then?",
+      "description": "Win 3 matches as Serina (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-nothing-too-difficult-then-bfa6b95562.webp",
+      "percentAchieved": "6.68%",
+      "gamerscore": 10,
+      "pack": "Serina",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-piggyback-a3c7523123",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Piggyback!",
+      "description": "Activate the Grunt Pnap-pattern Goblin charge 10 times. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-piggyback-a3c7523123.webp",
+      "percentAchieved": "7.49%",
+      "gamerscore": 10,
+      "pack": "Yapyap The Destroyer",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-that-sweet-smell-of-home-f1e057b315",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "That sweet smell of home",
+      "description": "Fire 15 methane shells from the Methane Wagon. (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-that-sweet-smell-of-home-f1e057b315.webp",
+      "percentAchieved": "4.99%",
+      "gamerscore": 10,
+      "pack": "Yapyap The Destroyer",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-you-met-me-on-reach-868da2de14",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "You met me on Reach!",
+      "description": "Win 3 matches as Yapyap (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-you-met-me-on-reach-868da2de14.webp",
+      "percentAchieved": "6.83%",
+      "gamerscore": 10,
+      "pack": "Yapyap The Destroyer",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-smash-fbb187f971",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Smash!",
+      "description": "Gain a gold medal and complete all objectives in \"What Could Go Wrong?\".",
+      "image": "assets/halowars2-achievements/halowars2-smash-fbb187f971.webp",
+      "percentAchieved": "1.93%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-serving-a-new-master-0f56d090de",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Serving a New Master",
+      "description": "Completed \"What Could Go Wrong?\" on any difficulty.",
+      "image": "assets/halowars2-achievements/halowars2-serving-a-new-master-0f56d090de.webp",
+      "percentAchieved": "9.94%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-hold-the-line-s-5bdc569e0d",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Hold the Line(s)",
+      "description": "Gain a gold medal and complete all objectives in \"Fighting Retreat\".",
+      "image": "assets/halowars2-achievements/halowars2-hold-the-line-s-5bdc569e0d.webp",
+      "percentAchieved": "2.31%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-the-wave-breaks-9caf1d71de",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The Wave Breaks",
+      "description": "Complete \"Fighting Retreat\" on any difficulty.",
+      "image": "assets/halowars2-achievements/halowars2-the-wave-breaks-9caf1d71de.webp",
+      "percentAchieved": "9.22%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-hidden-power-1ccc0b70ce",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Hidden Power",
+      "description": "Gain a gold medal and complete all objectives in \"Light the Fuse\".",
+      "image": "assets/halowars2-achievements/halowars2-hidden-power-1ccc0b70ce.webp",
+      "percentAchieved": "1.44%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-tapped-5aea04b055",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Tapped",
+      "description": "Complete \"Light the Fuse\" on any difficulty.",
+      "image": "assets/halowars2-achievements/halowars2-tapped-5aea04b055.webp",
+      "percentAchieved": "8.56%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-we-got-this-7d35f911f9",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "We Got This",
+      "description": "Reach the final room of \"The Archive\" without calling in reinforcements from the teleporters.",
+      "image": "assets/halowars2-achievements/halowars2-we-got-this-7d35f911f9.webp",
+      "percentAchieved": "1.68%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-nimble-for-a-big-fella-520ff31b71",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Nimble, for a Big Fella",
+      "description": "Navigate the laser defenses in \"The Archive\" without losing any units on Heroic or above.",
+      "image": "assets/halowars2-achievements/halowars2-nimble-for-a-big-fella-520ff31b71.webp",
+      "percentAchieved": "2.06%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-have-you-tried-rebooting-b4d2e9059f",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Have You Tried Rebooting?",
+      "description": "Complete \"The Archive\" on any difficulty.",
+      "image": "assets/halowars2-achievements/halowars2-have-you-tried-rebooting-b4d2e9059f.webp",
+      "percentAchieved": "7.79%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-before-this-gets-out-of-hand-0f5d362b78",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Before This Gets Out of Hand",
+      "description": "Complete \"Manifestation\" without the Proto-Gravemind exceeding 50% critical mass.",
+      "image": "assets/halowars2-achievements/halowars2-before-this-gets-out-of-hand-0f5d362b78.webp",
+      "percentAchieved": "4.46%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-clean-up-your-mess-e48ef21447",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Clean up your Mess",
+      "description": "Complete \"Manifestation\" on any difficulty.",
+      "image": "assets/halowars2-achievements/halowars2-clean-up-your-mess-e48ef21447.webp",
+      "percentAchieved": "7.54%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-banished-prowess-af9d8ada60",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Banished Prowess",
+      "description": "Beat any level on legendary in par time with a scoring skull active (Awakening the Nightmare only).",
+      "image": "assets/halowars2-achievements/halowars2-banished-prowess-af9d8ada60.webp",
+      "percentAchieved": "1.28%",
+      "gamerscore": 15,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-the-brute-side-5069adbfb0",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The Brute Side",
+      "description": "Collect every Phoenix Log collectable in \"Awakening the Nightmare\".",
+      "image": "assets/halowars2-achievements/halowars2-the-brute-side-5069adbfb0.webp",
+      "percentAchieved": "1.73%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-awake-9123b5f481",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Awake",
+      "description": "Complete the \"Awakening the Nightmare\" campaign on any difficulty.",
+      "image": "assets/halowars2-achievements/halowars2-awake-9123b5f481.webp",
+      "percentAchieved": "7.50%",
+      "gamerscore": 30,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-again-with-the-tentacles-39e4e66bec",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Again with the Tentacles",
+      "description": "Complete the 'Awakening the Nightmare' campaign on Heroic or higher.",
+      "image": "assets/halowars2-achievements/halowars2-again-with-the-tentacles-39e4e66bec.webp",
+      "percentAchieved": "2.46%",
+      "gamerscore": 40,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-the-ancient-enemy-7ed4d5fd51",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The Ancient Enemy",
+      "description": "Complete the \"Awakening the Nightmare\" campaign on Legendary.",
+      "image": "assets/halowars2-achievements/halowars2-the-ancient-enemy-7ed4d5fd51.webp",
+      "percentAchieved": "2.03%",
+      "gamerscore": 50,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "Campaign"
+      ]
+    },
+    {
+      "id": "halowars2-spreading-darkness-d0f4379657",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Spreading Darkness",
+      "description": "Win 3 matches as Voridus (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-spreading-darkness-d0f4379657.webp",
+      "percentAchieved": "4.73%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-cataclysmic-40ca9138bf",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Cataclysmic",
+      "description": "Kill 50 units with Cataclysm (Multiplayer, Skirmish, or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-cataclysmic-40ca9138bf.webp",
+      "percentAchieved": "3.29%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-revel-in-destruction-0948c22327",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Revel in Destruction",
+      "description": "Use Invigorating Frenzy 50 times.",
+      "image": "assets/halowars2-achievements/halowars2-revel-in-destruction-0948c22327.webp",
+      "percentAchieved": "2.24%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-unbreakable-346568c1dc",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Unbreakable",
+      "description": "Win 3 matches as Pavium (Multiplayer, Skirmish or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-unbreakable-346568c1dc.webp",
+      "percentAchieved": "6.01%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-marked-for-death-aa82751006",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Marked for Death",
+      "description": "Paint units using Pavium or Orbital Designator 30 times (Multiplayer, Skirmish, or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-marked-for-death-aa82751006.webp",
+      "percentAchieved": "8.86%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-the-long-game-b8cb5a9c4d",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "The Long Game",
+      "description": "Kill 50 units with Mega Turrets (Multiplayer, Skirmish, or Blitz).",
+      "image": "assets/halowars2-achievements/halowars2-the-long-game-b8cb5a9c4d.webp",
+      "percentAchieved": "7.03%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer",
+        "PvP Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-watch-my-six-10793f053b",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Watch My Six",
+      "description": "Complete wave 20 in co-op as a UNSC/Banished partnership (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-watch-my-six-10793f053b.webp",
+      "percentAchieved": "6.30%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-outflood-the-flood-e1e97ba381",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Outflood the Flood",
+      "description": "Build and hold a minibase on every slot of a map at the same time (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-outflood-the-flood-e1e97ba381.webp",
+      "percentAchieved": "4.07%",
+      "gamerscore": 15,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-ka-ching-4f3dc9b46a",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Ka-Ching!",
+      "description": "Destroy 20 bonus drops in a single game (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-ka-ching-4f3dc9b46a.webp",
+      "percentAchieved": "3.68%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-high-maintenance-bba89bbd34",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "High Maintenance",
+      "description": "Build 50 barricades in a single game (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-high-maintenance-bba89bbd34.webp",
+      "percentAchieved": "3.98%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-turret-farmer-5d444423ea",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Turret Farmer",
+      "description": "Build 50 turrets in a single game (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-turret-farmer-5d444423ea.webp",
+      "percentAchieved": "3.62%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-pristine-3ba5d854cc",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Pristine",
+      "description": "Prevent the Terminus from taking any damage for 15 waves (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-pristine-3ba5d854cc.webp",
+      "percentAchieved": "2.53%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-walled-in-be098580eb",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Walled In",
+      "description": "Have a wall built on every plot of the map at the same time (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-walled-in-be098580eb.webp",
+      "percentAchieved": "2.89%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-survivor-51b40c9947",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Survivor",
+      "description": "Finish wave 5 without training additional units (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-survivor-51b40c9947.webp",
+      "percentAchieved": "2.61%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-garrison-4c63cc8cd1",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Garrison",
+      "description": "Finished wave 10 (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-garrison-4c63cc8cd1.webp",
+      "percentAchieved": "9.42%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-barricade-3a5364b82c",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Barricade",
+      "description": "Finished wave 20 (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-barricade-3a5364b82c.webp",
+      "percentAchieved": "8.85%",
+      "gamerscore": 15,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-fortress-fea4f8f76f",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Fortress",
+      "description": "Finished wave 30 (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-fortress-fea4f8f76f.webp",
+      "percentAchieved": "7.97%",
+      "gamerscore": 20,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-terminus-teamwork-94a11bec81",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Terminus Teamwork",
+      "description": "Get a team score of 2,000,000 (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-terminus-teamwork-94a11bec81.webp",
+      "percentAchieved": "8.03%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-terminus-mvps-8ddf460215",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Terminus MVPs",
+      "description": "Get a team score of 5,000,000 (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-terminus-mvps-8ddf460215.webp",
+      "percentAchieved": "7.05%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-terminus-defender-c164cad154",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Terminus Defender",
+      "description": "Get an individual score of 500,000 (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-terminus-defender-c164cad154.webp",
+      "percentAchieved": "9.01%",
+      "gamerscore": 5,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    },
+    {
+      "id": "halowars2-terminus-tactician-055ff7eacf",
+      "collection": "halowars2",
+      "games": [
+        "halowars2"
+      ],
+      "name": "Terminus Tactician",
+      "description": "Get an individual score of 1,000,000 (Terminus Firefight).",
+      "image": "assets/halowars2-achievements/halowars2-terminus-tactician-055ff7eacf.webp",
+      "percentAchieved": "8.59%",
+      "gamerscore": 10,
+      "pack": "Awakening the Nightmare",
+      "guideDescription": "",
+      "guideVideos": [],
+      "filters": [
+        "PvE Multiplayer"
+      ]
+    }
   ]
 });
