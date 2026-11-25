@@ -154,7 +154,9 @@ const getRoute = () => {
   const achievement = url.searchParams.get('achievement');
   const profile = page === 'profile' ? url.searchParams.get('player') : null;
 
-  return Object.freeze({ page, game, achievement, profile });
+  const profileTab = page === 'profile' ? url.searchParams.get('tab') : null;
+
+  return Object.freeze({ page, game, achievement, profile, profileTab });
 };
 
 const canonicalizeUrl = () => {
@@ -1467,15 +1469,24 @@ const loadSteamProfile = async (account, view) => {
   return {};
 };
 
-const attachProfileTabs = (page) => {
+const attachProfileTabs = (page, requestedTab) => {
   const tabList = createElement('div', {
     className: 'profile-tabs',
     attributes: { role: 'tablist', 'aria-label': t('Profile sections') },
   });
   const entries = [];
+  const activate = (tab) => {
+    for (const entry of entries) {
+      const active = entry.tab === tab;
+      entry.tab.setAttribute('aria-selected', String(active));
+      entry.tab.tabIndex = active ? 0 : -1;
+      entry.panel.hidden = !active;
+    }
+  };
   const addTab = (label) => {
     const index = entries.length;
-    const id = `profile-tab-${label.toLowerCase()}`;
+    const key = label.toLowerCase();
+    const id = `profile-tab-${key}`;
     const panelId = `${id}-panel`;
     const tab = createElement('button', {
       text: t(label),
@@ -1492,13 +1503,12 @@ const attachProfileTabs = (page) => {
     tabList.append(tab);
     entries.push({ tab, panel });
     page.append(panel);
+    if (key === requestedTab) activate(tab);
     tab.addEventListener('click', () => {
-      for (const entry of entries) {
-        const active = entry.tab === tab;
-        entry.tab.setAttribute('aria-selected', String(active));
-        entry.tab.tabIndex = active ? 0 : -1;
-        entry.panel.hidden = !active;
-      }
+      activate(tab);
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', key);
+      window.history.replaceState(window.history.state, '', url);
       panel.dispatchEvent(new Event('profile-tab-open'));
     });
     tab.addEventListener('keydown', (event) => {
@@ -1855,7 +1865,11 @@ const renderPlayerProfile = async (route) => {
         ? account.displayName : savedIdentity?.displayName ?? previousIdentity?.displayName ?? account.displayName,
       avatarUrl: account.avatarUrl ?? savedIdentity?.avatarUrl ?? previousIdentity?.avatarUrl,
     });
-    if (!shared) window.history.replaceState(window.history.state, '', profileHref(account));
+    if (!shared) {
+      const url = new URL(profileHref(account), window.location.href);
+      if (route.profileTab) url.searchParams.set('tab', route.profileTab);
+      window.history.replaceState(window.history.state, '', url);
+    }
   }
   if (!progress.size && player.accounts.has('steam')) {
     progress.set('steam', { platform: 'steam', player: player.accounts.get('steam').player, games: [] });
@@ -1884,7 +1898,7 @@ const renderPlayerProfile = async (route) => {
   nameRow.append(platforms);
   const profileFacts = showExternalProfileLinks(platforms, account?.platform ?? shared?.[1], account?.accountId ?? player.id);
 
-  const { panels: [achievementPanel, screenshotPanel, friendPanel], addTab } = attachProfileTabs(page);
+  const { panels: [achievementPanel, screenshotPanel, friendPanel], addTab } = attachProfileTabs(page, route.profileTab);
   const screenshotStatus = createElement('p', {
     attributes: { role: 'status' }, text: t('Loading screenshots…'),
   });
