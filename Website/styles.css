@@ -300,6 +300,10 @@
     height: 40px;
   }
 
+  .nav-section-toggle[aria-expanded="true"] .nav-chevron {
+    transform: rotate(180deg);
+  }
+
   .nav-game {
     grid-template-columns: 40px minmax(0, 1fr);
     gap: 5px;

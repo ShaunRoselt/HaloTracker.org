@@ -202,9 +202,6 @@ const setSidebarOpen = (open) => {
 const setGamesExpanded = (expanded) => {
   elements.gameNavigation.hidden = !expanded;
   elements.achievementsToggle.setAttribute('aria-expanded', String(expanded));
-  elements.achievementsToggle.querySelector('.nav-chevron').src = expanded
-    ? 'assets/chevron-down.svg'
-    : 'assets/chevron-up.svg';
 };
 
 const leaderboardToggle = document.querySelector('#leaderboard-toggle');
@@ -212,8 +209,6 @@ const leaderboardNavigation = document.querySelector('#leaderboard-navigation');
 const setLeaderboardExpanded = (expanded) => {
   leaderboardNavigation.hidden = !expanded;
   leaderboardToggle.setAttribute('aria-expanded', String(expanded));
-  leaderboardToggle.querySelector('.nav-chevron').src = expanded
-    ? 'assets/chevron-up.svg' : 'assets/chevron-down.svg';
 };
 leaderboardToggle.addEventListener('click', () => setLeaderboardExpanded(leaderboardNavigation.hidden));
 
