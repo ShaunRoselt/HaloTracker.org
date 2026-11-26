@@ -606,6 +606,7 @@ const playerCollections = [...new Set([...GAME_CONFIG.values()].map(({ collectio
 
 const refreshSelectedPlayer = async (player, firstGame) => {
   const firstReports = await progressForGame(player, firstGame);
+  if (!player.accounts.size && firstReports.some((report) => report?.error === 'rate-limited')) return firstReports;
   const remaining = playerCollections.filter((game) => game !== firstGame);
   for (let offset = 0; offset < remaining.length; offset += 3) {
     if (state.player !== player) return firstReports;
@@ -1790,10 +1791,7 @@ const showProfileFacts = (nameRow, facts, steamDetails) => {
     const years = Number(today.slice(0, 4)) - Number(history.date.slice(0, 4))
       - Number(today.slice(5) < history.date.slice(5));
     if (years > 0) {
-      const count = t('{years}+', { years: number.format(years) });
-      age = history.kind === 'halo-achievement'
-        ? t('Halo history: {years} years', { years: count })
-        : t('Public account history: {years} years', { years: count });
+      age = t('Age {age}', { age: t('{years}+', { years: number.format(years) }) });
     }
   }
   if (facts.jobTitle || age) {
@@ -2583,6 +2581,28 @@ playerSuggestions.addEventListener('scroll', () => {
   if (scrollHeight - scrollTop - clientHeight < 48) void fetchPlayerSuggestions();
 }, { passive: true });
 
+const recoverSavedPlayer = async (player, id, reports, route) => {
+  if (state.player !== player || state.renderedRoute !== route || player.accounts.size
+    || !reports.some((report) => ['rate-limited', 'provider-unavailable'].includes(report?.error))) return false;
+  try {
+    const params = new URLSearchParams({ q: id, exact: '1' });
+    const response = await fetch(`/api/player-suggestions?${params}`, {
+      signal: AbortSignal.any([player.controller.signal, AbortSignal.timeout(5_000)]),
+    });
+    if (!response.ok) return false;
+    const { players, nextOffset } = await response.json();
+    const ids = new Set(players.map(({ profileId }) => profileId));
+    if (nextOffset !== null || ids.size !== 1 || state.player !== player
+      || state.renderedRoute !== route || player.accounts.size) return false;
+    const [profileId] = ids;
+    if (!isPlayerProfileId(profileId)) return false;
+    openSuggestedProfile(profileId);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 elements.playerLookup.addEventListener('submit', (event) => {
   event.preventDefault();
   closePlayerSuggestions();
@@ -2601,8 +2621,10 @@ elements.playerLookup.addEventListener('submit', (event) => {
   const route = state.renderedRoute;
   if (route.page === 'profile') {
     window.history.pushState(null, '', '?page=profile');
-    void refreshSelectedPlayer(player, 'halomcc');
     renderRoute();
+    const profileRoute = state.renderedRoute;
+    void refreshSelectedPlayer(player, 'halomcc').then((reports) =>
+      recoverSavedPlayer(player, id, reports, profileRoute));
     return;
   }
   const game = route.page === 'achievements' ? GAME_CONFIG.get(route.game) : undefined;
@@ -2615,7 +2637,8 @@ elements.playerLookup.addEventListener('submit', (event) => {
       renderAchievements(route.game);
     }
   }
-  void refreshSelectedPlayer(player, game?.collection ?? 'halomcc').then((reports) => {
+  void refreshSelectedPlayer(player, game?.collection ?? 'halomcc').then(async (reports) => {
+    if (await recoverSavedPlayer(player, id, reports, route)) return;
     if (state.player !== player || player.accounts.size || state.renderedRoute !== route) return;
     player.failedReports = reports;
     window.history.pushState(null, '', getNavigationUrl('?page=profile'));

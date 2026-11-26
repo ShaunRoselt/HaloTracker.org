@@ -63,6 +63,7 @@ export async function searchSavedPlayers(request, db) {
   const term = query.slice(prefix?.[0].length ?? 0);
   if (!term) return Response.json({ players: [], nextOffset: null }, { headers });
   const limit = 20;
+  const exact = params.get('exact') === '1';
 
   try {
     await backfillPlayerProfiles(db);
@@ -92,14 +93,15 @@ export async function searchSavedPlayers(request, db) {
         WHERE player IS NOT NULL AND displayName IS NOT NULL
       )
       SELECT profileId, platform, player, displayName, avatarUrl FROM matches
-      WHERE INSTR(name, query) > 0 OR INSTR(handle, query) > 0 OR INSTR(id, query) > 0
+      WHERE query IN (name, handle, id)
+        OR (? = 0 AND (INSTR(name, query) > 0 OR INSTR(handle, query) > 0 OR INSTR(id, query) > 0))
       ORDER BY CASE
         WHEN query IN (name, handle, id) THEN 0
         WHEN INSTR(name, query) = 1 OR INSTR(handle, query) = 1 OR INSTR(id, query) = 1 THEN 1
         ELSE 2
       END, name, handle, platform, id
       LIMIT ? OFFSET ?
-    `).bind(prefix?.[1].toLowerCase() ?? '', prefix?.[1].toLowerCase() ?? '', term, limit + 1, offset).all();
+    `).bind(prefix?.[1].toLowerCase() ?? '', prefix?.[1].toLowerCase() ?? '', term, Number(exact), limit + 1, offset).all();
     return Response.json({
       players: results.slice(0, limit),
       nextOffset: results.length > limit ? offset + limit : null,
