@@ -1,5 +1,6 @@
 import { readProfileLinks } from './profile-links.js';
-import { readLeaderboard, readSavedProfile } from './player-rankings.js';
+import { manageProfileResearch } from './profile-research.js';
+import { readLeaderboard, readSavedProfile, searchSavedPlayers } from './player-rankings.js';
 import { lookupPlayerAchievements, lookupSteamFriends, lookupSteamProfile, lookupSteamScreenshots, syncSteamFriend } from "./player-achievements.js";
 import { getAchievementsForGame, guidePageTitle, hasGuide } from "./game-catalog.js";
 
@@ -55,7 +56,9 @@ export default {
       return lookupPlayerAchievements(request, env);
     }
     if (pathname === "/api/leaderboard") return readLeaderboard(request, env.DB, env.VERIFIED_PLAYER_ACCOUNTS);
+    if (pathname === "/api/player-suggestions") return searchSavedPlayers(request, env.DB);
     if (pathname === "/api/profile-links") return readProfileLinks(request, env.DB);
+    if (pathname === "/api/admin/profile-research") return manageProfileResearch(request, env);
     if (pathname === "/api/saved-profile") return readSavedProfile(request, env.DB, env.VERIFIED_PLAYER_ACCOUNTS);
     if (pathname === "/api/steam-friends") return lookupSteamFriends(request, env.DB);
     if (pathname === "/api/steam-screenshots") return lookupSteamScreenshots(request);

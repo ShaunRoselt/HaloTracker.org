@@ -6,10 +6,14 @@ export async function backfillPlayerProfiles(db) {
   if (bootstrapped.has(db)) return;
   await db.prepare(`
     INSERT OR IGNORE INTO player_profile_accounts (platform, account_id)
-    SELECT DISTINCT platform, account_id FROM player_rankings AS ranking
-    WHERE platform IN ('steam', 'xbox') AND NOT EXISTS (
+    SELECT platform, account_id FROM (
+      SELECT platform, account_id FROM player_rankings WHERE platform IN ('steam', 'xbox')
+      UNION
+      SELECT 'steam', account_id FROM steam_profile_details WHERE details IS NOT NULL
+    ) AS known
+    WHERE NOT EXISTS (
       SELECT 1 FROM player_profile_accounts AS account
-      WHERE account.platform = ranking.platform AND account.account_id = ranking.account_id
+      WHERE account.platform = known.platform AND account.account_id = known.account_id
     )
   `).run();
   bootstrapped.add(db);

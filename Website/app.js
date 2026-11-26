@@ -317,6 +317,7 @@ const localizeShell = () => {
   document.querySelector('#player-id-label').textContent = playerLabel;
   elements.playerId.placeholder = playerLabel;
   document.querySelector('#player-submit').textContent = t('Search');
+  document.querySelector('#player-suggestions').setAttribute('aria-label', t('Saved players'));
   updatePlayerHeader();
   document.querySelector('.skip-link').textContent = t('Skip to content');
   document.querySelector('.navigation').setAttribute('aria-label', t('Primary'));
@@ -1371,6 +1372,7 @@ const createSteamGalleries = (galleries, accountId) => {
   const image = createElement('img', { attributes: { referrerpolicy: 'no-referrer' } });
   const controls = createElement('div', { className: 'profile-screenshot-controls' });
   const original = steamLink('#', t('View on Steam'));
+  original.target = '_blank';
   controls.append(previous, original, next);
   dialog.append(close, heading, image, controls);
   grid.append(dialog, status);
@@ -1388,6 +1390,13 @@ const createSteamGalleries = (galleries, accountId) => {
     image.alt = active.alt;
     if (image.src !== active.fullSize) image.src = active.fullSize;
     original.href = active.url;
+    const item = active;
+    item.originalImage ??= fetch(`/api/steam-screenshots?screenshot=${item.id}`, {
+      signal: AbortSignal.timeout(8_000),
+    }).then(response => response.ok ? response.json() : null).catch(() => null);
+    item.originalImage.then(result => {
+      if (active === item && result?.image) image.src = result.image;
+    });
     previous.disabled = index === 0;
     next.disabled = index === items.length - 1;
   };
@@ -1418,7 +1427,7 @@ const createSteamGalleries = (galleries, accountId) => {
       url.search = '';
       const alt = t('{game} screenshot {number}', { game: group.title, number: group.items.length + 1 });
       const item = {
-        alt, fullSize: fullSize ?? url.href, url: `https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`,
+        id, alt, fullSize: fullSize ?? url.href, url: `https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`,
       };
       group.items.push(item);
       const button = createElement('button', { attributes: { type: 'button' } });
@@ -1558,7 +1567,7 @@ const attachProfileTabs = (page, requestedTab) => {
     return panel;
   };
   page.append(tabList);
-  return { panels: ['Achievements', 'Screenshots', 'Friends'].map(addTab), addTab };
+  return { panels: ['Achievements', 'Screenshots', 'Friends', 'Statistics'].map(addTab), addTab };
 };
 
 const setupProfileFriends = async (panel, steam) => {
@@ -1587,7 +1596,10 @@ const setupProfileFriends = async (panel, steam) => {
   const navigation = createElement('div', { className: 'profile-friends-pagination' });
   const previous = createElement('button', { className: 'button secondary-button', text: t('Previous'), attributes: { type: 'button' } });
   const next = createElement('button', { className: 'button secondary-button', text: t('Next'), attributes: { type: 'button' } });
-  navigation.append(previous, next);
+  const pagination = createElement('div', { className: 'profile-friends-page-buttons' });
+  pagination.append(previous, next);
+  const { search, searchInput } = createGameSearch('profile-friends-search', 'Search Friends', 'profile-friends-results');
+  navigation.append(pagination, search);
 
   const rankedFriends = friends.map((friend) => ({ ...friend, player: friend.displayName, platform: 'steam' }));
   const pageSize = 48;
@@ -1595,7 +1607,6 @@ const setupProfileFriends = async (panel, steam) => {
   const names = new Intl.Collator(currentLanguage(), { sensitivity: 'base' });
   let start = 0;
   const showPage = () => {
-    const end = Math.min(start + pageSize, rankedFriends.length);
     const { sort, direction } = ranking;
     const compareName = (a, b) => names.compare(a.displayName, b.displayName) || a.accountId.localeCompare(b.accountId);
     rankedFriends.sort((a, b) => (b.unlocked ?? 0) - (a.unlocked ?? 0) || compareName(a, b));
@@ -1613,18 +1624,26 @@ const setupProfileFriends = async (panel, steam) => {
         : sort === 'platform' ? 0 : (a[sort] ?? 0) - (b[sort] ?? 0);
       return (direction === 'asc' ? difference : -difference) || compareName(a, b);
     });
-    status.textContent = rankedFriends.length ? t('Friends {first}–{last} of {total}', {
-      first: format.format(start + 1), last: format.format(end), total: format.format(rankedFriends.length),
-    }) : '';
-    ranking.showRows(rankedFriends.slice(start, end), 'This player has no public Steam friends.');
+    const query = searchInput.value.trim().normalize().toLocaleLowerCase(currentLanguage());
+    const matches = query ? rankedFriends.filter(({ displayName }) =>
+      displayName.normalize().toLocaleLowerCase(currentLanguage()).includes(query)) : rankedFriends;
+    const end = Math.min(start + pageSize, matches.length);
+    status.textContent = matches.length ? t('Friends {first}–{last} of {total}', {
+      first: format.format(start + 1), last: format.format(end), total: format.format(matches.length),
+    }) : query ? t('No matching players.') : '';
+    ranking.showRows(matches.slice(start, end), query ? 'No matching players.' : 'This player has no public Steam friends.');
+    ranking.results.hidden = Boolean(query) && matches.length === 0;
+    pagination.hidden = matches.length <= pageSize;
     previous.disabled = start === 0;
-    next.disabled = end === rankedFriends.length;
+    next.disabled = end === matches.length;
   };
   const ranking = createRankingTable('all', { 'aria-label': t('Steam friends') }, () => {
     start = 0;
     showPage();
   });
-  navigation.hidden = rankedFriends.length <= pageSize;
+  ranking.results.id = 'profile-friends-results';
+  navigation.hidden = rankedFriends.length === 0;
+  searchInput.addEventListener('input', () => { start = 0; showPage(); });
   panel.append(navigation, ranking.results);
   previous.addEventListener('click', () => { start -= pageSize; showPage(); });
   next.addEventListener('click', () => { start += pageSize; showPage(); });
@@ -1693,7 +1712,7 @@ const profileLinkServices = new Map([
   ['email', ['Email', 'profile-links/envelope']],
   ['stackoverflow', ['Stack Overflow', 'profile-links/stack-overflow']],
   ['arqade', ['Arqade', 'profile-links/controller']],
-  ['website', ['Personal website', 'profile-links/globe']],
+  ['website', ['Website or player profile', 'profile-links/globe']],
   ['github', ['GitHub', 'github']],
   ['linkedin', ['LinkedIn', 'profile-links/linkedin']],
   ['youtube', ['YouTube', 'profile-links/youtube']],
@@ -1701,6 +1720,14 @@ const profileLinkServices = new Map([
   ['instagram', ['Instagram', 'profile-links/instagram']],
   ['facebook', ['Facebook', 'profile-links/facebook']],
   ['x', ['X', 'profile-links/twitter-x']],
+  ['spotify', ['Spotify', 'profile-links/spotify']],
+  ['tiktok', ['TikTok', 'profile-links/tiktok']],
+  ['kick', ['Kick', 'profile-links/kick']],
+  ['faceit', ['FACEIT', 'profile-links/faceit']],
+  ['audiomack', ['Audiomack', 'profile-links/audiomack']],
+  ['h5reforged', ['Halo 5 Reforged', 'profile-links/halo-5-reforged']],
+  ['bandcamp', ['Bandcamp', 'profile-links/bandcamp']],
+  ['soundcloud', ['SoundCloud', 'profile-links/soundcloud']],
 ]);
 
 const showExternalProfileLinks = async (container, platform, id) => {
@@ -1736,28 +1763,58 @@ const profileJobIcon = (jobTitle) => {
   const path = softwareRole
     ? 'M5.25 3.5 1.5 7.5l3.75 4m5.5-8 3.75 4-3.75 4M9.25 2l-2.5 12'
     : 'M5.5 4V2.75A1.25 1.25 0 0 1 6.75 1.5h2.5a1.25 1.25 0 0 1 1.25 1.25V4m-9 1.5h11A1.5 1.5 0 0 1 14 7v5.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 12.5V7a1.5 1.5 0 0 1 1.5-1.5Zm-1 3h11m-7-1v2h3v-2';
-  const icon = createElement('svg', {
-    className: 'profile-job-icon',
-    attributes: { viewBox: '0 0 16 16', fill: 'none', 'aria-hidden': 'true', focusable: 'false' },
-  });
-  icon.append(createElement('path', {
-    attributes: { d: path, stroke: 'currentColor', 'stroke-width': '1.35', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' },
-  }));
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+  const icon = document.createElementNS(svgNamespace, 'svg');
+  icon.classList.add('profile-job-icon');
+  icon.setAttribute('viewBox', '0 0 16 16');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.setAttribute('focusable', 'false');
+
+  const shape = document.createElementNS(svgNamespace, 'path');
+  shape.setAttribute('d', path);
+  shape.setAttribute('stroke', 'currentColor');
+  shape.setAttribute('stroke-width', '1.35');
+  shape.setAttribute('stroke-linecap', 'round');
+  shape.setAttribute('stroke-linejoin', 'round');
+  icon.append(shape);
   return icon;
 };
 
 const showProfileFacts = (nameRow, facts, steamDetails) => {
   if (!facts || steamDetails?.private || !nameRow.isConnected) return;
-  const age = Number.isInteger(facts.age)
-    ? t('Age {age}', { age: new Intl.NumberFormat(currentLanguage()).format(facts.age) })
+  const number = new Intl.NumberFormat(currentLanguage());
+  let age = Number.isInteger(facts.age)
+    ? t('Age {age}', { age: number.format(facts.age) })
     : null;
-  if (facts.jobTitle) {
-    const details = [facts.jobTitle, age].filter(Boolean);
-    const line = createElement('p', { className: 'profile-joined profile-job-title' });
-    line.append(profileJobIcon(facts.jobTitle), createElement('span', { text: details.join(' · ') }));
+  const history = facts.publicHistory;
+  if (age === null && history?.date && URL.canParse(history.sourceUrl)
+    && new URL(history.sourceUrl).protocol === 'https:') {
+    const today = new Date().toISOString().slice(0, 10);
+    const years = Number(today.slice(0, 4)) - Number(history.date.slice(0, 4))
+      - Number(today.slice(5) < history.date.slice(5));
+    if (years > 0) {
+      const count = t('{years}+', { years: number.format(years) });
+      age = history.kind === 'halo-achievement'
+        ? t('Halo history: {years} years', { years: count })
+        : t('Public account history: {years} years', { years: count });
+    }
+  }
+  if (facts.jobTitle || age) {
+    const line = createElement('p', {
+      className: facts.jobTitle ? 'profile-joined profile-job-title' : 'profile-joined',
+    });
+    const details = createElement('span');
+    if (facts.jobTitle) {
+      line.append(profileJobIcon(facts.jobTitle));
+      details.append(facts.jobTitle);
+    }
+    if (age) {
+      if (facts.jobTitle) details.append(' · ');
+      details.append(age);
+    }
+    line.append(details);
     nameRow.after(line);
-  } else if (age) {
-    nameRow.after(createElement('p', { className: 'profile-joined', text: age }));
   }
   if (!/^[a-z]{2}$/.test(facts.countryCode)) return;
   const identity = nameRow.parentElement;
@@ -1784,6 +1841,14 @@ const renderPlayerProfile = async (route) => {
   nameRow.append(title);
   identity.append(nameRow);
   hero.append(identity);
+  const portraitSizer = new ResizeObserver(([entry]) => {
+    if (!hero.isConnected) {
+      portraitSizer.disconnect();
+      return;
+    }
+    hero.style.setProperty('--profile-identity-height', `${entry.contentRect.height}px`);
+  });
+  portraitSizer.observe(identity);
   const status = createElement('p', { className: 'profile-status', attributes: { role: 'status' } });
   identity.append(status);
   page.append(hero);
@@ -1935,7 +2000,8 @@ const renderPlayerProfile = async (route) => {
   nameRow.append(platforms);
   const profileFacts = showExternalProfileLinks(platforms, account?.platform, account?.accountId);
 
-  const { panels: [achievementPanel, screenshotPanel, friendPanel], addTab } = attachProfileTabs(page, route.profileTab);
+  const { panels: [achievementPanel, screenshotPanel, friendPanel, statisticsPanel], addTab } = attachProfileTabs(page, route.profileTab);
+  statisticsPanel.append(createElement('p', { text: t('Coming Soon!') }));
   const screenshotStatus = createElement('p', {
     attributes: { role: 'status' }, text: t('Loading screenshots…'),
   });
@@ -2384,8 +2450,144 @@ desktopMediaQuery.addEventListener('change', () => {
   }
 });
 
+const playerSuggestions = document.querySelector('#player-suggestions');
+const playerSuggestionStatus = document.querySelector('#player-suggestion-status');
+let suggestionQuery = '';
+let suggestionTimer;
+let suggestionRequest;
+let nextSuggestionOffset = 0;
+let activeSuggestion = null;
+
+const activatePlayerSuggestion = (option) => {
+  activeSuggestion?.setAttribute('aria-selected', 'false');
+  activeSuggestion = option;
+  if (option) {
+    option.setAttribute('aria-selected', 'true');
+    elements.playerId.setAttribute('aria-activedescendant', option.id);
+    option.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  } else {
+    elements.playerId.removeAttribute('aria-activedescendant');
+  }
+};
+
+const closePlayerSuggestions = () => {
+  window.clearTimeout(suggestionTimer);
+  suggestionRequest?.abort();
+  suggestionRequest = null;
+  suggestionQuery = '';
+  nextSuggestionOffset = 0;
+  activatePlayerSuggestion(null);
+  elements.playerId.setAttribute('aria-expanded', 'false');
+  playerSuggestions.hidden = true;
+  playerSuggestions.replaceChildren();
+  playerSuggestionStatus.textContent = '';
+};
+
+const openSuggestedProfile = (profileId) => {
+  closePlayerSuggestions();
+  elements.playerId.value = '';
+  window.history.pushState(null, '', getNavigationUrl(profileHref(profileId)));
+  renderRoute({ focus: true });
+};
+
+const fetchPlayerSuggestions = async () => {
+  if (!suggestionQuery || suggestionRequest || nextSuggestionOffset === null) return;
+  const request = new AbortController();
+  suggestionRequest = request;
+  const offset = nextSuggestionOffset;
+  try {
+    const params = new URLSearchParams({ q: suggestionQuery, offset });
+    const response = await fetch(`/api/player-suggestions?${params}`, {
+      signal: AbortSignal.any([request.signal, AbortSignal.timeout(5_000)]),
+    });
+    if (!response.ok) throw new Error('Player suggestions unavailable');
+    const { players, nextOffset } = await response.json();
+    if (request.signal.aborted) return;
+    nextSuggestionOffset = nextOffset;
+
+    const options = players.filter(({ profileId, platform }) =>
+      isPlayerProfileId(profileId) && Object.hasOwn(PLATFORM_NAMES, platform))
+      .map(({ profileId, platform, player, displayName }, index) => {
+        const option = createElement('li', {
+          attributes: { role: 'option', id: `player-suggestion-${offset + index}`, 'aria-selected': 'false' },
+        });
+        option.dataset.profileId = profileId;
+        const name = createElement('bdi', { text: displayName });
+        const detail = createElement('span', {
+          className: 'player-suggestion-detail',
+          text: t(PLATFORM_NAMES[platform]),
+        });
+        if (player !== displayName) detail.append(' · ', createElement('bdi', { text: player }));
+        option.append(name, detail);
+        return option;
+      });
+    playerSuggestions.append(...options);
+    const hasSuggestions = playerSuggestions.childElementCount > 0;
+    playerSuggestions.hidden = !hasSuggestions;
+    elements.playerId.setAttribute('aria-expanded', String(hasSuggestions));
+    playerSuggestionStatus.textContent = hasSuggestions
+      ? t('Saved player suggestions available. Use the arrow keys to browse.')
+      : t('No saved player matches.');
+  } catch {
+    if (!request.signal.aborted) nextSuggestionOffset = null;
+  } finally {
+    if (suggestionRequest === request) suggestionRequest = null;
+  }
+};
+
+const queuePlayerSuggestions = () => {
+  closePlayerSuggestions();
+  suggestionQuery = elements.playerId.value.trim();
+  if (suggestionQuery) suggestionTimer = window.setTimeout(fetchPlayerSuggestions, 180);
+};
+
+elements.playerId.addEventListener('input', (event) => {
+  if (event.isComposing) closePlayerSuggestions();
+  else queuePlayerSuggestions();
+});
+elements.playerId.addEventListener('compositionend', queuePlayerSuggestions);
+elements.playerId.addEventListener('focus', queuePlayerSuggestions);
+elements.playerId.addEventListener('blur', closePlayerSuggestions);
+elements.playerId.addEventListener('keydown', (event) => {
+  if (event.isComposing || event.keyCode === 229) return;
+  if (event.key === 'Escape' && (suggestionQuery || !playerSuggestions.hidden)) {
+    event.preventDefault();
+    closePlayerSuggestions();
+    return;
+  }
+  if (event.key === 'Enter' && activeSuggestion) {
+    event.preventDefault();
+    openSuggestedProfile(activeSuggestion.dataset.profileId);
+    return;
+  }
+  if (!['ArrowUp', 'ArrowDown'].includes(event.key) || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (playerSuggestions.hidden) {
+    if (!suggestionQuery && elements.playerId.value.trim()) queuePlayerSuggestions();
+    return;
+  }
+  event.preventDefault();
+  const option = event.key === 'ArrowDown'
+    ? (activeSuggestion ? activeSuggestion.nextElementSibling : playerSuggestions.firstElementChild)
+    : (activeSuggestion ? activeSuggestion.previousElementSibling : playerSuggestions.lastElementChild);
+  if (option) activatePlayerSuggestion(option);
+  else if (event.key === 'ArrowDown') void fetchPlayerSuggestions();
+});
+
+playerSuggestions.addEventListener('mousedown', (event) => {
+  if (event.target.closest('[role="option"]')) event.preventDefault();
+});
+playerSuggestions.addEventListener('click', (event) => {
+  const option = event.target.closest('[role="option"]');
+  if (option) openSuggestedProfile(option.dataset.profileId);
+});
+playerSuggestions.addEventListener('scroll', () => {
+  const { scrollHeight, scrollTop, clientHeight } = playerSuggestions;
+  if (scrollHeight - scrollTop - clientHeight < 48) void fetchPlayerSuggestions();
+}, { passive: true });
+
 elements.playerLookup.addEventListener('submit', (event) => {
   event.preventDefault();
+  closePlayerSuggestions();
   const id = elements.playerId.value.trim();
   if (!id) {
     elements.playerId.value = '';

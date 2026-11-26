@@ -50,6 +50,65 @@ export async function saveSteamActivity(db, account, games, fetchedAt) {
 
 const collections = [...new Set([...GAME_CONFIG.values()].map(({ collection }) => collection))];
 
+export async function searchSavedPlayers(request, db) {
+  const headers = { 'Cache-Control': 'no-store' };
+  if (request.method !== 'GET') return Response.json({}, { status: 405, headers });
+  const params = new URL(request.url).searchParams;
+  const query = (params.get('q') ?? '').trim().normalize('NFC');
+  const offset = Number(params.get('offset') ?? 0);
+  if (query.length > 160 || !Number.isSafeInteger(offset) || offset < 0) {
+    return Response.json({}, { status: 400, headers });
+  }
+  const prefix = /^(steam|xbox):\s*/i.exec(query);
+  const term = query.slice(prefix?.[0].length ?? 0);
+  if (!term) return Response.json({ players: [], nextOffset: null }, { headers });
+  const limit = 20;
+
+  try {
+    await backfillPlayerProfiles(db);
+    const { results } = await db.prepare(`
+      WITH identities AS (
+        SELECT account.profile_id AS profileId, account.platform, account.account_id AS accountId,
+          COALESCE(json_extract(steam.details, '$.account.player'), ranking.player) AS player,
+          COALESCE(json_extract(steam.details, '$.account.displayName'), ranking.display_name) AS displayName
+        FROM player_profile_accounts AS account
+        LEFT JOIN steam_profile_details AS steam
+          ON account.platform = 'steam' AND steam.account_id = account.account_id
+        LEFT JOIN player_rankings AS ranking ON ranking.rowid = (
+          SELECT rowid FROM player_rankings
+          WHERE platform = account.platform AND account_id = account.account_id
+            AND (unlocked IS NOT NULL OR minutes IS NOT NULL)
+          ORDER BY achievements_updated DESC, activity_updated DESC, game
+          LIMIT 1
+        )
+        WHERE (? = '' OR account.platform = ?)
+          AND (steam.details IS NOT NULL OR ranking.rowid IS NOT NULL)
+          AND NOT (steam.account_id IS NOT NULL AND steam.details IS NULL)
+      ), matches AS (
+        SELECT profileId, platform, player, displayName,
+          LOWER(displayName) AS name, LOWER(player) AS handle, accountId AS id, LOWER(?) AS query
+        FROM identities
+        WHERE player IS NOT NULL AND displayName IS NOT NULL
+      )
+      SELECT profileId, platform, player, displayName FROM matches
+      WHERE INSTR(name, query) > 0 OR INSTR(handle, query) > 0 OR INSTR(id, query) > 0
+      ORDER BY CASE
+        WHEN query IN (name, handle, id) THEN 0
+        WHEN INSTR(name, query) = 1 OR INSTR(handle, query) = 1 OR INSTR(id, query) = 1 THEN 1
+        ELSE 2
+      END, name, handle, platform, id
+      LIMIT ? OFFSET ?
+    `).bind(prefix?.[1].toLowerCase() ?? '', prefix?.[1].toLowerCase() ?? '', term, limit + 1, offset).all();
+    return Response.json({
+      players: results.slice(0, limit),
+      nextOffset: results.length > limit ? offset + limit : null,
+    }, { headers });
+  } catch (error) {
+    console.error('Saved player search failed', error.message);
+    return Response.json({}, { status: 503, headers });
+  }
+}
+
 export async function readSavedProfile(request, db, verifiedLinks) {
   if (request.method !== 'GET') return Response.json({}, { status: 405 });
   const params = new URL(request.url).searchParams;

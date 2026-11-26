@@ -23,6 +23,7 @@
 - [Version 1.2.0 (2026/11/22)](#version-120-20261122)
 - [Version 1.3.0 (2026/11/23)](#version-130-20261123)
 - [Version 1.4.0 (2026/11/24)](#version-140-20261124)
+- [Version 1.7.1 (2026/11/26)](#version-171-20261126)
   
 
 ## Version 1.0.0 (2024/03/07)
@@ -133,3 +134,11 @@ This is the first version of the website. The first version is quite basic and b
 - Added Player Search to the header with automatic Steam ID and Xbox Gamertag detection
 - Added Steam Achievement Progress and an Unlock Status filter for supported games
 - Added Player Profile
+
+## Version 1.7.1 (2026/11/26)
+- Added Support for Spotify on Player Profiles
+- Added Support for TikTok on Player Profiles
+- Added Support for Kick on Player Profiles
+- Added Support for FACEIT on Player Profiles
+- Added Support for Audiomack on Player Profiles
+- Added Support for Halo 5 Reforged on Player Profiles

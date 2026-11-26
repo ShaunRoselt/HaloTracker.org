@@ -50,10 +50,15 @@
         <form class="player-lookup" id="player-lookup" role="search" aria-labelledby="player-id-label"
           action="/api/player-achievements" method="post" hidden>
           <label for="player-id" id="player-id-label" class="achievement-search-label">Steam ID or Xbox Gamertag</label>
-          <input id="player-id" name="player" type="search" required maxlength="160"
-            placeholder="Steam ID or Xbox Gamertag" autocomplete="off" autocorrect="off"
-            autocapitalize="none" spellcheck="false" enterkeyhint="search">
-          <button class="button primary-button" type="submit" id="player-submit">Search</button>
+          <div class="player-search-field">
+            <input id="player-id" name="player" type="search" required maxlength="160"
+              placeholder="Steam ID or Xbox Gamertag" autocomplete="off" autocorrect="off"
+              autocapitalize="none" spellcheck="false" enterkeyhint="search" role="combobox"
+              aria-autocomplete="list" aria-expanded="false" aria-controls="player-suggestions">
+            <ul class="player-suggestions" id="player-suggestions" role="listbox" aria-label="Saved players" hidden></ul>
+          </div>
+          <button class="button secondary-button" type="submit" id="player-submit">Search</button>
+          <span class="achievement-search-label" id="player-suggestion-status" role="status"></span>
         </form>
 
         <div class="player-profile" id="player-profile" hidden>
@@ -311,12 +316,34 @@
           <h1 id="release-notes-title">Release Notes</h1>
         </header>
         <details class="release-entry surface" open>
+          <summary>Version 1.7.1 (2026/11/26)</summary>
+          <div class="release-entry-body">
+            <ul>
+              <li>Added Support for Spotify on Player Profiles</li>
+              <li>Added Support for TikTok on Player Profiles</li>
+              <li>Added Support for Kick on Player Profiles</li>
+              <li>Added Support for FACEIT on Player Profiles</li>
+              <li>Added Support for Audiomack on Player Profiles</li>
+              <li>Added Support for Halo 5 Reforged on Player Profiles</li>
+            </ul>
+          </div>
+        </details>
+        <details class="release-entry surface">
+          <summary>Version 1.7.0 (2026/11/26)</summary>
+          <div class="release-entry-body">
+            <ul>
+              <li>Added Halo Wars 2 and all of its achievements</li>
+            </ul>
+          </div>
+        </details>
+        <details class="release-entry surface" open>
           <summary>Version 1.6.0 (2026/11/26)</summary>
           <div class="release-entry-body">
+            <p><img src="assets/release-notes/v1-6-0-player-profile.png" alt="Shaun Roselt’s Player Profile with achievement progress and the Friends, Screenshots, and Reviews tabs" width="1440" height="900" loading="lazy" decoding="async"></p>
             <ul>
               <li>Added Leaderboards for Halo Achievements and playtime by game and platform</li>
               <li>Added shareable Player Profile links that open independently of the selected player</li>
-              <li>Added automatic refresh for looked-up players and shared profiles</li>
+              <li>Added Friends to Player Profiles</li>
             </ul>
           </div>
         </details>
@@ -326,16 +353,11 @@
             <p><img src="assets/release-notes/v1-5-0-guide-full-page.webp" alt="The I'm Sorry, Dave Achievement Guide in the version 1.5.0 full-page layout" width="1440" height="810" decoding="async"></p>
             <p><img src="assets/release-notes/v1-5-0-steam-profile.webp" alt="Shaun Roselt's Halo profile showing his Steam avatar frame, Halo achievement history, and screenshot galleries" width="1440" height="810" loading="lazy" decoding="async"></p>
             <ul>
-              <li>Changed Achievement Guides to open as full-width pages with matching Achievement cards and a clickable game logo and title</li>
-              <li>Added unique page titles and improved search engine visibility for Achievement Guides</li>
-              <li>Updated the Search Achievements, Sort By, and Unlock Status labels and shortened the Other filter label</li>
-              <li>Improved the Achievement layout on smaller screens, aligned the first Achievement with the first Filter Criteria option, and widened the Sort By dropdown</li>
-              <li>Aligned the Achievement count, search, and guide cards</li>
-              <li>Added an unlocked count and progress bar when Player Search returns Achievement Progress</li>
-              <li>Added a screenshot icon to Release Notes entries that contain images</li>
-              <li>Updated Player Profiles to show Steam display names, profile links, equipped avatar frames, and public locations</li>
-              <li>Added first and latest Achievement dates and public Halo screenshot galleries to Steam Player Profiles</li>
-              <li>Added error messages on the Player Profile page when Player Search fails</li>
+              <li>Changed Achievement Guides to open as full-width pages</li>
+              <li>Added unique browser tab titles for each page</li>
+              <li>Improved Mobile Support</li>
+              <li>Added screenshots to Player Profile</li>
+              <li>Added Location to Player Profile</li>
             </ul>
           </div>
         </details>

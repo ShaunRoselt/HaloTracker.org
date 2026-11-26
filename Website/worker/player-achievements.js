@@ -86,7 +86,7 @@ export function detectPlayerPlatforms(player) {
   return platforms;
 }
 
-async function readLimited(message, maxBytes) {
+export async function readLimited(message, maxBytes) {
   if (!message.body || Number(message.headers.get('Content-Length')) > maxBytes) {
     throw new RangeError('Invalid message size');
   }
@@ -269,6 +269,19 @@ export async function lookupSteamScreenshots(request) {
   if (request.method !== 'GET') return json({ error: 'invalid-request' }, 405);
   const params = new URL(request.url).searchParams;
   const id = params.get('id') ?? '';
+  const screenshot = params.get('screenshot');
+  if (screenshot !== null) {
+    if (!/^\d{1,20}$/.test(screenshot)) return json({ error: 'invalid-request' }, 400);
+    const detail = await readSteamPage(
+      `https://steamcommunity.com/sharedfiles/filedetails/?id=${screenshot}`, 1_500_000,
+    );
+    const media = /<a\b[^>]*href="([^"]+)"[^>]*>\s*<img\b[^>]*\bid="ActualMedia"/i.exec(detail ?? '')?.[1];
+    const image = avatarFrom(media?.replaceAll('&amp;', '&'), [
+      'images.steamusercontent.com', 'steamuserimages-a.akamaihd.net',
+    ]);
+    return image && new URL(image).pathname.startsWith('/ugc/')
+      ? json({ image }) : json({ error: 'screenshot-unavailable' }, 404);
+  }
   const game = params.get('game');
   const page = Number(params.get('page') ?? 1);
   const appId = steamGames.get(game);
