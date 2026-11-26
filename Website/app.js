@@ -277,8 +277,7 @@ const setAvatarFrame = (container, { avatarFrameUrl, avatarFrameStillUrl } = {})
 let framedHeaderAccount;
 const updatePlayerHeader = () => {
   const account = state.player?.accounts.values().next().value;
-  const lookupHadFocus = elements.playerLookup.contains(document.activeElement);
-  elements.playerLookup.hidden = Boolean(account);
+  elements.playerLookup.hidden = false;
   elements.playerProfile.hidden = !account;
   const avatarUrl = account?.avatarUrl ?? null;
   if (elements.playerAvatar.getAttribute('src') !== avatarUrl) {
@@ -309,14 +308,12 @@ const updatePlayerHeader = () => {
   const profileLink = document.querySelector('#player-profile-link');
   profileLink.href = profileHref(state.player.profileId);
   profileLink.querySelector('span').textContent = t('Profile');
-  if (lookupHadFocus) trigger.focus({ preventScroll: true });
 };
 
 const localizeShell = () => {
   const playerLabel = t('Steam ID or Xbox Gamertag');
   document.querySelector('#player-id-label').textContent = playerLabel;
   elements.playerId.placeholder = playerLabel;
-  document.querySelector('#player-submit').textContent = t('Search');
   document.querySelector('#player-suggestions').setAttribute('aria-label', t('Saved players'));
   updatePlayerHeader();
   document.querySelector('.skip-link').textContent = t('Skip to content');
@@ -565,7 +562,6 @@ const restorePlayer = () => {
   }
   if (typeof session?.id !== 'string' || !GAME_CONFIG.has(session.collection)) return;
   state.player = createPlayer(session.id);
-  elements.playerId.value = session.id;
   void refreshSelectedPlayer(state.player, session.collection);
 };
 
@@ -2507,18 +2503,20 @@ const fetchPlayerSuggestions = async () => {
 
     const options = players.filter(({ profileId, platform }) =>
       isPlayerProfileId(profileId) && Object.hasOwn(PLATFORM_NAMES, platform))
-      .map(({ profileId, platform, player, displayName }, index) => {
+      .map(({ profileId, platform, player, displayName, avatarUrl }, index) => {
         const option = createElement('li', {
           attributes: { role: 'option', id: `player-suggestion-${offset + index}`, 'aria-selected': 'false' },
         });
         option.dataset.profileId = profileId;
+        const avatar = createProfileAvatar({ player: displayName || player, avatarUrl });
+        avatar.classList.add('player-suggestion-avatar');
+        const identity = createElement('span', { className: 'player-suggestion-identity' });
         const name = createElement('bdi', { text: displayName });
-        const detail = createElement('span', {
-          className: 'player-suggestion-detail',
-          text: t(PLATFORM_NAMES[platform]),
-        });
+        const detail = createElement('span', { className: 'player-suggestion-detail' });
+        detail.append(menuItemIcon(platform), t(PLATFORM_NAMES[platform]));
         if (player !== displayName) detail.append(' · ', createElement('bdi', { text: player }));
-        option.append(name, detail);
+        identity.append(name, detail);
+        option.append(avatar, identity);
         return option;
       });
     playerSuggestions.append(...options);

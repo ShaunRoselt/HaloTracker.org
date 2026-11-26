@@ -70,7 +70,8 @@ export async function searchSavedPlayers(request, db) {
       WITH identities AS (
         SELECT account.profile_id AS profileId, account.platform, account.account_id AS accountId,
           COALESCE(json_extract(steam.details, '$.account.player'), ranking.player) AS player,
-          COALESCE(json_extract(steam.details, '$.account.displayName'), ranking.display_name) AS displayName
+          COALESCE(json_extract(steam.details, '$.account.displayName'), ranking.display_name) AS displayName,
+          COALESCE(json_extract(steam.details, '$.account.avatarUrl'), ranking.avatar_url) AS avatarUrl
         FROM player_profile_accounts AS account
         LEFT JOIN steam_profile_details AS steam
           ON account.platform = 'steam' AND steam.account_id = account.account_id
@@ -85,12 +86,12 @@ export async function searchSavedPlayers(request, db) {
           AND (steam.details IS NOT NULL OR ranking.rowid IS NOT NULL)
           AND NOT (steam.account_id IS NOT NULL AND steam.details IS NULL)
       ), matches AS (
-        SELECT profileId, platform, player, displayName,
+        SELECT profileId, platform, player, displayName, avatarUrl,
           LOWER(displayName) AS name, LOWER(player) AS handle, accountId AS id, LOWER(?) AS query
         FROM identities
         WHERE player IS NOT NULL AND displayName IS NOT NULL
       )
-      SELECT profileId, platform, player, displayName FROM matches
+      SELECT profileId, platform, player, displayName, avatarUrl FROM matches
       WHERE INSTR(name, query) > 0 OR INSTR(handle, query) > 0 OR INSTR(id, query) > 0
       ORDER BY CASE
         WHEN query IN (name, handle, id) THEN 0
