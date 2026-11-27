@@ -7,7 +7,7 @@ import {
   LANGUAGES, savedLanguage, setLanguage, t, translateReleaseNotes,
 } from './i18n.js';
 
-const APP_VERSION = '1.6.0';
+const APP_VERSION = '1.7.2';
 const RELEASE_DATE = '2026/11/26';
 const appVersionLabel = () => t('Version {version} | WEB | RELEASE | {date}', {
   version: APP_VERSION,
@@ -1718,6 +1718,7 @@ const profileLinkServices = new Map([
   ['faceit', ['FACEIT', 'profile-links/faceit']],
   ['audiomack', ['Audiomack', 'profile-links/audiomack']],
   ['h5reforged', ['Halo 5 Reforged', 'profile-links/halo-5-reforged']],
+  ['dotabuff', ['Dotabuff', 'profile-links/dotabuff']],
   ['bandcamp', ['Bandcamp', 'profile-links/bandcamp']],
   ['soundcloud', ['SoundCloud', 'profile-links/soundcloud']],
 ]);
